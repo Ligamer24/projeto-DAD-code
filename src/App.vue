@@ -11,4 +11,6 @@
   </p>
 </template>
 
-<style scoped></style>
+<style>
+
+</style>
