@@ -1,16 +1,25 @@
-<script setup></script>
+<script setup>
+import { RouterLink } from 'vue-router';
+import LoginPage from './pages/login/LoginPage.vue';
+
+
+</script>
 
 <template>
-  <h1>You did it!</h1>
-  <p>
-    Visit <a href="https://vuejs.org/" target="_blank" rel="noopener">vuejs.org</a> to read the
-    documentation
-  </p>
-  <p>
-    Boas
-  </p>
+  <!-- <NavigationMenuLink>
+    <RouterLink to="/login">Login</RouterLink>
+  </NavigationMenuLink> -->
+  <div>
+    <main>
+      <LoginPage />
+    </main>
+  </div>
 </template>
-
+<script>
+  import { NavigationMenuLink } from '@/components/ui/navigation-menu';
+  import { RouterLink, RouterView } from 'vue-router';
+import LoginPage from './pages/login/LoginPage.vue';
+</script>
 <style>
 
 </style>
