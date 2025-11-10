@@ -11,7 +11,7 @@ import LoginPage from './pages/login/LoginPage.vue';
   </NavigationMenuLink> -->
   <div>
     <main>
-      <LoginPage />
+      <router-view></router-view>
     </main>
   </div>
 </template>
