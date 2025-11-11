@@ -14,13 +14,25 @@ export default defineConfig({
         tailwindcss(),
         VitePWA({
             registerType: 'autoUpdate',
+            injectRegister: 'auto',
+            devOptions: {
+                enabled: true,
+            },
+            includeAssets: ['favicon.ico', 'icons/logo.png'],
             manifest: {
+                id: '/?source=pwa',
                 name: 'Bisca Royal',
                 short_name: 'BiscaRoyal',
+                description: 'Play Bisca Royal - leaderboard, history, shop and more.',
                 start_url: '/',
+                scope: '/',
                 display: 'standalone',
+                display_override: ['standalone', 'minimal-ui'],
                 background_color: '#bbf451',
                 theme_color: '#bbf451',
+                orientation: 'portrait-primary',
+                lang: 'en',
+                categories: ['games', 'entertainment'],
                 icons: [
                     {
                         src: '/icons/logo.png',
@@ -31,8 +43,15 @@ export default defineConfig({
                         src: '/icons/logo.png',
                         sizes: '512x512',
                         type: 'image/png'
+                    },
+                    {
+                        src: '/icons/logo.png',
+                        sizes: '512x512',
+                        type: 'image/png',
+                        purpose: 'any maskable'
                     }
-                ]
+                ],
+                screenshots: []
             }
         })
     ],
