@@ -98,13 +98,12 @@ const password = ref("");
 const remember = ref(false);
 const loading = ref(false);
 
-const formData = ref({
-    email: email.value,
-    password: password.value
-})
 
 const handleSubmit = async () => {
-
+    const formData = ref({
+        email: email.value,
+        password: password.value
+    })
     toast.promise(authStore.login(formData.value), {
         loading: 'Calling API',
         success: (data) => {
