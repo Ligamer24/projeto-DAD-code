@@ -169,7 +169,7 @@ function wrapperClass(idx) {
               :aria-label="item.aria"
               :aria-current="currentPage === item.idx ? 'page' : false"
               @click="handleNavClick(item.idx)"
-              :class="['grid place-items-center size-12 w-full h-full relative transition py-5', { 'bg-black/15': currentPage === item.idx }]"
+              :class="['cursor-pointer grid place-items-center size-12 w-full h-full relative transition py-5', { 'bg-black/15': currentPage === item.idx }]"
           >
             <component :is="item.icon" class="size-6" />
             <span v-if="currentPage === item.idx" class="h-1 w-6 rounded-full bg-black mt-2" />
