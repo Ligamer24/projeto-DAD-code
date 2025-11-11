@@ -3,6 +3,7 @@
   <nav class="max-w-full p-5 flex flex-row justify-between align-middle" v-if="authStore.currentUser">
     <div class="align-middle text-xl">
       <RouterLink to="/"> ♠️♥️♣️♦️ Bisca Royal</RouterLink>
+      <img :src= "authStore.currentUser?.photo_avatar_filename" />
       <span class="text-xs" v-if="authStore.currentUser">&nbsp;&nbsp;&nbsp;
             ({{ authStore.currentUser?.name }})
       </span>

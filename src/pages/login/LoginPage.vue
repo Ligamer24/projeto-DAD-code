@@ -79,6 +79,13 @@
             >Register</router-link
           >
         </p>
+        <div class="h-px w-full bg-black/10 my-4" />
+        <p>
+          Continue as 
+          <router-link to="/dashboard" class="underline font-medium cursor-pointer">
+            Anonymous
+          </router-link>
+        </p>
       </footer>
     </div>
   </div>
