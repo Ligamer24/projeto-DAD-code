@@ -88,7 +88,7 @@ function onSubmitPassword(e) {
                 <div class="text-xs uppercase tracking-wide text-black/60">Rank</div>
                 <div class="flex items-center gap-1 text-lg font-semibold">
                   <Crown class="size-4 text-amber-700"/>
-                  {{ rank }}
+                  #{{ rank }}
                 </div>
               </div>
             </div>

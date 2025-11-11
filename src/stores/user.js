@@ -7,7 +7,7 @@ export const useUserStore = defineStore('user', () => {
   const email = ref('ana@example.com')
   const coins = ref(300)
   const rating = ref(1520)
-  const rank = ref('# 35687')
+  const rank = ref('35687')
   const createdAt = ref(new Date('2024-01-12T10:15:00Z'))
   const avatarUrl = ref(null) // can hold data URL
 

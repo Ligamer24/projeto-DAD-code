@@ -1,11 +1,12 @@
 <script setup>
-import { ShoppingCart, Gamepad2, BarChart2, RotateCcw, Coins, UserRound } from 'lucide-vue-next'
+import { ShoppingCart, Gamepad2, BarChart2, RotateCcw } from 'lucide-vue-next'
 import { onMounted, onBeforeUnmount, ref, watch } from 'vue'
 import History from "@/components/segments/dashboard/history.vue";
 import Leaderboard from "@/components/segments/dashboard/leaderboard.vue";
 import Dashboard from "@/components/segments/dashboard/dashboard.vue";
 import Shop from "@/components/segments/dashboard/shop.vue";
 import Navbar from "@/components/navbar.vue";
+import { useRoute, useRouter } from 'vue-router'
 
 const currentPage = ref(1)
 const pagesRef = ref(null)
@@ -13,6 +14,11 @@ const headerRef = ref(null)
 const navRef = ref(null)
 const isMobile = ref(true)
 const scrollablePages = new Set([0, 2, 3])
+
+const route = useRoute()
+const router = useRouter()
+const indexToRoute = ['shop', 'dashboard', 'leaderboard', 'history']
+const routeToIndex = { shop: 0, dashboard: 1, leaderboard: 2, history: 3 }
 
 function updateIsMobile() {
   if (typeof window !== 'undefined') isMobile.value = window.innerWidth < 1024
@@ -29,11 +35,9 @@ function scrollToPage(idx) {
 function updatePagesHeight() {
   if (typeof window === 'undefined') return
   const h = window.innerHeight
-  // const headerH = headerRef.value?.offsetHeight || 0 // Not working
-  const headerH = document.getElementsByTagName('header')[0].offsetHeight || 0
+  const headerH = document.getElementsByTagName('header')[0]?.offsetHeight || 0
   const navH = navRef.value?.offsetHeight || 0
   const available = Math.max(0, h - headerH - navH)
-  console.log(headerH, navH, available, headerRef.value?.offsetHeight)
   if (pagesRef.value) {
     pagesRef.value.style.height = available + 'px'
     Array.from(pagesRef.value.children).forEach((c, i) => {
@@ -67,7 +71,11 @@ onMounted(() => {
       if (entry.isIntersecting) {
         const parent = pagesRef.value
         const idx = Array.prototype.indexOf.call(parent.children, entry.target)
-        if (idx !== -1 && idx !== currentPage.value) currentPage.value = idx
+        if (idx !== -1 && idx !== currentPage.value) {
+          currentPage.value = idx
+          // sync URL when scroll changes the page
+          router.replace({ name: indexToRoute[idx] })
+        }
         break
       }
     }
@@ -75,6 +83,14 @@ onMounted(() => {
 
   if (pagesRef.value)
     Array.from(pagesRef.value.children).forEach(child => io.observe(child))
+
+  // Initialize from current route
+  if (route.name && routeToIndex.hasOwnProperty(route.name)) {
+    currentPage.value = routeToIndex[route.name]
+  } else {
+    // '/' is redirected in router to 'dashboard'; fall back just in case
+    currentPage.value = 1
+  }
 
   scrollToPage(currentPage.value)
 })
@@ -85,22 +101,30 @@ onBeforeUnmount(() => {
   if (manualScrollTimer) clearTimeout(manualScrollTimer)
 })
 
-// Watcher → scroll only on programmatic currentPage changes (not manual click flow)
-watch(currentPage, (v, oldV) => {
-  if (isManualScroll) return // already scrolling by click
+// When currentPage is changed programmatically, scroll to it
+watch(currentPage, (v) => {
+  if (isManualScroll) return
   scrollToPage(v)
+})
+
+// When route changes (via back/forward or external nav), update the page
+watch(() => route.name, (name) => {
+  if (!name || !routeToIndex.hasOwnProperty(name)) return
+  const idx = routeToIndex[name]
+  if (idx !== currentPage.value) {
+    currentPage.value = idx
+    scrollToPage(idx)
+  }
 })
 
 function handleNavClick(idx) {
   if (idx === currentPage.value) return
-  // mark manual scroll mode so the observer doesn't override while animating
   isManualScroll = true
-  // immediately set currentPage so the bottom bar highlights right away
   currentPage.value = idx
   if (manualScrollTimer) clearTimeout(manualScrollTimer)
-  // perform smooth scroll
   scrollToPage(idx)
-  // re-enable observer after the scroll animation finishes
+  // also update the URL
+  router.push({ name: indexToRoute[idx] })
   manualScrollTimer = setTimeout(() => { isManualScroll = false }, 600)
 }
 
