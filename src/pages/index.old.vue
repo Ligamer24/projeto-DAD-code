@@ -29,11 +29,9 @@ function scrollToPage(idx) {
 function updatePagesHeight() {
   if (typeof window === 'undefined') return
   const h = window.innerHeight
-  // const headerH = headerRef.value?.offsetHeight || 0 // Not working
-  const headerH = document.getElementsByTagName('header')[0].offsetHeight || 0
+  const headerH = headerRef.value?.offsetHeight || 0
   const navH = navRef.value?.offsetHeight || 0
   const available = Math.max(0, h - headerH - navH)
-  console.log(headerH, navH, available, headerRef.value?.offsetHeight)
   if (pagesRef.value) {
     pagesRef.value.style.height = available + 'px'
     Array.from(pagesRef.value.children).forEach((c, i) => {
@@ -120,8 +118,8 @@ function wrapperClass(idx) {
 </script>
 
 <template>
-  <div class="min-h-svh w-full bg-lime-300">
-   <navbar ref="headerRef"/>
+  <div class="min-h-svh w-full bg-gradient-to-b from-lime-300 to-yellow-300">
+   <navbar/>
 
     <main class="relative mx-auto px-0 lg:px-4">
       <div
@@ -135,9 +133,9 @@ function wrapperClass(idx) {
       </div>
     </main>
 
-    <nav ref="navRef" class="fixed bottom-0 left-0 right-0 sm:px-8 bg-gradient-to-t from-black/10 to-transparent backdrop-blur-sm lg:static lg:bg-transparent lg:px-0">
+    <nav ref="navRef" class="fixed bottom-0 left-0 right-0 sm:px-8 pt-2 bg-gradient-to-t from-black/10 to-transparent backdrop-blur-sm lg:static lg:bg-transparent lg:px-0">
       <div class="container mx-auto h-full">
-        <div class="hidden lg:block h-px w-full bg-black/40"/>
+        <div class="hidden lg:block h-px w-full bg-black/40 mb-3"/>
         <div class="mx-auto max-w-xl flex items-center h-full justify-between text-black">
           <button
               v-for="item in navItems"
