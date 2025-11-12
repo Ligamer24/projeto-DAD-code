@@ -5,7 +5,6 @@ import {ref, computed, onMounted, watch} from "vue";
 import {useDashStore} from "@/stores/dash.js";
 import {useAuthStore} from "@/stores/auth.js";
 
-// Replace existing dash/logged logic with safe defaults and auth-aware loading
 const dash = ref({
   coins_balance: 0,
   rating: 0,
@@ -33,7 +32,6 @@ const loadDash = async () => {
     dash.value = res.data;
   } catch (e) {
     console.error("Failed to load dash:", e);
-    // fallback to defaults on error
     dash.value.coins_balance = dash.value.coins_balance ?? 0;
     dash.value.rating = dash.value.rating ?? 0;
     dash.value.rank = dash.value.rank ?? null;
@@ -41,23 +39,6 @@ const loadDash = async () => {
 };
 
 onMounted(loadDash);
-
-// react to auth changes (optional but useful)
-watch(
-  () => {
-    const auth = useAuthStore();
-    return auth?.isLoggedIn;
-  },
-  (isLogged) => {
-    logged.value = !!isLogged;
-    if (logged.value) loadDash();
-    else {
-      dash.value.coins_balance = 0;
-      dash.value.rating = 0;
-      dash.value.rank = null;
-    }
-  }
-);
 
 </script>
 

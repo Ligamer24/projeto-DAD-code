@@ -50,9 +50,6 @@ function onSubmitPassword(e) {
 </script>
 
 <template>
-  <div class="min-h-svh w-full bg-lime-300">
-    <Navbar/>
-
     <main class="container mx-auto px-4 pt-4 text-black pb-12">
       <button
           aria-label="Back to Home"
@@ -187,7 +184,6 @@ function onSubmitPassword(e) {
         </section>
       </div>
     </main>
-  </div>
 </template>
 
 <style scoped>

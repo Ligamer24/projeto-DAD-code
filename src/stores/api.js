@@ -28,16 +28,11 @@ export const useAPIStore = defineStore("api", () => {
     return axios.get(`${API_BASE_URL}/users/me`);
   };
 
-  // Dashboard
-  const getDashboard = async () => {
-    return await axios.get(`${API_BASE_URL}/dashboard`);
-  }
   return {
     postGame,
     getGames,
     postLogin,
     postLogout,
     getAuthUser,
-   getDashboard
   };
 });

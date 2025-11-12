@@ -145,9 +145,6 @@ function wrapperClass(idx) {
 </script>
 
 <template>
-  <div class="min-h-svh w-full bg-lime-300">
-    <navbar ref="headerRef"/>
-
     <main class="relative mx-auto px-0 lg:px-4">
       <div
           ref="pagesRef"
@@ -178,7 +175,6 @@ function wrapperClass(idx) {
         </div>
       </div>
     </nav>
-  </div>
 </template>
 
 <style scoped>
