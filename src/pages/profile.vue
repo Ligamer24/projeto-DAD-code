@@ -2,12 +2,19 @@
 import {useRouter} from 'vue-router'
 import Navbar from '@/components/navbar.vue'
 import {ArrowLeft, Coins, Crown, Star, Upload, UserRound} from 'lucide-vue-next'
-import {storeToRefs} from 'pinia'
 import {ref} from 'vue'
 
 const router = useRouter()
-const user = useUserStore()
-const {name, nickname, email, coins, rating, rank, shortDate, avatarUrl} = storeToRefs(user)
+const {name, nickname, email, coins, rating, rank, shortDate, avatarUrl} = {
+  name: ref('John Doe'),
+  nickname: ref('johndoe'),
+  email: ref('a1@mail.pt'),
+  coins: ref(150),
+  rating: ref(1200),
+  rank: ref(25),
+  shortDate: ref('Jan 15, 2022'),
+  avatarUrl: ref(null)
+}
 
 const currentPwd = ref('')
 const newPwd = ref('')

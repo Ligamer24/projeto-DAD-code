@@ -1,6 +1,6 @@
 <template>
   <div
-    class="min-h-screen w-full bg-gradient-to-b from-lime-300 to-yellow-300 flex flex-col items-center justify-center p-6"
+    class="min-h-screen w-full bg-lime-300 flex flex-col items-center justify-center p-6"
   >
     <img
       :src="biscaLogo"
@@ -20,7 +20,6 @@
             required
             autofocus
             aria-label="Email"
-            placeholder="my@email.com"
             class="mt-1 block w-full rounded-xl border border-black/10 bg-white/60 px-4 py-3 placeholder-black/40 focus:outline-none focus:ring-2 focus:ring-emerald-500 transition"
           />
         </label>
@@ -33,7 +32,6 @@
             required
             aria-label="Password"
             placeholder="••••••••"
-            value="123"
             class="mt-1 block w-full rounded-xl border border-black/10 bg-white/60 px-4 py-3 placeholder-black/40 focus:outline-none focus:ring-2 focus:ring-emerald-500 transition"
           />
         </label>

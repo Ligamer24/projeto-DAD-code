@@ -10,5 +10,13 @@ export const useDashStore = defineStore('dash', () => {
         return axios.get(`${API_BASE_URL}/dashboard`);
     };
 
-    return {getDash};
+    const getLeaderboard = () => {
+        return axios.get(`${API_BASE_URL}/leaderboard`);
+    };
+
+    const getHistory = () => {
+        return axios.get(`${API_BASE_URL}/history`);
+    };
+
+    return {getDash, getHistory, getLeaderboard};
 })
