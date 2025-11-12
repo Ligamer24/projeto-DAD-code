@@ -63,7 +63,19 @@ onMounted(() => {
   })
   window.addEventListener('resize', resizeHandler, { passive: true })
 
-  // Observer for visible page
+  // Initialize from current route BEFORE setting up observer
+  let initialIdx = 1
+  if (route.name && routeToIndex.hasOwnProperty(route.name)) {
+    initialIdx = routeToIndex[route.name]
+  }
+
+  isManualScroll = true
+  currentPage.value = initialIdx
+  scrollToPage(initialIdx)
+  if (manualScrollTimer) clearTimeout(manualScrollTimer)
+  manualScrollTimer = setTimeout(() => { isManualScroll = false }, 600)
+
+  // Now set up the observer for visible page
   const observerOptions = { root: pagesRef.value, threshold: [0.6] }
   io = new IntersectionObserver((entries) => {
     if (isManualScroll) return // ignore while manual scroll
@@ -73,7 +85,6 @@ onMounted(() => {
         const idx = Array.prototype.indexOf.call(parent.children, entry.target)
         if (idx !== -1 && idx !== currentPage.value) {
           currentPage.value = idx
-          // sync URL when scroll changes the page
           router.replace({ name: indexToRoute[idx] })
         }
         break
@@ -83,16 +94,6 @@ onMounted(() => {
 
   if (pagesRef.value)
     Array.from(pagesRef.value.children).forEach(child => io.observe(child))
-
-  // Initialize from current route
-  if (route.name && routeToIndex.hasOwnProperty(route.name)) {
-    currentPage.value = routeToIndex[route.name]
-  } else {
-    // '/' is redirected in router to 'dashboard'; fall back just in case
-    currentPage.value = 1
-  }
-
-  scrollToPage(currentPage.value)
 })
 
 onBeforeUnmount(() => {
@@ -145,7 +146,7 @@ function wrapperClass(idx) {
 
 <template>
   <div class="min-h-svh w-full bg-lime-300">
-   <navbar ref="headerRef"/>
+    <navbar ref="headerRef"/>
 
     <main class="relative mx-auto px-0 lg:px-4">
       <div

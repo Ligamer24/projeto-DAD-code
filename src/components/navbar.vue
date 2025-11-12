@@ -1,11 +1,23 @@
 <script setup>
 import {Coins, Crown, Star, UserRound} from "lucide-vue-next";
 import {RouterLink} from "vue-router";
-import { storeToRefs } from 'pinia'
-import { useUserStore } from '@/stores/user.js'
+import {ref} from "vue";
+import {useDashStore} from "@/stores/dash.js";
 
-const user = useUserStore()
-const { nickname, coins, rating, rank } = storeToRefs(user)
+const dash = ref({})
+
+
+const useDash = async () => {
+  const api = useDashStore()
+  api.getDash().then(res => {
+    dash.value = res.data
+  });
+  console.log(dash.value)
+}
+
+useDash();
+
+
 </script>
 
 <template>
@@ -16,24 +28,24 @@ const { nickname, coins, rating, rank } = storeToRefs(user)
         <div class="size-9 rounded-full bg-white/80 border border-black/40 grid place-items-center group-hover:bg-white transition">
           <UserRound class="size-5 text-emerald-700"/>
         </div>
-        <span class="text-lg lg:text-xl font-semibold text-black group-hover:underline">{{ nickname }}</span>
+        <span class="text-lg lg:text-xl font-semibold text-black group-hover:underline">{{ dash.nickname ?? dash.name }}</span>
       </RouterLink>
 
       <!-- Rating & Rank -->
       <RouterLink to="/leaderboard" class="flex items-center flex-col leading-tight group" aria-label="Open leaderboard">
         <span class="flex gap-2 text-sm font-semibold text-black">
           <Star class="size-4 text-emerald-700"/>
-          Rating: {{ rating }}
+          Rating: {{ dash.rating }}
         </span>
         <span class="flex gap-2 text-xs text-black/70 group-hover:text-black opacity-80">
           <Crown class="size-4 text-amber-700"/>
-          Rank #{{ rank }}
+          Rank #{{ dash.rank }}
         </span>
       </RouterLink>
 
       <!-- Coins -->
       <RouterLink to="/shop" class="flex items-center gap-1 text-black">
-        <span class="text-lg lg:text-xl font-bold">{{ coins }}</span>
+        <span class="text-lg lg:text-xl font-bold">{{ dash.coins_balance }}</span>
         <Coins class="size-5 lg:size-6 text-yellow-600"/>
       </RouterLink>
     </div>

@@ -2,7 +2,6 @@
 import {useRouter} from 'vue-router'
 import Navbar from '@/components/navbar.vue'
 import {ArrowLeft, Coins, Crown, Star, Upload, UserRound} from 'lucide-vue-next'
-import {useUserStore} from '@/stores/user.js'
 import {storeToRefs} from 'pinia'
 import {ref} from 'vue'
 

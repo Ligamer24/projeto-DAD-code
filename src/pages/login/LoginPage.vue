@@ -18,6 +18,7 @@
             v-model="email"
             type="email"
             required
+            autofocus
             aria-label="Email"
             placeholder="my@email.com"
             class="mt-1 block w-full rounded-xl border border-black/10 bg-white/60 px-4 py-3 placeholder-black/40 focus:outline-none focus:ring-2 focus:ring-emerald-500 transition"
@@ -32,6 +33,7 @@
             required
             aria-label="Password"
             placeholder="••••••••"
+            value="123"
             class="mt-1 block w-full rounded-xl border border-black/10 bg-white/60 px-4 py-3 placeholder-black/40 focus:outline-none focus:ring-2 focus:ring-emerald-500 transition"
           />
         </label>
@@ -74,17 +76,17 @@
           Don't have an account?
           <router-link
             to="/register"
-            
+
             class="underline font-medium cursor-pointer"
             >Register</router-link
           >
         </p>
         <div class="h-px w-full bg-black/10 my-4" />
         <p>
-          Continue as 
-          <router-link to="/dashboard" class="underline font-medium cursor-pointer">
+          Continue as
+          <button @click="logAsAnonymous" class="underline font-medium cursor-pointer">
             Anonymous
-          </router-link>
+          </button>
         </p>
       </footer>
     </div>
@@ -121,6 +123,11 @@ const handleSubmit = async () => {
     })
 
 
+}
+
+const logAsAnonymous = () => {
+    authStore.anonymous = true
+    router.push('/dashboard')
 }
 
 function forgot() {
