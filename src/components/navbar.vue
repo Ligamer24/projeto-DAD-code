@@ -1,5 +1,5 @@
 <script setup>
-import {Coins, Crown, Star, UserRound} from "lucide-vue-next";
+import {Coins, Crown, Trophy, UserRound} from "lucide-vue-next";
 import {RouterLink} from "vue-router";
 import {ref, computed, onMounted, watch} from "vue";
 import {useDashStore} from "@/stores/dash.js";
@@ -60,7 +60,7 @@ onMounted(loadDash);
       <RouterLink to="/leaderboard" class="flex items-center flex-col leading-tight group"
                   aria-label="Open leaderboard">
         <span class="flex gap-2 text-sm font-semibold text-black">
-          <Star class="size-4 text-emerald-700"/>
+          <Trophy class="size-4 text-emerald-700"/>
           Rating: {{ dash.rating }}
         </span>
         <span class="flex gap-2 text-xs text-black/70 group-hover:text-black opacity-80">

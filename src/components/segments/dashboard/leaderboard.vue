@@ -3,7 +3,6 @@
     <div class="flex flex-col items-center text-center w-full max-w-5xl mx-auto">
       <!-- Title -->
       <h2 class="text-3xl sm:text-4xl lg:text-5xl font-serif tracking-widest text-rose-800 w-full text-center flex items-center justify-center gap-3">
-        <Trophy class="text-amber-500 drop-shadow-sm w-8 h-8" />
         Leaderboard
       </h2>
 
@@ -16,9 +15,10 @@
             :key="player.nickname"
             class="relative group flex flex-col items-center p-5 rounded-2xl border-4 shadow-lg bg-gradient-to-b from-amber-50 to-amber-200 border-yellow-700 hover:scale-[1.03] hover:shadow-2xl transition duration-300"
             :class="{
-            'from-yellow-200 to-yellow-400 border-yellow-500 shadow-[0_0_25px_#facc15]': index === 0 && leaderboardData.current_page === 1,
-            'from-amber-100 to-yellow-300 border-amber-500 shadow-[0_0_20px_#fbbf24]': index === 1 && leaderboardData.current_page === 1,
-            'from-yellow-100 to-amber-200 border-amber-400 shadow-[0_0_15px_#fcd34d]': index === 2 && leaderboardData.current_page === 1,
+            'from-yellow-200 to-yellow-400  shadow-[0_0_25px_#facc15]': index === 0 && leaderboardData.current_page === 1,
+            'from-amber-100 to-yellow-300  shadow-[0_0_20px_#fbbf24]': index === 1 && leaderboardData.current_page === 1,
+            'from-yellow-100 to-amber-200  shadow-[0_0_15px_#fcd34d]': index === 2 && leaderboardData.current_page === 1,
+            '!border-green-600': currentUser === player.id,
           }"
         >
           <!-- Rank Badge -->
@@ -31,12 +31,18 @@
               'bg-yellow-700': index > 2 || leaderboardData.current_page !== 1,
             }"
           >
-            <Crown v-if="index === 0 && leaderboardData.current_page === 1" class="text-white w-4 h-4" />
-            <Medal v-else-if="index === 1 && leaderboardData.current_page === 1" class="text-white w-4 h-4" />
-            <Trophy v-else-if="index === 2 && leaderboardData.current_page === 1" class="text-white w-4 h-4" />
+            <Crown v-if="index === 0 && leaderboardData.current_page === 1" class="text-white w-4 h-4"/>
+            <Medal v-else-if="index === 1 && leaderboardData.current_page === 1" class="text-white w-4 h-4"/>
+            <Trophy v-else-if="index === 2 && leaderboardData.current_page === 1" class="text-white w-4 h-4"/>
             <span class="leading-none">
               {{ index + 1 + ((leaderboardData.current_page - 1) * leaderboardData.per_page) }}
             </span>
+          </div>
+          <div
+              v-if="currentUser === player.id"
+              class="absolute -top-3 -right-3 min-w-9 h-9 px-2 flex items-center justify-center gap-1 rounded-full font-bold text-white shadow-md bg-green-600"
+          >
+            You
           </div>
 
           <!-- Avatar -->
@@ -62,7 +68,7 @@
           <div
               class="mt-4 px-5 py-2 rounded-xl bg-yellow-100 border-2 border-yellow-600 text-yellow-900 font-bold shadow-inner flex items-center gap-2"
           >
-            <Star class="text-yellow-600 w-5 h-5" />
+            <Star class="text-yellow-600 w-5 h-5"/>
             {{ player.rating }}
           </div>
         </div>
@@ -79,7 +85,7 @@
             @click="fetchLeaderboard(leaderboardData.current_page - 1)"
             aria-label="Previous page"
         >
-          <ChevronLeft class="w-5 h-5" />
+          <ChevronLeft class="w-5 h-5"/>
           <span class="sr-only">Previous</span>
         </button>
 
@@ -94,7 +100,7 @@
             aria-label="Next page"
         >
           <span class="sr-only">Next</span>
-          <ChevronRight class="w-5 h-5" />
+          <ChevronRight class="w-5 h-5"/>
         </button>
       </div>
     </div>
@@ -103,12 +109,15 @@
 
 <script setup lang="ts">
 import {inject, onMounted, ref} from 'vue'
-import { useDashStore } from '@/stores/dash'
+import {useDashStore} from '@/stores/dash'
+import {useAuthStore} from '@/stores/auth'
 // Use lucide-vue-next icons
-import { Trophy, Crown, Medal, Star, ChevronLeft, ChevronRight } from 'lucide-vue-next'
+import {ChevronLeft, ChevronRight, Crown, Medal, Star, Trophy} from 'lucide-vue-next'
 
 const dashStore = useDashStore()
 const baseUrl = inject('baseURL')
+
+const currentUser = useAuthStore().currentUser.id
 
 const leaderboardData = ref({
   data: [],
