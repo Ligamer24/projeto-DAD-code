@@ -1,6 +1,6 @@
 <template>
   <div
-    class="min-h-screen w-full bg-gradient-to-b from-lime-300 to-yellow-300 flex flex-col items-center justify-center p-6"
+    class="min-h-screen w-full flex flex-col items-center justify-center p-6"
   >
     <img
       :src="biscaLogo"
