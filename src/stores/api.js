@@ -28,11 +28,42 @@ export const useAPIStore = defineStore("api", () => {
     return axios.get(`${API_BASE_URL}/users/me`);
   };
 
+  const updateProfile = async (data) => {
+    return axios.put(`${API_BASE_URL}/profile`, data);
+  };
+
+  // UPDATE AVATAR (upload OU predefined)
+  const updateAvatar = async (value, isPredefined = false) => {
+    const form = new FormData();
+    form.append("_method", "PUT");
+
+    if (isPredefined) {
+      // nome do ficheiro vindo do avatar predefinido
+      form.append("predefined_avatar", value.split("/").pop());
+    } else if (value instanceof File) {
+      form.append("photo_avatar", value);
+    }
+
+    return axios.post(`${API_BASE_URL}/profile`, form);
+  };
+
+  // UPDATE PASSWORD
+  const changePassword = async ({ current, next, confirm }) => {
+    return axios.put(`${API_BASE_URL}/profile/password`, {
+      current_password: current,
+      password: next,
+      password_confirmation: confirm,
+    });
+  };
+
   return {
     postGame,
     getGames,
     postLogin,
     postLogout,
     getAuthUser,
+    updateProfile,
+    updateAvatar,
+    changePassword,
   };
 });

@@ -1,12 +1,23 @@
 <script setup>
-import {useRouter} from 'vue-router'
-import {ArrowLeft, Coins, Crown, Trophy, Upload, UserRound} from 'lucide-vue-next'
-import {ref} from 'vue'
-import {toast} from "vue-sonner";
-import {useAuthStore} from "@/stores/auth.js";
+import { useRouter } from 'vue-router'
+import { ArrowLeft, Coins, Crown, Trophy, Upload, UserRound } from 'lucide-vue-next'
+import { ref } from 'vue'
+import { toast } from "vue-sonner";
+import { useAuthStore } from "@/stores/auth.js";
+import { useAPIStore } from "@/stores/api.js"
 
+const predefinedAvatars = [
+  new URL('@/assets/avatars/avatar1.png', import.meta.url).href,
+  new URL('@/assets/avatars/avatar2.png', import.meta.url).href,
+  new URL('@/assets/avatars/avatar3.png', import.meta.url).href,
+  new URL('@/assets/avatars/avatar4.png', import.meta.url).href,
+  new URL('@/assets/avatars/avatar5.png', import.meta.url).href
+]
+
+const selectedPreAvatar = ref(null)
 const router = useRouter()
-const {name, nickname, email, coins, rating, rank, shortDate, avatarUrl} = {
+
+const { name, nickname, email, coins, rating, rank, shortDate, avatarUrl } = {
   name: ref('John Doe'),
   nickname: ref('johndoe'),
   email: ref('a1@mail.pt'),
@@ -17,6 +28,7 @@ const {name, nickname, email, coins, rating, rank, shortDate, avatarUrl} = {
   avatarUrl: ref(null)
 }
 const authStore = useAuthStore()
+const user = useAPIStore()
 const currentPwd = ref('')
 const newPwd = ref('')
 const confirmPwd = ref('')
@@ -24,28 +36,52 @@ const pwdErrors = ref([])
 const pwdSuccess = ref(false)
 
 function goBack() {
-  router.push({name: 'home'})
+  router.push({ name: 'home' })
 }
 
-function onAvatarChange(e) {
+const onAvatarChange = async (e) => {
   const file = e.target.files?.[0]
-  user.updateAvatar(file)
+  if (!file) return
+  selectedPreAvatar.value = null
+  avatarUrl.value = URL.createObjectURL(file)
+
+  const res = await user.updateAvatar(file)
+  if (res.ok) toast.success('Avatar uploaded successfully!')
+  else toast.error(res.errors.join(', '))
 }
 
-function onSubmitProfile(e) {
-  e.preventDefault()
-  user.updateProfile({name: name.value, nickname: nickname.value, email: email.value})
+const choosePreAvatar = async (url) => {
+  selectedPreAvatar.value = url
+  avatarUrl.value = url
+
+  const res = await user.updateAvatar(url, true)
+  if (res.ok) toast.success('Avatar updated successfully!')
+  else toast.error(res.errors.join(', '))
 }
 
-function onSubmitPassword(e) {
+const onSubmitProfile = async (e) => {
   e.preventDefault()
-  const res = user.changePassword({current: currentPwd.value, next: newPwd.value, confirm: confirmPwd.value})
-  pwdSuccess.value = !!res.ok
-  pwdErrors.value = res.ok ? [] : res.errors
-  if (res.ok) {
+  try {
+    await user.updateProfile({ name: name.value, nickname: nickname.value, email: email.value })
+    toast.success('Profile updated successfully!')
+  } catch (err) {
+    toast.error(err.response?.data?.message || 'Failed to update profile')
+  }
+}
+
+const onSubmitPassword = async (e) => {
+  e.preventDefault()
+  try {
+    await user.changePassword({ current: currentPwd.value, next: newPwd.value, confirm: confirmPwd.value })
+    pwdSuccess.value = true
+    pwdErrors.value = []
     currentPwd.value = ''
     newPwd.value = ''
     confirmPwd.value = ''
+    toast.success('Password changed successfully!')
+  } catch (err) {
+    pwdSuccess.value = false
+    pwdErrors.value = err.response?.data?.errors || ['Failed to change password']
   }
 }
 
@@ -64,12 +100,10 @@ const logout = () => {
 
 <template>
   <main class="container mx-auto px-4 pt-4 text-black pb-12">
-    <button
-        aria-label="Back to Home"
-        class="inline-flex cursor-pointer items-center gap-2 text-black/80 hover:text-black transition mb-4"
-        @click="goBack"
-    >
-      <ArrowLeft class="size-5"/>
+    <button aria-label="Back to Home"
+      class="inline-flex cursor-pointer items-center gap-2 text-black/80 hover:text-black transition mb-4"
+      @click="goBack">
+      <ArrowLeft class="size-5" />
       <span>Back</span>
     </button>
 
@@ -78,9 +112,9 @@ const logout = () => {
       <section class="lg:col-span-1 bg-white/70 border border-black/30 rounded-xl p-4 md:p-6">
         <div class="flex flex-col items-center text-center">
           <div
-              class="size-24 rounded-full bg-emerald-100 border border-black/30 grid place-items-center overflow-hidden">
-            <img v-if="avatarUrl" :src="avatarUrl" alt="Avatar" class="size-full object-cover"/>
-            <UserRound v-else class="size-12 text-emerald-700"/>
+            class="size-24 rounded-full bg-emerald-100 border border-black/30 grid place-items-center overflow-hidden">
+            <img v-if="avatarUrl" :src="avatarUrl" alt="Avatar" class="size-full object-cover" />
+            <UserRound v-else class="size-12 text-emerald-700" />
           </div>
           <h1 class="mt-3 text-2xl font-bold">{{ name }}</h1>
           <p class="text-black/70">@{{ nickname }}</p>
@@ -89,21 +123,21 @@ const logout = () => {
             <div>
               <div class="text-xs uppercase tracking-wide text-black/60">Coins</div>
               <div class="flex items-center gap-1 text-lg font-semibold text-center justify-center">
-                <Coins class="size-4 text-yellow-600"/>
+                <Coins class="size-4 text-yellow-600" />
                 {{ coins }}
               </div>
             </div>
             <div>
               <div class="text-xs uppercase tracking-wide text-black/60">Rating</div>
               <div class="flex items-center gap-1 text-lg font-semibold text-center justify-center">
-                <Trophy class="size-4 text-emerald-700"/>
+                <Trophy class="size-4 text-emerald-700" />
                 {{ rating }}
               </div>
             </div>
             <div>
               <div class="text-xs uppercase tracking-wide text-black/60">Rank</div>
               <div class="flex items-center gap-1 text-lg font-semibold text-center justify-center">
-                <Crown class="size-4 text-amber-700"/>
+                <Crown class="size-4 text-amber-700" />
                 #{{ rank }}
               </div>
             </div>
@@ -111,11 +145,8 @@ const logout = () => {
 
           <div class="mt-4 text-sm text-black/70">Member since {{ shortDate }}</div>
 
-          <button
-              @click.prevent="logout"
-              role="button"
-              class="cursor-pointer mt-4 inline-flex items-center gap-2 px-4 py-2 rounded-md border border-black/30 bg-black/5 text-black/80 hover:bg-black/10 active:bg-black/20 focus:outline-none focus:ring-2 focus:ring-emerald-500 transition"
-          >Logout</button>
+          <button @click.prevent="logout" role="button"
+            class="cursor-pointer mt-4 inline-flex items-center gap-2 px-4 py-2 rounded-md border border-black/30 bg-black/5 text-black/80 hover:bg-black/10 active:bg-black/20 focus:outline-none focus:ring-2 focus:ring-emerald-500 transition">Logout</button>
         </div>
       </section>
 
@@ -129,38 +160,51 @@ const logout = () => {
             <div>
               <label class="block text-sm font-medium mb-1" for="name">Name</label>
               <input id="name" v-model="name"
-                     class="w-full rounded-md border border-black/30 bg-white/70 px-3 py-2 outline-none focus:ring-2 focus:ring-emerald-500"
-                     type="text"/>
+                class="w-full rounded-md border border-black/30 bg-white/70 px-3 py-2 outline-none focus:ring-2 focus:ring-emerald-500"
+                type="text" />
             </div>
             <div>
               <label class="block text-sm font-medium mb-1" for="nickname">Nickname</label>
               <input id="nickname" v-model="nickname"
-                     class="w-full rounded-md border border-black/30 bg-white/70 px-3 py-2 outline-none focus:ring-2 focus:ring-emerald-500"
-                     type="text"/>
+                class="w-full rounded-md border border-black/30 bg-white/70 px-3 py-2 outline-none focus:ring-2 focus:ring-emerald-500"
+                type="text" />
             </div>
             <div class="sm:col-span-2">
               <label class="block text-sm font-medium mb-1" for="email">Email</label>
               <input id="email" v-model="email"
-                     class="w-full rounded-md border border-black/30 bg-white/70 px-3 py-2 outline-none focus:ring-2 focus:ring-emerald-500"
-                     type="email"/>
+                class="w-full rounded-md border border-black/30 bg-white/70 px-3 py-2 outline-none focus:ring-2 focus:ring-emerald-500"
+                type="email" />
             </div>
 
             <div class="sm:col-span-2">
               <label class="block text-sm font-medium mb-1">Profile image</label>
               <div class="flex items-center gap-3">
                 <input id="avatar" accept="image/*"
-                       class="block w-full text-sm text-black file:mr-3 file:rounded-md file:border file:border-black/30 file:bg-black/5 file:px-3 file:py-1.5 file:text-black hover:file:bg-black/10"
-                       type="file"
-                       @change="onAvatarChange"/>
-                <Upload class="size-5 text-black/70"/>
+                  class="block w-full text-sm text-black file:mr-3 file:rounded-md file:border file:border-black/30 file:bg-black/5 file:px-3 file:py-1.5 file:text-black hover:file:bg-black/10"
+                  type="file" @change="onAvatarChange" />
+                <Upload class="size-5 text-black/70" />
               </div>
             </div>
+
+            <div class="mt-3">
+              <p class="text-sm font-medium mb-1">Or choose a predefined avatar:</p>
+
+              <div class="grid grid-cols-5 gap-2">
+                <div v-for="(av, i) in predefinedAvatars" :key="i"
+                  class="cursor-pointer rounded-full overflow-hidden border-2 transition"
+                  :class="selectedPreAvatar === av ? 'border-emerald-600' : 'border-transparent'"
+                  @click="choosePreAvatar(av)">
+                  <img :src="av" class="w-full h-full object-cover" />
+                </div>
+              </div>
+            </div>
+
           </div>
 
           <div class="mt-4 flex justify-end">
             <button
-                class="cursor-pointer px-4 py-2 rounded-md bg-emerald-600 text-white hover:bg-emerald-700 active:bg-emerald-800"
-                type="submit">
+              class="cursor-pointer px-4 py-2 rounded-md bg-emerald-600 text-white hover:bg-emerald-700 active:bg-emerald-800"
+              type="submit">
               Save changes
             </button>
           </div>
@@ -174,38 +218,37 @@ const logout = () => {
             <div class="sm:col-span-2">
               <label class="block text-sm font-medium mb-1" for="current">Current password</label>
               <input id="current" v-model="currentPwd"
-                     class="w-full rounded-md border border-black/30 bg-white/70 px-3 py-2 outline-none focus:ring-2 focus:ring-emerald-500"
-                     type="password"/>
+                class="w-full rounded-md border border-black/30 bg-white/70 px-3 py-2 outline-none focus:ring-2 focus:ring-emerald-500"
+                type="password" />
             </div>
             <div>
               <label class="block text-sm font-medium mb-1" for="new">New password</label>
               <input id="new" v-model="newPwd"
-                     class="w-full rounded-md border border-black/30 bg-white/70 px-3 py-2 outline-none focus:ring-2 focus:ring-emerald-500"
-                     type="password"/>
+                class="w-full rounded-md border border-black/30 bg-white/70 px-3 py-2 outline-none focus:ring-2 focus:ring-emerald-500"
+                type="password" />
             </div>
             <div>
               <label class="block text-sm font-medium mb-1" for="confirm">Confirm new password</label>
               <input id="confirm" v-model="confirmPwd"
-                     class="w-full rounded-md border border-black/30 bg-white/70 px-3 py-2 outline-none focus:ring-2 focus:ring-emerald-500"
-                     type="password"/>
+                class="w-full rounded-md border border-black/30 bg-white/70 px-3 py-2 outline-none focus:ring-2 focus:ring-emerald-500"
+                type="password" />
             </div>
           </div>
 
-          <div v-if="pwdErrors.length"
-               class="mt-3 rounded-md border border-red-300 bg-red-50 text-red-700 p-3 text-sm">
+          <div v-if="pwdErrors.length" class="mt-3 rounded-md border border-red-300 bg-red-50 text-red-700 p-3 text-sm">
             <ul class="list-disc pl-5">
               <li v-for="e in pwdErrors" :key="e">{{ e }}</li>
             </ul>
           </div>
           <div v-if="pwdSuccess"
-               class="mt-3 rounded-md border border-emerald-300 bg-emerald-50 text-emerald-700 p-3 text-sm">
+            class="mt-3 rounded-md border border-emerald-300 bg-emerald-50 text-emerald-700 p-3 text-sm">
             Password changed successfully.
           </div>
 
           <div class="mt-4 flex justify-end">
             <button
-                class="cursor-pointer px-4 py-2 rounded-md bg-emerald-600 text-white hover:bg-emerald-700 active:bg-emerald-800"
-                type="submit">
+              class="cursor-pointer px-4 py-2 rounded-md bg-emerald-600 text-white hover:bg-emerald-700 active:bg-emerald-800"
+              type="submit">
               Update password
             </button>
           </div>
@@ -215,5 +258,4 @@ const logout = () => {
   </main>
 </template>
 
-<style scoped>
-</style>
+<style scoped></style>
