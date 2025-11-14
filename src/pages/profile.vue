@@ -1,10 +1,16 @@
 <script setup>
 import { useRouter } from 'vue-router'
 import { ArrowLeft, Coins, Crown, Trophy, Upload, UserRound } from 'lucide-vue-next'
-import { ref } from 'vue'
+import { ref, watch, inject } from 'vue'
 import { toast } from "vue-sonner";
 import { useAuthStore } from "@/stores/auth.js";
 import { useAPIStore } from "@/stores/api.js"
+import { useFileDialog } from '@vueuse/core'
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
+
 
 const predefinedAvatars = [
   new URL('@/assets/avatars/avatar1.png', import.meta.url).href,
@@ -16,6 +22,8 @@ const predefinedAvatars = [
 
 const selectedPreAvatar = ref(null)
 const router = useRouter()
+const serverBaseURL = inject("baseURL")
+
 
 const { name, nickname, email, coins, rating, rank, shortDate, avatarUrl } = {
   name: ref('John Doe'),
@@ -28,12 +36,31 @@ const { name, nickname, email, coins, rating, rank, shortDate, avatarUrl } = {
   avatarUrl: ref(null)
 }
 const authStore = useAuthStore()
-const user = useAPIStore()
+const apiStore = useAPIStore()
 const currentPwd = ref('')
 const newPwd = ref('')
 const confirmPwd = ref('')
 const pwdErrors = ref([])
 const pwdSuccess = ref(false)
+
+const formData = ref({
+    name: '',
+    email: ''
+})
+
+watch(() => authStore.currentUser, (user) => {
+    if (user) {
+        formData.value = {
+            name: user.name || '',
+            email: user.email || ''
+        }
+    }
+}, { immediate: true })
+
+const { files, open, reset } = useFileDialog({
+    accept: 'image/*',
+    multiple: false
+})
 
 function goBack() {
   router.push({ name: 'home' })
@@ -45,7 +72,7 @@ const onAvatarChange = async (e) => {
   selectedPreAvatar.value = null
   avatarUrl.value = URL.createObjectURL(file)
 
-  const res = await user.updateAvatar(file)
+  const res = await apiStore.uploadProfilePhoto(file)
   if (res.ok) toast.success('Avatar uploaded successfully!')
   else toast.error(res.errors.join(', '))
 }
@@ -54,19 +81,47 @@ const choosePreAvatar = async (url) => {
   selectedPreAvatar.value = url
   avatarUrl.value = url
 
-  const res = await user.updateAvatar(url, true)
+  const res = await apiStore.updateAvatar(url, true)
   if (res.ok) toast.success('Avatar updated successfully!')
   else toast.error(res.errors.join(', '))
 }
 
-const onSubmitProfile = async (e) => {
-  e.preventDefault()
-  try {
-    await user.updateProfile({ name: name.value, nickname: nickname.value, email: email.value })
-    toast.success('Profile updated successfully!')
-  } catch (err) {
-    toast.error(err.response?.data?.message || 'Failed to update profile')
-  }
+const uploadPhoto = async () => {
+
+    try {
+        const response = await apiStore.uploadProfilePhoto(files.value[0])
+
+        if (response.data && response.data.photo_avatar_filename) {
+            await apiStore.patchUserPhoto(authStore.currentUser.id, response.data.photo_avatar_filename)
+            await authStore.getUser()
+
+            toast.success("Profile photo updated successfully")
+
+            reset()
+        }
+    } catch (error) {
+        console.error('Failed to upload photo:', error)
+        toast.success("Failed to upload photo. Please try again.")
+    }
+}
+
+const saveProfile = async () => {
+
+    try {
+        console.log("hehe")
+        const user = Object.assign({}, authStore.currentUser)
+
+        user.name = formData.value.name
+        user.email = formData.value.email
+
+        await apiStore.putUser(user)
+        await authStore.getUser()
+        toast.success("Profile updated successfully")
+
+    } catch (error) {
+        console.error('Failed to update profile:', error)
+        toast.error("Failed to update profile. Please try again.")
+    }
 }
 
 const onSubmitPassword = async (e) => {
@@ -111,11 +166,38 @@ const logout = () => {
       <!-- Profile summary card -->
       <section class="lg:col-span-1 bg-white/70 border border-black/30 rounded-xl p-4 md:p-6">
         <div class="flex flex-col items-center text-center">
-          <div
-            class="size-24 rounded-full bg-emerald-100 border border-black/30 grid place-items-center overflow-hidden">
-            <img v-if="avatarUrl" :src="avatarUrl" alt="Avatar" class="size-full object-cover" />
-            <UserRound v-else class="size-12 text-emerald-700" />
-          </div>
+          <Card>
+                <CardHeader>
+                    <CardTitle>Profile Photo</CardTitle>
+                    <CardDescription>Update your profile picture</CardDescription>
+                </CardHeader>
+                <CardContent>
+                    <div class="flex flex-col sm:flex-row items-start gap-6">
+                        <div class="flex-shrink-0">
+                            <Avatar class="w-32 h-32">
+                                <AvatarImage v-if="authStore.currentUser.photo_avatar_filename"
+                                    :src="`${serverBaseURL}/storage/photos_avatars/${authStore.currentUser.photo_avatar_filename}`"
+                                    :alt="authStore.currentUser.name" />
+                                <AvatarFallback class="text-4xl">
+                                    {{ authStore.currentUser.name?.charAt(0).toUpperCase() }}
+                                </AvatarFallback>
+                            </Avatar>
+                        </div>
+
+                        <div class="flex-1 space-y-3">
+                            <div class="flex flex-wrap gap-2">
+                                <Button @click="open" variant="outline">
+                                    Choose Photo
+                                </Button>
+                                <Button v-if="files" @click="uploadPhoto">Save Photo</Button>
+                                <Button v-if="files" @click="reset" variant="ghost">
+                                    Cancel
+                                </Button>
+                            </div>
+                        </div>
+                    </div>
+                </CardContent>
+          </Card>
           <h1 class="mt-3 text-2xl font-bold">{{ name }}</h1>
           <p class="text-black/70">@{{ nickname }}</p>
 
@@ -153,7 +235,7 @@ const logout = () => {
       <!-- Forms -->
       <section class="lg:col-span-2 grid gap-4">
         <!-- Profile info form -->
-        <form class="bg-white/70 border border-black/30 rounded-xl p-4 md:p-6" @submit="onSubmitProfile">
+        <div class="bg-white/70 border border-black/30 rounded-xl p-4 md:p-6">
           <h2 class="text-xl font-semibold mb-4">Profile</h2>
 
           <div class="grid sm:grid-cols-2 gap-4">
@@ -176,15 +258,7 @@ const logout = () => {
                 type="email" />
             </div>
 
-            <div class="sm:col-span-2">
-              <label class="block text-sm font-medium mb-1">Profile image</label>
-              <div class="flex items-center gap-3">
-                <input id="avatar" accept="image/*"
-                  class="block w-full text-sm text-black file:mr-3 file:rounded-md file:border file:border-black/30 file:bg-black/5 file:px-3 file:py-1.5 file:text-black hover:file:bg-black/10"
-                  type="file" @change="onAvatarChange" />
-                <Upload class="size-5 text-black/70" />
-              </div>
-            </div>
+            
 
             <div class="mt-3">
               <p class="text-sm font-medium mb-1">Or choose a predefined avatar:</p>
@@ -208,7 +282,8 @@ const logout = () => {
               Save changes
             </button>
           </div>
-        </form>
+        </div>
+        
 
         <!-- Change password form -->
         <form class="bg-white/70 border border-black/30 rounded-xl p-4 md:p-6" @submit="onSubmitPassword">

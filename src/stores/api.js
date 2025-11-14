@@ -1,6 +1,7 @@
 import { defineStore } from "pinia";
 import axios from "axios";
 import { ref, inject } from "vue";
+import { toast } from "vue-sonner";
 export const useAPIStore = defineStore("api", () => {
   const API_BASE_URL = inject("apiBaseURL");
 
@@ -28,9 +29,34 @@ export const useAPIStore = defineStore("api", () => {
     return axios.get(`${API_BASE_URL}/users/me`);
   };
 
-  const updateProfile = async (data) => {
-    return axios.put(`${API_BASE_URL}/profile`, data);
-  };
+  const putUser = (user) => {
+    return axios.put(`${API_BASE_URL}/users/${user.id}`, user)
+  }
+
+  const patchUserPhoto = (id, photo_url) => {
+    return axios.patch(`${API_BASE_URL}/users/${id}/photo-url`, { 
+      photo_avatar_filename: photo_url
+     })
+  }
+
+  // Files
+
+  const uploadProfilePhoto = async (file) => {
+    const formData = new FormData()
+    formData.append('photo', file)
+
+    const uploadPromise = axios.post(`${API_BASE_URL}/files/userphoto`, formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    })
+
+    toast.promise(uploadPromise, {
+      loading: 'Uploading profile photo...',
+      success: () => `Profile photo uploaded successfully`,
+      error: (data) => `Error uploading photo - ${data?.response?.data?.message}`,
+    })
+
+    return uploadPromise
+  }
 
   // UPDATE AVATAR (upload OU predefined)
   const updateAvatar = async (value, isPredefined = false) => {
@@ -62,8 +88,10 @@ export const useAPIStore = defineStore("api", () => {
     postLogin,
     postLogout,
     getAuthUser,
-    updateProfile,
     updateAvatar,
+    patchUserPhoto,
+    putUser,
+    uploadProfilePhoto,
     changePassword,
   };
 });

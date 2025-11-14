@@ -21,11 +21,17 @@ export const useAuthStore = defineStore("auth", () => {
         currentUser.value = undefined;
     };
 
+    const getUser = async () => {
+    const response = await apiStore.getAuthUser()
+    currentUser.value = response.data
+  }
+
     return {
         currentUser,
         isLoggedIn,
         login,
         logout,
+        getUser,
         anonymous
     };
 });

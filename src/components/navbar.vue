@@ -1,9 +1,10 @@
 <script setup>
 import {Coins, Crown, Trophy, UserRound} from "lucide-vue-next";
 import {RouterLink} from "vue-router";
-import {ref, computed, onMounted, watch} from "vue";
+import {ref, computed, onMounted, inject} from "vue";
 import {useDashStore} from "@/stores/dash.js";
 import {useAuthStore} from "@/stores/auth.js";
+import { Avatar, AvatarImage, AvatarFallback } from "./ui/avatar";
 
 const dash = ref({
   coins_balance: 0,
@@ -12,8 +13,12 @@ const dash = ref({
   nickname: null,
   name: null
 });
+
+const authStore = useAuthStore()
+
 const logged = ref(false);
 
+const serverBaseURL = inject("baseURL")
 const profileLink = computed(() => (logged.value ? "/profile" : "/login"));
 
 const loadDash = async () => {
@@ -47,10 +52,14 @@ onMounted(loadDash);
     <div class="flex items-center justify-between gap-4">
       <!-- Profile / Nickname -->
       <RouterLink :to="profileLink" class="flex items-center gap-2 group" aria-label="Open profile">
-        <div
-            class="size-9 rounded-full bg-white/80 border border-black/40 grid place-items-center group-hover:bg-white transition">
-          <UserRound class="size-5 text-emerald-700"/>
-        </div>
+        <Avatar class="w-16 h-16">
+              <AvatarImage v-if="authStore.currentUser.photo_avatar_filename"
+                  :src="`${serverBaseURL}/storage/photos_avatars/${authStore.currentUser.photo_avatar_filename}`"
+                  :alt="authStore.currentUser.name" />
+              <AvatarFallback class="text-4xl">
+                  {{ authStore.currentUser.name?.charAt(0).toUpperCase() }}
+              </AvatarFallback>
+          </Avatar>
         <span class="text-lg lg:text-xl font-semibold text-black group-hover:underline">{{
             dash.nickname ?? dash.name ?? 'Anonymous'
           }}</span>
