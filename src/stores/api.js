@@ -13,12 +13,14 @@ export const useAPIStore = defineStore("api", () => {
   };
 
   const token = ref();
+
   // AUTH
   const postLogin = async (credentials) => {
     const response = await axios.post(`${API_BASE_URL}/login`, credentials);
     token.value = response.data.token;
     axios.defaults.headers.common["Authorization"] = `Bearer ${token.value}`;
   };
+  
   const postLogout = async () => {
     await axios.post(`${API_BASE_URL}/logout`);
     token.value = undefined;
