@@ -1,5 +1,5 @@
 <script setup>
-import {Coins, Crown, Trophy, UserRound} from "lucide-vue-next";
+import {Coins, Crown, ExpandIcon, Trophy, UserRound} from "lucide-vue-next";
 import {RouterLink} from "vue-router";
 import {ref, computed, onMounted, watch} from "vue";
 import {useDashStore} from "@/stores/dash.js";
@@ -39,6 +39,14 @@ const loadDash = async () => {
 };
 
 onMounted(loadDash);
+
+
+</script>
+<script>
+
+export default {
+  name: "navbar",
+};
 
 </script>
 

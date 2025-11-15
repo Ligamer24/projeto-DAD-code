@@ -22,5 +22,9 @@ export const useDashStore = defineStore('dash', () => {
         return axios.get(url);
     };
 
-    return {getDash, getHistory, getLeaderboard};
+    const getGame = (game_id) => {
+        return axios.get(`${API_BASE_URL}/games/${game_id}`);   
+    }
+
+    return {getDash, getHistory, getLeaderboard, getGame};
 })

@@ -1,27 +1,22 @@
 <template>
   <section class="snap-start snap-always w-full shrink-0 px-4 mt-6 lg:mt-12">
     <div class="flex flex-col items-center lg:items-start text-center lg:text-left w-full max-w-xl mx-auto">
-      <h2 class="text-3xl sm:text-4xl lg:text-5xl font-serif tracking-widest text-rose-800 w-full text-center">MATCH HISTORY</h2>
+      <h2 class="text-3xl sm:text-4xl lg:text-5xl font-serif tracking-widest text-rose-800 w-full text-center">MATCH
+        HISTORY</h2>
 
       <div class="w-full mt-6">
         <div class="flex justify-center lg:justify-start gap-2 mb-4">
           <label class="sr-only">Filtrar por MATCH</label>
-          <button
-            @click="filterMode = 'all'"
-            :class="[ 'px-3 py-1 rounded border', filterMode === 'all' ? 'bg-rose-700 text-white border-rose-700' : 'bg-white text-slate-700 hover:bg-slate-100' ]"
-          >
+          <button @click="filterMode = 'all'"
+            :class="['px-3 py-1 rounded border', filterMode === 'all' ? 'bg-rose-700 text-white border-rose-700' : 'bg-white text-slate-700 hover:bg-slate-100']">
             All
           </button>
-          <button
-            @click="filterMode = 'with'"
-            :class="[ 'px-3 py-1 rounded border', filterMode === 'with' ? 'bg-rose-700 text-white border-rose-700' : 'bg-white text-slate-700 hover:bg-slate-100' ]"
-          >
+          <button @click="filterMode = 'with'"
+            :class="['px-3 py-1 rounded border', filterMode === 'with' ? 'bg-rose-700 text-white border-rose-700' : 'bg-white text-slate-700 hover:bg-slate-100']">
             Matches Complete
           </button>
-          <button
-            @click="filterMode = 'without'"
-            :class="[ 'px-3 py-1 rounded border', filterMode === 'without' ? 'bg-rose-700 text-white border-rose-700' : 'bg-white text-slate-700 hover:bg-slate-100' ]"
-          >
+          <button @click="filterMode = 'without'"
+            :class="['px-3 py-1 rounded border', filterMode === 'without' ? 'bg-rose-700 text-white border-rose-700' : 'bg-white text-slate-700 hover:bg-slate-100']">
             Individual Games
           </button>
         </div>
@@ -33,17 +28,25 @@
           <div v-if="games.length === 0" class="text-center text-slate-600 py-6">No games found.</div>
 
           <ul v-else class="space-y-3">
-            <li v-for="game in filteredGames" :key="game.id" class="flex items-center justify-between bg-white/60 p-3 rounded shadow-sm">
+            <li v-for="game in filteredGames" :key="game.id"
+              class="flex items-center justify-between bg-white/60 p-3 rounded shadow-sm">
               <div>
                 <div class="text-sm text-slate-500"></div>
                 <div class="font-medium">
                   vs {{ opponentName(game) }}
                 </div>
                 <div v-if="game.match_id !== null" class="mt-1">
-                  <span class="inline-block text-xs text-slate-500 bg-white/40 px-2 py-0.5 rounded border border-slate-100 font-mono">
+                  <span
+                    class="inline-block text-xs text-slate-500 bg-white/40 px-2 py-0.5 rounded border border-slate-100 font-mono">
                     Match #{{ game.match_id }}
                   </span>
                 </div>
+
+              </div>
+              <div class="inline-flex items-center gap-2 px-3 py-1 rounded text-sm text-blue-700 border border-blue-400 hover:bg-blue-100 hover:border-blue-600 ml-auto mr-6">
+                <RouterLink :to="{ name: 'MatchDetails', params: { id: game.id } }" class="font-bold" aria-label="View game details">
+                  View Details
+                </RouterLink>
               </div>
 
               <div class="text-right">
@@ -53,18 +56,12 @@
             </li>
           </ul>
 
-          <nav v-if="lastPage > 1" class="mt-4 flex justify-center items-center gap-2" aria-label="Paginação de histórico">
-            <button
-              v-for="p in pages"
-              :key="p"
-              @click="loadPage(p)"
-              :aria-current="p === page ? 'page' : null"
-              :class="[
-                'px-3 py-1 rounded border',
-                p === page ? 'bg-rose-700 text-white border-rose-700' : 'bg-white text-slate-700 hover:bg-slate-100'
-              ]"
-              :disabled="p === page"
-            >
+          <nav v-if="lastPage > 1" class="mt-4 flex justify-center items-center gap-2"
+            aria-label="Paginação de histórico">
+            <button v-for="p in pages" :key="p" @click="loadPage(p)" :aria-current="p === page ? 'page' : null" :class="[
+              'px-3 py-1 rounded border',
+              p === page ? 'bg-rose-700 text-white border-rose-700' : 'bg-white text-slate-700 hover:bg-slate-100'
+            ]" :disabled="p === page">
               {{ p }}
             </button>
           </nav>
@@ -75,10 +72,11 @@
 </template>
 
 
-<script setup >
+<script setup>
 import { ref, onMounted, computed, watch } from 'vue';
 import { useAuthStore } from '@/stores/auth';
 import { useDashStore } from '@/stores/dash';
+import { RouterLink } from 'vue-router';
 
 const auth = useAuthStore();
 const dash = useDashStore();
