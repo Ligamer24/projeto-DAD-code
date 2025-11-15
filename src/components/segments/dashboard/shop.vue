@@ -1,7 +1,8 @@
 <script setup>
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
-import {ArrowLeft} from 'lucide-vue-next'
+import { ArrowLeft } from 'lucide-vue-next'
+import Button from '@/components/ui/button/Button.vue';
 
 const router = useRouter();
 const selectedCard = ref(null);
@@ -35,14 +36,21 @@ function selectCard(id) {
       <h2 class="text-3xl sm:text-4xl lg:text-5xl font-serif tracking-widest text-rose-800 w-full text-center">SHOP</h2>
     </div>
 
-    <div class="grid grid-cols-2 gap-4">
+    <div class="grid grid-cols-2 gap-4 mt-4">
       <div v-for="card in cards" :key="card.id"
-        class="bg-white bg-opacity-50 rounded-lg p-4 flex flex-col items-center shadow">
+        class="bg-white/10 rounded-lg p-4 m-2 flex flex-col items-center shadow">
         <img :src="card.image" alt="Card" class="w-32 h-32 mb-3 object-contain" />
-        <button @click="selectCard(card.id)" :class="selectedCard === card.id ? 'bg-yellow-400' : 'bg-white border'"
-          class="px-4 py-1 rounded-full border text-black font-bold">
-          {{ selectedCard === card.id ? 'Selected' : 'SELECT' }}
-        </button>
+        <Button @click="selectCard(card.id)"
+        :class="[
+          'px-4 py-1 rounded-full border text-black font-bold min-w-24 text-center',
+          'transition-colors duration-150',
+          'focus:outline-none',
+          selectedCard === card.id 
+            ? 'bg-yellow-400 hover:bg-yellow-400'
+            : 'bg-white border hover:bg-gray-100'
+        ]">
+  {{ selectedCard === card.id ? 'Selected' : 'Select' }}
+</Button>
       </div>
     </div>
   </div>
