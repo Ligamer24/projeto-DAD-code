@@ -61,7 +61,7 @@ onMounted(loadDash);
               </AvatarFallback>
           </Avatar>
         <span class="text-lg lg:text-xl font-semibold text-black group-hover:underline">{{
-            dash.nickname ?? dash.name ?? 'Anonymous'
+            authStore.currentUser.nickname ?? authStore.currentUser.name ?? 'Anonymous'
           }}</span>
       </RouterLink>
 
@@ -70,7 +70,7 @@ onMounted(loadDash);
                   aria-label="Open leaderboard">
         <span class="flex gap-2 text-sm font-semibold text-black">
           <Trophy class="size-4 text-emerald-700"/>
-          Rating: {{ dash.rating }}
+          Rating: {{ authStore.currentUser.rating }}
         </span>
         <span class="flex gap-2 text-xs text-black/70 group-hover:text-black opacity-80">
           <Crown class="size-4 text-amber-700"/>
@@ -81,7 +81,7 @@ onMounted(loadDash);
 
       <!-- Coins -->
       <RouterLink to="/shop" class="flex items-center gap-1 text-black">
-        <span class="text-lg lg:text-xl font-bold">{{ dash.coins_balance }}</span>
+        <span class="text-lg lg:text-xl font-bold">{{ authStore.currentUser.coins_balance }}</span>
         <Coins class="size-5 lg:size-6 text-yellow-600"/>
       </RouterLink>
     </div>
