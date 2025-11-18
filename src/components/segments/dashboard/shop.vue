@@ -42,7 +42,7 @@ function selectCard(id) {
         <img :src="card.image" alt="Card" class="w-32 h-32 mb-3 object-contain" />
         <Button @click="selectCard(card.id)"
         :class="[
-          'px-4 py-1 rounded-full border text-black font-bold min-w-24 text-center',
+          'px-4 py-1 rounded-full border text-black font-bold min-w-24 text-center cursor-pointer',
           'transition-colors duration-150',
           'focus:outline-none',
           selectedCard === card.id 
