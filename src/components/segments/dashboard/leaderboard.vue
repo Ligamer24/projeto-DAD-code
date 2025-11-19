@@ -71,6 +71,16 @@
             <Star class="text-yellow-600 w-5 h-5"/>
             {{ player.rating }}
           </div>
+
+          <!-- Wins / Losses -->
+          <div class="mt-3 flex gap-4 text-sm font-semibold text-rose-800">
+            <span class="px-2 py-1 rounded-md bg-green-100 border border-green-300">
+              W: {{ player.wins ?? 0 }}
+            </span>
+            <span class="px-2 py-1 rounded-md bg-red-100 border border-red-300">
+              L: {{ player.losses ?? 0 }}
+            </span>
+          </div>
         </div>
       </div>
 
