@@ -12,6 +12,8 @@ export const useAPIStore = defineStore("api", () => {
     return axios.get(`${API_BASE_URL}/games`);
   };
 
+  
+
   const token = ref();
 
   // AUTH

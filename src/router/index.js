@@ -4,6 +4,7 @@ import ProfilePage from '@/pages/profile.vue'
 import LoginPage from "@/pages/login/LoginPage.vue";
 import RegisterPage from "@/pages/login/RegisterPage.vue";
 import {useAuthStore} from "@/stores/auth.js";
+import MatchGamePage from '@/pages/dashboard/matchHistory/MatchGamePage.vue';
 
 
 const router = createRouter({
@@ -17,6 +18,7 @@ const router = createRouter({
         {path: '/profile', name: 'profile', component: ProfilePage, meta: {requiresAuth: true}},
         {path: "/login", name: "login", component: LoginPage, meta: {requiresGuest: true}},
         {path: "/register", name: "register", component: RegisterPage, meta: {requiresGuest: true}},
+        {path: "/MatchDetails/:id", name: "MatchDetails", component: MatchGamePage},
         // {
         //     path: "/dashboard",
         //     name: "dashboard",

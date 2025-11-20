@@ -14,9 +14,17 @@ export const useDashStore = defineStore('dash', () => {
         return data
     }
 
-    const getHistory = () => {
-        return axios.get(`${API_BASE_URL}/history`);
+    const getHistory = (page = 1, filter = null) => {
+        // filter: null | 'with' | 'without'
+        let url = `${API_BASE_URL}/history?page=${page}`;
+        if (filter === 'with') url += `&has_match=1`;
+        if (filter === 'without') url += `&has_match=0`;
+        return axios.get(url);
     };
 
-    return {getDash, getHistory, getLeaderboard};
+    const getGame = (game_id) => {
+        return axios.get(`${API_BASE_URL}/games/${game_id}`);   
+    }
+
+    return {getDash, getHistory, getLeaderboard, getGame};
 })
