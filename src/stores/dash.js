@@ -9,8 +9,11 @@ export const useDashStore = defineStore('dash', () => {
         return axios.get(`${API_BASE_URL}/dashboard`);
     };
 
-    const getLeaderboard = async (page = 1) => {
-        const { data } = await axios.get(`${API_BASE_URL}/leaderboard?page=${page}`)
+    const getLeaderboard = async (page = 1, orderBy = null) => {
+        // orderBy: null | 'wins' | 'coins' | 'achievements' | 'rating'
+        let url = `${API_BASE_URL}/leaderboard?page=${page}`
+        if (orderBy) url += `&order_by=${orderBy}`
+        const { data } = await axios.get(url)
         return data
     }
 
@@ -26,5 +29,11 @@ export const useDashStore = defineStore('dash', () => {
         return axios.get(`${API_BASE_URL}/games/${game_id}`);   
     }
 
-    return {getDash, getHistory, getLeaderboard, getGame};
+    const getPersonalScore = async () => {
+        // returns: { matches, wins, win_rate, capote, bandeira }
+        const { data } = await axios.get(`${API_BASE_URL}/users/me/score`)
+        return data
+    }
+
+    return {getDash, getHistory, getLeaderboard, getGame, getPersonalScore};
 })
