@@ -1,9 +1,10 @@
 <script setup>
 import {Coins, Crown, Trophy, UserRound} from "lucide-vue-next";
 import {RouterLink} from "vue-router";
-import {ref, computed, onMounted, watch} from "vue";
+import {ref, computed, onMounted, inject} from "vue";
 import {useDashStore} from "@/stores/dash.js";
 import {useAuthStore} from "@/stores/auth.js";
+import { Avatar, AvatarImage, AvatarFallback } from "./ui/avatar";
 
 const dash = ref({
   coins_balance: 0,
@@ -12,8 +13,12 @@ const dash = ref({
   nickname: null,
   name: null
 });
+
+const authStore = useAuthStore()
+
 const logged = ref(false);
 
+const serverBaseURL = inject("baseURL")
 const profileLink = computed(() => (logged.value ? "/profile" : "/login"));
 
 const loadDash = async () => {
@@ -47,12 +52,16 @@ onMounted(loadDash);
     <div class="flex items-center justify-between gap-4">
       <!-- Profile / Nickname -->
       <RouterLink :to="profileLink" class="flex items-center gap-2 group" aria-label="Open profile">
-        <div
-            class="size-9 rounded-full bg-white/80 border border-black/40 grid place-items-center group-hover:bg-white transition">
-          <UserRound class="size-5 text-emerald-700"/>
-        </div>
+        <Avatar class="w-16 h-16">
+              <AvatarImage v-if="authStore.currentUser.photo_avatar_filename"
+                  :src="`${serverBaseURL}/storage/photos_avatars/${authStore.currentUser.photo_avatar_filename}`"
+                  :alt="authStore.currentUser.name" />
+              <AvatarFallback class="text-4xl">
+                  {{ authStore.currentUser.name?.charAt(0).toUpperCase() }}
+              </AvatarFallback>
+          </Avatar>
         <span class="text-lg lg:text-xl font-semibold text-black group-hover:underline">{{
-            dash.nickname ?? dash.name ?? 'Anonymous'
+            authStore.currentUser.nickname ?? authStore.currentUser.name ?? 'Anonymous'
           }}</span>
       </RouterLink>
 
@@ -61,7 +70,7 @@ onMounted(loadDash);
                   aria-label="Open leaderboard">
         <span class="flex gap-2 text-sm font-semibold text-black">
           <Trophy class="size-4 text-emerald-700"/>
-          Rating: {{ dash.rating }}
+          Rating: {{ authStore.currentUser.rating }}
         </span>
         <span class="flex gap-2 text-xs text-black/70 group-hover:text-black opacity-80">
           <Crown class="size-4 text-amber-700"/>
@@ -72,7 +81,7 @@ onMounted(loadDash);
 
       <!-- Coins -->
       <RouterLink to="/shop" class="flex items-center gap-1 text-black">
-        <span class="text-lg lg:text-xl font-bold">{{ dash.coins_balance }}</span>
+        <span class="text-lg lg:text-xl font-bold">{{ authStore.currentUser.coins_balance }}</span>
         <Coins class="size-5 lg:size-6 text-yellow-600"/>
       </RouterLink>
     </div>

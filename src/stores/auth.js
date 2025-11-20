@@ -10,22 +10,29 @@ export const useAuthStore = defineStore("auth", () => {
     const isLoggedIn = computed(() => {
         return currentUser.value !== undefined;
     });
+    
     const login = async (credentials) => {
         await apiStore.postLogin(credentials);
-        const response = await apiStore.getAuthUser();
-        currentUser.value = response.data;
-        return response.data;
+        const response = await getUser();
+        // currentUser.value = response.data;
+        // return response.data;
     };
     const logout = async () => {
         await apiStore.postLogout();
         currentUser.value = undefined;
     };
 
+    const getUser = async () => {
+    const response = await apiStore.getAuthUser()
+    currentUser.value = response.data
+  }
+
     return {
         currentUser,
         isLoggedIn,
         login,
         logout,
+        getUser,
         anonymous
     };
 });
