@@ -65,7 +65,8 @@ export const useGameStore = defineStore("game", () => {
   const deck = ref([])
   const player1Hand = ref([])
   const player2Hand = ref([])
-  const trunfo = ref(null)
+  const trunfo = ref(null)      // A carta física (visual)
+  const trumpSuit = ref('')     // O naipe da regra (lógica)
   const tableCards = ref([]) // Cartas jogadas na mesa na ronda atual
   const moves = ref([]) // Histórico de jogadas
   const currentTurn = ref(1)
@@ -100,9 +101,13 @@ export const useGameStore = defineStore("game", () => {
   }
 
   const dealInitialCards = () => {
-    // Retira o trunfo
+    // Define a carta visual
     trunfo.value = deck.value[0]
+
+    trumpSuit.value = trunfo.value.suit
+    
     deck.value = deck.value.slice(1)
+
 
     // Dar cartas
     player1Hand.value = deck.value.slice(0, 9)
@@ -160,12 +165,13 @@ export const useGameStore = defineStore("game", () => {
   const checkRoundWinner = () => {
     const c1 = tableCards.value[0] // Carta de Saída (quem jogou primeiro)
     const c2 = tableCards.value[1] // Carta de Resposta
-    const trumpSuit = trunfo.value.suit
+
+    const currentTrumpSuit = trumpSuit.value
 
     let winnerPlayer = c1.player // Assume que o primeiro ganha por defeito
     
     // CASO 1: O segundo jogador jogou Trunfo e o primeiro não
-    if (c2.suit === trumpSuit && c1.suit !== trumpSuit) {
+    if (c2.suit === currentTrumpSuit && c1.suit !== currentTrumpSuit) {
         winnerPlayer = c2.player
     }
     // CASO 2: Ambos jogaram o mesmo naipe
@@ -223,7 +229,7 @@ export const useGameStore = defineStore("game", () => {
         } else if (trunfo.value) {
             // Se o baralho acabou, a carta a pescar é o Trunfo da mesa
             const finalCard = trunfo.value
-            // trunfo.value = null // Remove o trunfo visualmente da mesa
+            trunfo.value = null // Remove o trunfo visualmente da mesa
             return finalCard
         }
         return null
