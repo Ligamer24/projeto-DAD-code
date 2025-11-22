@@ -182,10 +182,10 @@ export const useGameStore = defineStore("game", () => {
     
     if (winnerPlayer === 1) {
         scores.value.player1 += points
-        // toast.success(`Ganhaste a vaza! (+${points} pts)`)
+        toast.success(`You won the round! (+${points} pts)`)
     } else {
         scores.value.player2 += points
-        // toast.info(`Bot ganhou a vaza. (+${points} pts)`)
+        toast.info(`Opponent won the round. (+${points} pts)`)
     }
 
     // Limpar Mesa
