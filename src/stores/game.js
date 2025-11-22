@@ -223,7 +223,7 @@ export const useGameStore = defineStore("game", () => {
         } else if (trunfo.value) {
             // Se o baralho acabou, a carta a pescar é o Trunfo da mesa
             const finalCard = trunfo.value
-            trunfo.value = null // Remove o trunfo visualmente da mesa
+            // trunfo.value = null // Remove o trunfo visualmente da mesa
             return finalCard
         }
         return null
