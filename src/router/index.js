@@ -6,6 +6,7 @@ import RegisterPage from "@/pages/login/RegisterPage.vue";
 import {useAuthStore} from "@/stores/auth.js";
 import MatchGamePage from '@/pages/dashboard/matchHistory/MatchGamePage.vue';
 import GamePage from '@/pages/game.vue';
+import SinglePlayerGame from '@/pages/game/SinglePlayerGame.vue';
 
 
 const router = createRouter({
@@ -20,7 +21,15 @@ const router = createRouter({
         {path: "/login", name: "login", component: LoginPage, meta: {requiresGuest: true}},
         {path: "/register", name: "register", component: RegisterPage, meta: {requiresGuest: true}},
         {path: "/MatchDetails/:id", name: "MatchDetails", component: MatchGamePage},
-        {path: "/play", name: "game", component: GamePage},
+        {
+            path: "/games",
+            children: [
+                {
+                    path: "singleplayer", name: "singleplayer", component: SinglePlayerGame
+                }
+            ]
+        }
+        ,
         // {
         //     path: "/dashboard",
         //     name: "dashboard",
