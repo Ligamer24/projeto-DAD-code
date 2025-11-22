@@ -56,6 +56,8 @@ const cards = [
 
 export const useGameStore = defineStore("game", () => {
     const deck = ref([]);
+    const moves = ref([]);
+    const trunfo = ref(null);
 
     function shuffle() {
         deck.value = [...cards];
@@ -74,10 +76,21 @@ export const useGameStore = defineStore("game", () => {
         deck.value = deck.value.slice(18);
     }
 
+    function getTrunfoCard() {
+        trunfo.value = deck.value[0];
+        deck.value = deck.value.slice(1);
+    }
+
+    function addMove(move) {
+        moves.value.push(move);
+    }
+
 
     return {
         deck, shuffle,
         player1Hand, player2Hand,
-        getFirstCardsToHands
+        getFirstCardsToHands,
+        moves, addMove,
+        trunfo, getTrunfoCard,
     };
 });
