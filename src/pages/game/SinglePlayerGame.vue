@@ -3,7 +3,7 @@
     
     <section class="flex flex-wrap gap-2 justify-center p-2">
       <GameCard 
-        v-for="(card, i) in game.player1Hand" 
+        v-for="(card, i) in game.player2Hand" 
         :key="'top-' + i"
         :card="card"
         :face-down="true" 
@@ -16,53 +16,48 @@
         :deck-count="game.deck.length"
         :player-played-card="playedCardSelf"
         :opponent-played-card="playedCardOpponent"
+        :opponent-score="opponentScore"
+        :player-score="playerScore"
       />
     </section>
 
     <section class="flex flex-wrap gap-[-2rem] justify-center p-4 pb-8">
       <GameCard 
-        v-for="(card, i) in game.player2Hand" 
+        v-for="(card, i) in game.player1Hand" 
         :key="'bottom-' + i"
         :card="card"
-        :is-interactive="true"
+        :is-interactive="game.currentTurn === 1 && game.tableCards.length < 2"
         @card-click="handlePlayCard(card, i)"
         class="hover:-translate-y-4 transition-transform duration-200"
       />
-    </section>
+      </section>
 
   </div>
 </template>
 
 <script setup>
-import { onMounted, ref } from 'vue'
+import { onMounted, ref, computed } from 'vue'
 import { useGameStore } from "@/stores/game.js"
 import GameCard from '@/components/game/GameCard.vue'
 import GameBoard from '@/components/game/GameBoard.vue'
 
 const game = useGameStore()
 
-// Estado local apenas para animação visual das cartas jogadas
-const playedCardSelf = ref(null)
-const playedCardOpponent = ref(null)
+// Animação visual das cartas jogadas
+const playedCardSelf = computed(() => game.tableCards.find(c => c.player === 1))
+const playedCardOpponent = computed(() => game.tableCards.find(c => c.player === 2))
+
+//Update dos scores
+const opponentScore = computed(() => game.scores.player2)
+const playerScore = computed(() => game.scores.player1)
 
 onMounted(() => {
   // Inicialização do jogo
-  game.shuffle()
-  game.getFirstCardsToHands()
-  game.getTrunfoCard()
+  game.initSinglePlayerGame()
 })
 
 function handlePlayCard(card, index) {
-  // Atualiza o estado reativo (Vue detecta a mudança e passa para o TableCenter)
-  playedCardSelf.value = card
-  
-  // Simula jogada do oponente (lógica simples)
-  if (game.player1Hand.length > 0) {
-    const randomIndex = Math.floor(Math.random() * game.player1Hand.length)
-    playedCardOpponent.value = game.player1Hand[randomIndex]
-  }
-
-  // AQUI: Adicionar lógica para remover a carta da mão no Store
-  // game.playCard(index) ...
+  // 1. O Jogador joga a carta na lógica da Store
+  game.playCardLocal(card, 1) // 1 = Jogador Humano
 }
 </script>

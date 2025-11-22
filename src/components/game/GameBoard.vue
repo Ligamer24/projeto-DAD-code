@@ -36,6 +36,22 @@
          </p>
       </div>
     </div>
+
+    <div class="flex flex-col gap-2 min-w-[120px] items-center justify-center">
+      
+      <div class="w-28 h-40 flex flex-col items-center justify-center bg-white/50 border-2 border-red-100 rounded-md shadow-sm">
+        <span class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-2">Score</span>
+        <span class="text-5xl font-black text-red-600">{{ opponentScore ?? -1 }}</span>
+        <span class="text-xs text-red-400 mt-1 font-medium">pts</span>
+      </div>
+
+      <div class="w-28 h-40 flex flex-col items-center justify-center bg-white/50 border-2 border-green-100 rounded-md shadow-sm">
+        <span class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-2">Score</span>
+        <span class="text-5xl font-black text-green-600">{{ playerScore ?? -1 }}</span>
+        <span class="text-xs text-green-400 mt-1 font-medium">pts</span>
+      </div>
+
+    </div>
   </div>
 </template>
 
@@ -46,6 +62,8 @@ defineProps({
   trunfo: Object,
   deckCount: Number,
   playerPlayedCard: Object,
-  opponentPlayedCard: Object
+  opponentPlayedCard: Object,
+  opponentScore: Number,
+  playerScore: Number
 })
 </script>
