@@ -193,7 +193,7 @@ const headerIcon = computed(() => {
     if (match.status === 'finished') {
         return match.scores.player1 >= 4 ? '🏆' : '❌'
     }
-    return game.scores.player1 > 60 ? '👍' : '👎'
+    return game.scores.player1 > 60 ? '👍' : (game.scores.player1 === 60 ? '🤝' : '👎')
 })
 
 const headerBgClass = computed(() => {

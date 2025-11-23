@@ -124,11 +124,11 @@ export const useGameStore = defineStore("game", () => {
     const rank = parseInt(cardId.substring(1)) 
     
     switch (rank) {
-        case 1: return 10;  // Ás
-        case 7: return 9;   // Sete
-        case 13: return 8;  // Rei
-        case 11: return 7;  // Valete
-        case 12: return 6;  // Dama
+        case 1: return 20;  // Ás
+        case 7: return 19;   // Sete
+        case 13: return 18;  // Rei
+        case 11: return 17;  // Valete
+        case 12: return 16;  // Dama
         default: return rank; // 6, 5, 4, 3, 2 valem o seu número
     }
   }
