@@ -52,6 +52,28 @@
       </div>
 
     </div>
+
+    <div class="flex flex-col gap-2 min-w-[120px] items-center justify-center">
+      
+      <div class="w-28 h-40 flex items-center justify-center">
+        <div v-if="lastOpponentCard" class="w-full h-full opacity-80 hover:opacity-100 transition-opacity">
+           <GameCard :card="lastOpponentCard" />
+        </div>
+        <div v-else class="w-full h-full flex flex-col items-center justify-center border-2 border-dashed border-gray-300 bg-gray-50/50 rounded-md">
+          <span class="text-[10px] font-bold text-gray-400 uppercase tracking-widest text-center">Last<br>Round</span>
+        </div>
+      </div>
+
+      <div class="w-28 h-40 flex items-center justify-center">
+        <div v-if="lastPlayerCard" class="w-full h-full opacity-80 hover:opacity-100 transition-opacity">
+           <GameCard :card="lastPlayerCard" />
+        </div>
+        <div v-else class="w-full h-full flex flex-col items-center justify-center border-2 border-dashed border-gray-300 bg-gray-50/50 rounded-md">
+          <span class="text-[10px] font-bold text-gray-400 uppercase tracking-widest text-center">Last<br>Round</span>
+        </div>
+      </div>
+
+    </div>
   </div>
 </template>
 
@@ -64,6 +86,8 @@ defineProps({
   playerPlayedCard: Object,
   opponentPlayedCard: Object,
   opponentScore: Number,
-  playerScore: Number
+  playerScore: Number,
+  lastOpponentCard: Object,
+  lastPlayerCard: Object
 })
 </script>

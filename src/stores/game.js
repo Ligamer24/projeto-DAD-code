@@ -2,6 +2,7 @@ import { defineStore } from 'pinia'
 import { ref, computed, inject } from 'vue'
 import { useAuthStore } from './auth'
 import { useAPIStore } from './api'
+import { useMatchStore } from './match'
 import { toast } from 'vue-sonner'
 
 //Definição das Cartas
@@ -59,21 +60,23 @@ export const useGameStore = defineStore("game", () => {
   // 1. Dependências
   const authStore = useAuthStore()
   const apiStore = useAPIStore()
+  const matchStore = useMatchStore()
 //   const socket = inject('socket')
 
-  // 2. Estado do Jogo (Local / Singleplayer)
+  // 2. Estado do Jogo (Cartas)
   const deck = ref([])
   const player1Hand = ref([])
   const player2Hand = ref([])
-  const trunfo = ref(null)      // A carta física (visual)
-  const trumpSuit = ref('')     // O naipe da regra (lógica)
-  const tableCards = ref([]) // Cartas jogadas na mesa na ronda atual
-  const moves = ref([]) // Histórico de jogadas
+  const trunfo = ref(null)        // A carta física (visual)
+  const trumpSuit = ref('')       // O naipe da regra (lógica)
+  const tableCards = ref([])      // Cartas jogadas na mesa na ronda atual
+  const lastRoundCards = ref([])  // Guarda as cartas da ronda anterior
+  const moves = ref([])           // Histórico de jogadas
   const currentTurn = ref(1)
-  
-  // Pontuações
-  const scores = ref({ player1: 0, player2: 0 })
-  const gameStatus = ref('lobby') // 'lobby', 'playing', 'ended'
+
+  // Estado interno do jogo
+  const scores = ref({ player1: 0, player2: 0 }) 
+  const gameEnded = ref(false)
 
   // 3. Estado Multiplayer
   const games = ref([]) // Lista de jogos no lobby
@@ -83,8 +86,8 @@ export const useGameStore = defineStore("game", () => {
   // LÓGICA SINGLEPLAYER (LOCAL)
   // ------------------------------------------------------------------------
 
-  const initSinglePlayerGame = () => {
-    gameStatus.value = 'playing'
+  const startNewGame = () => {
+    gameEnded.value = false
     scores.value = { player1: 0, player2: 0 }
     moves.value = []
     tableCards.value = []
@@ -194,6 +197,8 @@ export const useGameStore = defineStore("game", () => {
         toast.info(`Opponent won the round. (+${points} pts)`)
     }
 
+    lastRoundCards.value = [...tableCards.value]
+
     // Limpar Mesa
     tableCards.value = []
 
@@ -206,7 +211,7 @@ export const useGameStore = defineStore("game", () => {
     } else {
         // Se não há cartas no baralho e as mãos acabaram, o jogo acabou
         if (player1Hand.value.length === 0) {
-            endGame()
+            processGameEnd()
             return
         }
     }
@@ -252,12 +257,35 @@ export const useGameStore = defineStore("game", () => {
     }
   }
 
-  const endGame = () => {
-    gameStatus.value = 'ended'
-    if (scores.value.player1 > 60) toast.success("Ganhaste o jogo!")
-    else if (scores.value.player1 < 60) toast.error("Perdeste o jogo!")
-    else toast.warning("Empate!")
-  }
+  const processGameEnd = () => {
+        gameEnded.value = true
+        
+        const p1Points = scores.value.player1
+        const p2Points = scores.value.player2
+        let victoryPoints = 0
+        let winnerId = null
+
+        if (p1Points === 60) {
+            toast.info("Empate no jogo! Ninguém pontua na match.")
+            return
+        }
+
+        if (p1Points > 60) {
+            winnerId = 1
+            
+            if (p1Points === 120) victoryPoints = 4
+            else if (p1Points >= 91) victoryPoints = 2
+            else victoryPoints = 1
+        } else {
+            winnerId = 2
+            if (p2Points === 120) victoryPoints = 4
+            else if (p2Points >= 91) victoryPoints = 2
+            else victoryPoints = 1
+        }
+        
+        console.log("Winner id:", winnerId)
+        matchStore.addScore(winnerId, victoryPoints)
+    }
 
   // --- Atualização do playBotTurn para respeitar as regras ---
   const playBotTurn = async () => {
@@ -354,12 +382,13 @@ export const useGameStore = defineStore("game", () => {
     player2Hand,
     trunfo,
     tableCards,
+    lastRoundCards,
     scores,
-    gameStatus,
     currentTurn,
+    gameEnded,
 
     // Actions Local
-    initSinglePlayerGame,
+    startNewGame,
     playCardLocal,
     playBotTurn,
     checkRoundWinner
