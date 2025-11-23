@@ -275,12 +275,12 @@ export const useGameStore = defineStore("game", () => {
         if (p1Points > 60) {
             winnerId = 1
             
-            if (p1Points === 120) victoryPoints = 4
+            if (p1Points >= 120) victoryPoints = 4
             else if (p1Points >= 91) victoryPoints = 2
             else victoryPoints = 1
         } else {
             winnerId = 2
-            if (p2Points === 120) victoryPoints = 4
+            if (p2Points >= 120) victoryPoints = 4
             else if (p2Points >= 91) victoryPoints = 2
             else victoryPoints = 1
         }
