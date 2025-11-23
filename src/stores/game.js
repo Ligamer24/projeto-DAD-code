@@ -91,6 +91,8 @@ export const useGameStore = defineStore("game", () => {
     scores.value = { player1: 0, player2: 0 }
     moves.value = []
     tableCards.value = []
+    lastRoundCards.value = [] 
+    currentTurn.value = 1
     shuffle()
     dealInitialCards()
   }
@@ -152,7 +154,7 @@ export const useGameStore = defineStore("game", () => {
         // Pequeno delay para os jogadores verem o que aconteceu
         setTimeout(() => {
             checkRoundWinner()
-        }, 1500)
+        }, 1)
     } else {
         // Se só há 1 carta, passa a vez para o outro
         currentTurn.value = playerNumber === 1 ? 2 : 1
@@ -284,7 +286,7 @@ export const useGameStore = defineStore("game", () => {
         }
         
         console.log("Winner id:", winnerId)
-        matchStore.addScore(winnerId, victoryPoints)
+        matchStore.addScore(winnerId, victoryPoints, scores.value)
     }
 
   // --- Atualização do playBotTurn para respeitar as regras ---
@@ -292,7 +294,7 @@ export const useGameStore = defineStore("game", () => {
     if (player2Hand.value.length === 0) return
     
     // Delay de pensamento
-    await new Promise(resolve => setTimeout(resolve, 1000))
+    // await new Promise(resolve => setTimeout(resolve, 1000))
 
     // Se o Bot for o segundo a jogar, deve tentar assistir (seguir naipe)
     let cardToPlay = null

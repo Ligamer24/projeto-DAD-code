@@ -7,21 +7,36 @@ export const useMatchStore = defineStore('match', () => {
     // Estado (Placar da Partida 0-4)
     const scores = ref({ player1: 0, player2: 0 })
     const status = ref('idle') // 'idle', 'ongoing', 'finished'
+    const gamesHistory = ref([])
     
     // Iniciar uma partida do zero
     const initMatch = () => {
         scores.value = { player1: 0, player2: 0 }
         status.value = 'ongoing'
+        gamesHistory.value = []
     }
 
     // Adicionar pontos de vitória (1, 2 ou 4)
-    const addScore = (winnerId, points) => {
+    const addScore = (winnerId, points, exactGameScore) => {
+        let p1Points = 0
+        let p2Points = 0
         if (winnerId === 1) {
             scores.value.player1 += points
+            p1Points = points
         } else {
             scores.value.player2 += points
+            p2Points = points
         }
         checkMatchWinner()
+        
+        gamesHistory.value.push({
+            roundNumber: gamesHistory.value.length + 1,
+            winner: winnerId,
+            pointsAwarded: { player1: p1Points, player2: p2Points}, //0, 1, 2 ou 4
+            scoreDetail: {...exactGameScore}   // Ex: { p1: 120, p2: 0 }
+        })
+
+        console.log(gamesHistory)
     }
 
     const checkMatchWinner = () => {
@@ -37,6 +52,7 @@ export const useMatchStore = defineStore('match', () => {
     return {
         scores,
         status,
+        gamesHistory,
         initMatch,
         addScore
     }
