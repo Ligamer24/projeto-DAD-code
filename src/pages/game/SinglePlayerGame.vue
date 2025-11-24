@@ -1,10 +1,10 @@
 <template>
   <div 
     v-if="game.gameEnded || match.status === 'finished'" 
-    class="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4"
+    class="fixed inset-0 z-50 flex items-start md:items-center justify-center bg-black/70 backdrop-blur-sm p-4 sm:p-6 overflow-y-auto"
   >
-    <div class="flex flex-col md:flex-row max-w-4xl w-full md:w-auto items-stretch relative animate-in fade-in zoom-in duration-300">
-      <div class="bg-white rounded-l-2xl shadow-2xl w-full max-w-md overflow-hidden relative z-10">
+    <div class="flex flex-col md:flex-row w-full md:w-auto md:max-w-4xl items-stretch relative animate-in fade-in zoom-in duration-300">
+      <div class="bg-white rounded-t-2xl md:rounded-l-2xl md:rounded-r-none w-full md:max-w-md overflow-hidden relative z-10 flex flex-col">
          <div class="p-8 text-center" :class="headerBgClass">
             <div class="mx-auto w-16 h-16 bg-white/20 backdrop-blur-md rounded-full flex items-center justify-center mb-4 shadow-inner text-3xl text-white">
               <component :is="headerIcon" class="w-8 h-8 text-white" />
@@ -79,7 +79,9 @@
       </div>
 
       <div 
-        class="flex flex-col w-full md:w-72 bg-amber-50 rounded-r-2xl shadow-lg border-t md:border-t-0 md:border-l border-amber-100 p-6 transform transition-all duration-500 delay-100 origin-top md:origin-left"
+        class="flex flex-col w-full md:w-72 bg-amber-50 rounded-b-2xl md:rounded-r-2xl md:rounded-l-none md:mt-0 border
+        border-t md:border-t-0 md:border-l border-amber-100 p-6 transform transition-all duration-500 delay-100 origin-top
+         md:origin-left"
         :class="game.gameEnded || match.status === 'finished' ? 'scale-100 opacity-100' : 'scale-95 opacity-0'"
       >
         <h3 class="text-sm font-black text-amber-800 uppercase tracking-wider mb-6 flex items-center justify-center md:justify-start gap-2">
