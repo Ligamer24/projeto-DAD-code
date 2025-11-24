@@ -4,10 +4,11 @@
     class="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4"
   >
     <div class="flex flex-col md:flex-row max-w-4xl w-full md:w-auto items-stretch relative animate-in fade-in zoom-in duration-300">
-      
-      <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden relative z-10">
+      <div class="bg-white rounded-l-2xl shadow-2xl w-full max-w-md overflow-hidden relative z-10">
          <div class="p-8 text-center" :class="headerBgClass">
-            <div class="mx-auto w-16 h-16 bg-white/20 backdrop-blur-md rounded-full flex items-center justify-center mb-4 shadow-inner text-3xl text-white">{{ headerIcon }}</div>
+            <div class="mx-auto w-16 h-16 bg-white/20 backdrop-blur-md rounded-full flex items-center justify-center mb-4 shadow-inner text-3xl text-white">
+              <component :is="headerIcon" class="w-8 h-8 text-white" />
+            </div>
             <h2 class="text-3xl font-black text-white uppercase tracking-wider drop-shadow-md">{{ headerTitle }}</h2>
             <p class="text-white/90 font-medium mt-1">{{ headerSubtitle }}</p>
          </div>
@@ -65,61 +66,66 @@
          </div>
 
          <div class="p-6 space-y-3 bg-white">
-            <button v-if="match.status === 'ongoing'" @click="game.startNewGame()" class="w-full py-4 rounded-xl font-black text-white shadow-lg transform transition-all hover:scale-[1.02] active:scale-95 flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 ring-4 ring-blue-100"><span>🃏</span> Deal Next Hand</button>
-            <button v-if="match.status === 'finished'" @click="restartFullMatch" class="w-full py-4 rounded-xl font-black text-white shadow-lg transform transition-all hover:scale-[1.02] active:scale-95 flex items-center justify-center gap-2" :class="match.scores.player1 >= 4 ? 'bg-green-600 hover:bg-green-700 ring-4 ring-green-100' : 'bg-gray-800 hover:bg-gray-900 ring-4 ring-gray-200'"><span>🔄</span> Play Again</button>
-            <button @click="exitGame" class="w-full py-3 rounded-xl font-bold text-gray-500 bg-white hover:bg-gray-50 border-2 border-transparent hover:border-gray-200 transition-all flex items-center justify-center gap-2"><span>🚪</span> Exit to Lobby</button>
+            <button v-if="match.status === 'ongoing'" @click="game.startNewGame()" class="w-full py-4 rounded-xl font-black text-white shadow-lg transform transition-all hover:scale-[1.02] active:scale-95 flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 ring-4 ring-blue-100">
+              <Hand class="w-5 h-5" /> Deal Next Hand
+            </button>
+            <button v-if="match.status === 'finished'" @click="restartFullMatch" class="w-full py-4 rounded-xl font-black text-white shadow-lg transform transition-all hover:scale-[1.02] active:scale-95 flex items-center justify-center gap-2" :class="match.scores.player1 >= 4 ? 'bg-green-600 hover:bg-green-700 ring-4 ring-green-100' : 'bg-gray-800 hover:bg-gray-900 ring-4 ring-gray-200'">
+              <RotateCcw class="w-5 h-5" /> Play Again
+            </button>
+            <button @click="exitGame" class="w-full py-3 rounded-xl font-bold text-gray-500 bg-white hover:bg-gray-50 border-2 border-transparent hover:border-gray-200 transition-all flex items-center justify-center gap-2">
+              <DoorOpen class="w-5 h-5" /> Exit to Lobby
+            </button>
          </div>
-         </div>
+      </div>
 
       <div 
-  class="flex flex-col w-full md:w-72 bg-amber-50 rounded-b-2xl md:rounded-b-none md:rounded-r-2xl shadow-lg border-t md:border-t-0 md:border-l border-amber-100 p-6 transform transition-all duration-500 delay-100 origin-top md:origin-left"
-  :class="game.gameEnded || match.status === 'finished' ? 'scale-100 opacity-100' : 'scale-95 opacity-0'"
->
-  <h3 class="text-sm font-black text-amber-800 uppercase tracking-wider mb-6 flex items-center justify-center md:justify-start gap-2">
-    <span>🎁</span> Rewards
-  </h3>
-
-  <div class="bg-white rounded-xl p-4 border border-amber-200 shadow-sm mb-6 text-center">
-    <span class="block text-xs font-bold text-amber-500 uppercase tracking-wider mb-1">Total Earned</span>
-    <div class="flex items-center justify-center gap-2 text-amber-600">
-      <span class="text-3xl">💰</span>
-      <span class="text-4xl font-black">{{ calculateTotalCoins }}</span>
-    </div>
-  </div>
-
-  <div class="flex-grow">
-    <h4 class="text-xs font-bold text-amber-700 uppercase tracking-wider mb-3 text-center md:text-left">Achievements</h4>
-    
-    <div v-if="earnedAchievements.length === 0" class="text-center py-8 opacity-50 text-amber-800 text-sm italic">
-      No special achievements this match.
-    </div>
-
-    <div class="space-y-3">
-      <div 
-        v-for="(ach, index) in earnedAchievements" 
-        :key="index"
-        class="flex items-center gap-3 bg-white p-3 rounded-lg border border-amber-100 shadow-sm animate-in slide-in-from-left duration-500"
-        :style="{ animationDelay: `${index * 150}ms` }"
+        class="flex flex-col w-full md:w-72 bg-amber-50 rounded-r-2xl shadow-lg border-t md:border-t-0 md:border-l border-amber-100 p-6 transform transition-all duration-500 delay-100 origin-top md:origin-left"
+        :class="game.gameEnded || match.status === 'finished' ? 'scale-100 opacity-100' : 'scale-95 opacity-0'"
       >
-        <div class="w-10 h-10 rounded-full flex-shrink-0 flex items-center justify-center text-xl bg-amber-100 border border-amber-200">
-          {{ ach.icon }}
+        <h3 class="text-sm font-black text-amber-800 uppercase tracking-wider mb-6 flex items-center justify-center md:justify-start gap-2">
+          <Gift class="w-5 h-5" /> Rewards
+        </h3>
+
+        <div class="bg-white rounded-xl p-4 border border-amber-200 shadow-sm mb-6 text-center">
+          <span class="block text-xs font-bold text-amber-500 uppercase tracking-wider mb-1">Total Earned</span>
+          <div class="flex items-center justify-center gap-2 text-amber-600">
+            <Coins class="w-8 h-8" />
+            <span class="text-4xl font-black">{{ calculateTotalCoins }}</span>
+          </div>
         </div>
-        <div class="min-w-0"> <p class="font-bold text-amber-900 text-sm leading-tight truncate">{{ ach.title }}</p>
-          <p class="text-[10px] text-amber-600 font-medium truncate">{{ ach.desc }}</p>
-        </div>
-        <div class="ml-auto flex-shrink-0">
-          <span class="text-xs font-bold text-amber-500 bg-amber-50 px-2 py-1 rounded-md border border-amber-100">+{{ ach.bonus }}</span>
+
+        <div class="flex-grow">
+          <h4 class="text-xs font-bold text-amber-700 uppercase tracking-wider mb-3 text-center md:text-left">Achievements</h4>
+
+          <div v-if="earnedAchievements.length === 0" class="text-center py-8 opacity-50 text-amber-800 text-sm italic">
+            No special achievements this match.
+          </div>
+
+          <div class="space-y-3">
+            <div
+              v-for="(ach, index) in earnedAchievements"
+              :key="index"
+              class="flex items-center gap-3 bg-white p-3 rounded-lg border border-amber-100 shadow-sm animate-in slide-in-from-left duration-500"
+              :style="{ animationDelay: `${index * 150}ms` }"
+            >
+              <div class="w-10 h-10 rounded-full flex-shrink-0 flex items-center justify-center text-xl bg-amber-100 border border-amber-200">
+                <component :is="ach.icon" class="w-6 h-6 text-amber-700" />
+              </div>
+              <div class="min-w-0">
+                <p class="font-bold text-amber-900 text-sm leading-tight truncate">{{ ach.title }}</p>
+                <p class="text-[10px] text-amber-600 font-medium truncate">{{ ach.desc }}</p>
+              </div>
+              <div class="ml-auto flex-shrink-0">
+                <span class="text-xs font-bold text-amber-500 bg-amber-50 px-2 py-1 rounded-md border border-amber-100">+{{ ach.bonus }}</span>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
   </div>
-
-</div>
-
-    </div>
-  </div>
-  <div v-else class="flex flex-col justify-between p-3 box-border h-dvh w-full">
-    <section class="flex flex-wrap gap-2 justify-center p-2">
+  <div v-else class="flex flex-col justify-between p-3 box-border h-dvh w-full" ref="gameDiv">
+    <section class="flex flex-wrap md:gap-2 justify-center p-2 -space-x-6 md:space-x-2 overflow-visible">
       <GameCard
         v-for="(card, i) in game.player2Hand"
         :key="'top-' + i"
@@ -141,14 +147,15 @@
       />
     </section>
 
-    <section class="flex flex-wrap gap-[-2rem] justify-center p-4 pb-8">
+    <section class="flex flex-wrap gap-2 justify-center p-4 md:pb-8 pb-24">
       <GameCard
         v-for="(card, i) in game.player1Hand"
         :key="'bottom-' + i"
         :card="card"
         :is-interactive="game.currentTurn === 1 && game.tableCards.length < 2"
         @card-click="handlePlayCard(card, i)"
-        class="hover:-translate-y-4 transition-transform duration-200"
+        class="transition-transform duration-200"
+        :class="{ 'hover:-translate-y-4': game.currentTurn === 1 && game.tableCards.length < 2 }"
       />
     </section>
   </div>
@@ -161,6 +168,28 @@ import { useMatchStore } from "@/stores/match";
 import { useRouter } from "vue-router";
 import GameCard from "@/components/game/GameCard.vue";
 import GameBoard from "@/components/game/GameBoard.vue";
+import {
+  Trophy, X, ThumbsUp, Handshake, ThumbsDown, RotateCcw, DoorOpen, Gift, Coins,
+  Flag, Badge, Sparkles, Hand
+} from 'lucide-vue-next'
+
+const gameDiv = ref(null);
+
+function updatePagesHeight() {
+  if (typeof window === 'undefined') return
+  const h = window.innerHeight
+  const headerH = document.getElementsByTagName('header')[0]?.offsetHeight || 0
+  const available = Math.max(0, h - headerH)
+  if (gameDiv.value) {
+    gameDiv.value.style.height = available + 'px'
+  }
+}
+
+onMounted(() => {
+  updatePagesHeight()
+})
+
+window.addEventListener('resize', updatePagesHeight)
 
 const game = useGameStore();
 const router = useRouter();
@@ -233,13 +262,13 @@ const headerSubtitle = computed(() => {
 
 const headerIcon = computed(() => {
   if (match.status === "finished") {
-    return match.scores.player1 >= 4 ? "🏆" : "❌";
+    return match.scores.player1 >= 4 ? Trophy : X
   }
   return game.scores.player1 > 60
-    ? "👍"
+    ? ThumbsUp
     : game.scores.player1 === 60
-    ? "🤝"
-    : "👎";
+    ? Handshake
+    : ThumbsDown
 });
 
 const headerBgClass = computed(() => {
@@ -260,26 +289,20 @@ const exitGame = () => {
 // Lógica de Achievements e Moedas
 const earnedAchievements = computed(() => {
   const list = []
-  // Percorre todo o histórico da partida
   match.gamesHistory.forEach(game => {
-    // Só conta se EU ganhei (winner === 1)
     if (game.winner === 1) {
       if (game.scoreDetail.player1 >= 120) {
-        list.push({ icon: '🚩', title: 'Bandeira', desc: 'Won all tricks', bonus: 50 })
+        list.push({ icon: Flag, title: 'Bandeira', desc: 'Won all tricks', bonus: 50 })
       } else if (game.scoreDetail.player1 >= 91) {
-        list.push({ icon: '🧥', title: 'Capote', desc: 'Opponent scored 0', bonus: 25 })
+        list.push({ icon: Badge, title: 'Capote', desc: 'Opponent scored 0', bonus: 25 })
       } else if (game.scoreDetail.player1 > 60) {
-        // Opcional: Risca/Simples (podes comentar se quiseres mostrar só os especiais)
-        list.push({ icon: '✨', title: 'Victory', desc: 'Simple win', bonus: 10 })
+        list.push({ icon: Sparkles, title: 'Victory', desc: 'Simple win', bonus: 10 })
       }
     }
   })
-  
-  // Se ganhou a partida completa, adiciona bónus final
   if (match.status === 'finished' && match.scores.player1 >= 4) {
-      list.unshift({ icon: '🏆', title: 'Match Winner', desc: 'Defeated the Opponent', bonus: 100 })
+    list.unshift({ icon: Trophy, title: 'Match Winner', desc: 'Defeated the Opponent', bonus: 100 })
   }
-
   return list
 })
 

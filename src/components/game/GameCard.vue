@@ -1,13 +1,13 @@
 <template>
   <div 
-    class="w-28 aspect-[2/3] overflow-hidden border border-gray-300 rounded-md bg-white shadow transition-transform hover:scale-105"
-    :class="{ 'cursor-pointer': isInteractive }"
+    class="lg:w-28 md:w-16 w-12 rounded-sm shadow transition-transform"
+    :class="{ 'cursor-pointer hover:scale-105': isInteractive }"
     @click="handleClick"
   >
     <img 
       :src="imageSrc" 
       :alt="altText" 
-      class="w-full h-full object-cover"
+      class="w-full h-full"
     />
   </div>
 </template>

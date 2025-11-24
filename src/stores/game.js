@@ -108,6 +108,7 @@ export const useGameStore = defineStore("game", () => {
   const dealInitialCards = () => {
     // Define a carta visual
     trunfo.value = deck.value[0]
+    trunfo.value.used = false
 
     trumpSuit.value = trunfo.value.suit
     
@@ -154,7 +155,7 @@ export const useGameStore = defineStore("game", () => {
         // Pequeno delay para os jogadores verem o que aconteceu
         setTimeout(() => {
             checkRoundWinner()
-        }, 1)
+        }, 1500)
     } else {
         // Se só há 1 carta, passa a vez para o outro
         currentTurn.value = playerNumber === 1 ? 2 : 1
@@ -227,7 +228,7 @@ export const useGameStore = defineStore("game", () => {
   // --- Pescar Cartas do Baralho ---
   const drawCards = (winnerId) => {
     // Se não há deck nem trunfo na mesa, não há nada para pescar
-    if (deck.value.length === 0 && !trunfo.value) return
+    if (deck.value.length === 0 && !trunfo.value || trunfo.value.used) return
 
     // Função auxiliar para tirar uma carta (do topo ou o trunfo final)
     const pullCard = () => {
@@ -236,7 +237,7 @@ export const useGameStore = defineStore("game", () => {
         } else if (trunfo.value) {
             // Se o baralho acabou, a carta a pescar é o Trunfo da mesa
             const finalCard = trunfo.value
-            trunfo.value = null // Remove o trunfo visualmente da mesa
+            trunfo.value.used = true // Remove o trunfo visualmente da mesa
             return finalCard
         }
         return null
@@ -294,7 +295,7 @@ export const useGameStore = defineStore("game", () => {
     if (player2Hand.value.length === 0) return
     
     // Delay de pensamento
-    // await new Promise(resolve => setTimeout(resolve, 1000))
+    await new Promise(resolve => setTimeout(resolve, 1000))
 
     // Se o Bot for o segundo a jogar, deve tentar assistir (seguir naipe)
     let cardToPlay = null

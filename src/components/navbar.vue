@@ -60,7 +60,7 @@ export default {
     <div class="flex items-center justify-between gap-4">
       <!-- Profile / Nickname -->
       <RouterLink :to="profileLink" class="flex items-center gap-2 group" aria-label="Open profile">
-        <Avatar class="w-16 h-16">
+        <Avatar class="size-10 lg:size-12">
               <AvatarImage v-if="authStore.currentUser.photo_avatar_filename"
                   :src="`${serverBaseURL}/storage/photos_avatars/${authStore.currentUser.photo_avatar_filename}`"
                   :alt="authStore.currentUser.name" />
