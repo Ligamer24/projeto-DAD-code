@@ -82,7 +82,7 @@
         class="flex flex-col w-full md:w-72 bg-amber-50 rounded-b-2xl md:rounded-r-2xl md:rounded-l-none md:mt-0 border
         border-t md:border-t-0 md:border-l border-amber-100 p-6 transform transition-all duration-500 delay-100 origin-top
          md:origin-left"
-        :class="game.gameEnded || match.status === 'finished' ? 'scale-100 opacity-100' : 'scale-95 opacity-0'"
+        :class="match.status === 'finished' ? 'scale-100 opacity-100' : 'scale-95 opacity-0'"
       >
         <h3 class="text-sm font-black text-amber-800 uppercase tracking-wider mb-6 flex items-center justify-center md:justify-start gap-2">
           <Gift class="w-5 h-5" /> Rewards
