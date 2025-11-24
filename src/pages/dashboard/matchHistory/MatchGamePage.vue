@@ -2,7 +2,9 @@
 	<section class="snap-start snap-always w-full shrink-0 px-4 mt-6 lg:mt-12">
 		<div class="max-w-3xl mx-auto">
 			<div class="flex flex-col items-center lg:items-start text-center lg:text-left w-full">
-				<h2 class="text-3xl sm:text-4xl lg:text-5xl font-serif tracking-widest text-rose-800 w-full align-center text-center">MATCH DETAILS</h2>
+				<h2
+					class="text-3xl sm:text-4xl lg:text-5xl font-serif tracking-widest text-rose-800 w-full align-center text-center">
+					MATCH DETAILS</h2>
 			</div>
 
 			<div class="mt-6 bg-white/90 rounded-xl shadow p-6">
@@ -43,7 +45,8 @@
 								<div class="text-sm text-slate-500">Player 1</div>
 								<div class="font-semibold">{{ playerName(game, 'player1') }} </div>
 								<div class="text-3xl font-bold text-green-600">{{ game?.player1_points ?? '-' }}</div>
-								<div class="text-sm text-green-600 font-medium mt-1" v-if="game && game.winner_user_id === game.player1_user_id">WINNER</div>
+								<div class="text-sm text-green-600 font-medium mt-1"
+									v-if="game && game.winner_user_id === game.player1_user_id">WINNER</div>
 							</div>
 
 							<div class="text-2xl font-bold text-gray-500 mx-4">VS</div>
@@ -52,26 +55,39 @@
 								<div class="text-sm text-slate-500">Player 2</div>
 								<div class="font-semibold">{{ playerName(game, 'player2') }}</div>
 								<div class="text-3xl font-bold text-red-600">{{ game?.player2_points ?? '-' }}</div>
-								<div class="text-sm text-red-600 font-medium mt-1" v-if="game && game.winner_user_id === game.player2_user_id">WINNER</div>
+								<div class="text-sm text-red-600 font-medium mt-1"
+									v-if="game && game.winner_user_id === game.player2_user_id">
+									WINNER
+								</div>
 							</div>
 						</div>
 					</div>
 
 					<div class="mb-4">
 						<h3 class="text-lg font-semibold mb-3">Additional Details</h3>
+						<div>
+							{{ marksByPoints(game?.winner_user_id === game?.player1_user_id ? game?.player1_points :
+								game?.player2_points) }}
+						</div>
 						<div class="grid grid-cols-1 md:grid-cols-2 gap-4 bg-slate-50 p-4 rounded">
 							<div>
-								<p class="text-gray-600"><span class="font-semibold">Winner Name:</span> {{ playerName(game, game?.winner_user_id === game?.player1_user_id ? 'player1' : 'player2') ?? '—' }}</p>
-								<p class="text-gray-600"><span class="font-semibold">Loser Name:</span> {{ playerName(game, game?.winner_user_id === game?.player1_user_id ? 'player2' : 'player1') ?? '—' }}</p>
+								<p class="text-gray-600"><span class="font-semibold">Winner Name:</span> {{
+									playerName(game, game?.winner_user_id === game?.player1_user_id ? 'player1' :
+										'player2') ?? '—' }}</p>
+								<p class="text-gray-600"><span class="font-semibold">Loser Name:</span> {{
+									playerName(game, game?.winner_user_id === game?.player1_user_id ? 'player2' :
+										'player1') ?? '—' }}</p>
 							</div>
 							<div>
-								<p class="text-gray-600"><span class="font-semibold">Match ID:</span> {{ game?.match_id ?? 'N/A' }}</p>
+								<p class="text-gray-600"><span class="font-semibold">Match ID:</span> {{ game?.match_id
+									?? 'N/A' }}</p>
 							</div>
 						</div>
 					</div>
 
 					<div class="flex justify-end">
-						<button @click="$router.back()" class="px-4 py-2 bg-rose-700 text-white rounded hover:bg-rose-800">Voltar</button>
+						<button @click="$router.back()"
+							class="px-4 py-2 bg-rose-700 text-white rounded hover:bg-rose-800">Voltar</button>
 					</div>
 				</div>
 			</div>
@@ -108,8 +124,8 @@ function formatDuration(seconds) {
 
 function playerName(g, which) {
 	if (!g) return '-';
-	if (which === 'player1') return g.player1?.name ?? `#${g.player1_user_id}`;
-	return g.player2?.name ?? `#${g.player2_user_id}`;
+	if (which === 'player1') return g.player1?.nickname ?? `#${g.player1_user_id}`;
+	return g.player2?.nickname ?? `#${g.player2_user_id}`;
 }
 
 async function load() {
@@ -117,7 +133,8 @@ async function load() {
 	loading.value = true;
 	error.value = null;
 	try {
-		const res = await dash.getGame(id.value);
+		let res;
+		res = await dash.getGame(id.value);
 		game.value = res.data || res;
 	} catch (e) {
 		error.value = e?.message || String(e);
@@ -127,8 +144,15 @@ async function load() {
 }
 
 onMounted(() => {
-	if (!id.value) { router.replace({ name: 'history' }).catch(()=>{}); return; }
+	if (!id.value) { router.replace({ name: 'history' }).catch(() => { }); return; }
 	load();
 });
-</script>
 
+function marksByPoints(points) {
+	if (points >= 60 && points <= 90) return 'Risca/Mosca';
+	if (points >= 91 && points <= 119) return 'Capote';
+	if (points >= 120) return 'Bandeira';
+
+	return 'No Medal';
+}
+</script>
