@@ -1,7 +1,6 @@
 <template>
     <section class="snap-start snap-always w-full shrink-0 px-4 mt-6 lg:mt-12">
         <div class="max-w-3xl mx-auto">
-            <!-- Header -->
             <div class="flex flex-col items-center lg:items-start text-center lg:text-left w-full">
                 <h2
                     class="text-3xl sm:text-4xl lg:text-5xl font-serif tracking-widest text-rose-800 w-full text-center">
@@ -15,16 +14,12 @@
                 </div>
             </div>
 
-            <!-- Games Filter & List -->
             <div class="mt-6 bg-white/90 rounded-xl shadow p-6">
-                <!-- Filter -->
                 <div class="mb-4 flex flex-col sm:flex-row sm:items-center gap-4 justify-between">
-                    <!-- Match ID centralizado no mobile -->
                     <div class="text-sm text-slate-900 font-medium w-full text-center sm:text-left sm:w-auto">
                         Match ID: #{{ matchId ?? '-' }}
                     </div>
 
-                    <!-- Filter Achievements -->
                     <div class="flex flex-col sm:flex-row items-start sm:items-center gap-2 w-full sm:w-auto">
                         <span class="block sm:inline">Filter by achievements:</span>
                         <select class="border-2 border-solid bg-white border-rose-600 w-full sm:w-auto"
@@ -36,11 +31,9 @@
                     </div>
                 </div>
 
-                <!-- Loading / Error -->
                 <div v-if="loading" class="text-center py-8">Loading games...</div>
                 <div v-else-if="error" class="text-center text-red-600 py-4">Error: {{ error }}</div>
 
-                <!-- Games List -->
                 <div v-else>
                     <div v-if="filteredGames.length === 0" class="text-center text-slate-600 py-6">
                         No games found for this match.
@@ -49,7 +42,6 @@
                     <ul v-else class="space-y-3">
                         <li v-for="g in filteredGames" :key="g.id"
                             class="flex flex-col sm:flex-row items-start sm:items-center justify-between bg-white/60 p-3 rounded shadow-sm">
-                            <!-- Left info -->
                             <div class="flex flex-col sm:flex-row items-center sm:items-center gap-3 w-full sm:w-auto">
                                 <div class="min-w-0 text-center sm:text-left">
                                     <div class="font-medium truncate">vs {{ history.opponentName(g) }}</div>
@@ -66,7 +58,6 @@
                                 </div>
                             </div>
 
-                            <!-- Right info: Pontuação + Botão -->
                             <div
                                 class="flex flex-col sm:flex-row items-center sm:items-center gap-4 mt-4 sm:mt-0 w-full sm:w-auto">
                                 <div class="text-center sm:text-right w-full sm:w-auto">
@@ -131,7 +122,7 @@ const filteredGames = computed(() => {
         if (selectedAchievement.value === 'bandeira' && (g.player1_points === 120 || g.player2_points === 120)) {
             gamesFiltered.push(g);
         }
-        else if (selectedAchievement.value === 'capote' && (g.player1_points > 91 || g.player2_points > 91)) {
+        else if (selectedAchievement.value === 'capote' && (g.player1_points >= 91 || g.player2_points >= 91)) {
             gamesFiltered.push(g);
         }
         else if (selectedAchievement.value === 'none') {

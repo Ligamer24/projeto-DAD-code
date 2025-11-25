@@ -31,7 +31,8 @@ export default {
 
           <div class="flex flex-col sm:flex-row gap-2 w-full sm:w-auto ml-0 sm:ml-auto">
             <span>Result: </span>
-            <select class="border-2 border-solid bg-white border-rose-600 w-full sm:w-auto" v-model="selectedResult">
+            <select class="border-2 border-solid bg-white border-rose-600 rounded w-full sm:w-auto"
+              v-model="selectedResult">
               <option value="all">All</option>
               <option value="victory">Victory</option>
               <option value="defeat">Defeat</option>
@@ -39,7 +40,8 @@ export default {
             </select>
 
             <span>Order: </span>
-            <select class="border-2 border-solid bg-white border-rose-600 w-full sm:w-auto" v-model="selectedSortOrder">
+            <select class="border-2 border-solid bg-white border-rose-600 rounded w-full sm:w-auto"
+              v-model="selectedSortOrder">
               <option value="asc">Oldest first</option>
               <option value="desc">Newest first</option>
             </select>
@@ -56,10 +58,11 @@ export default {
 
           <div class="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
             <button @click="applyDateFilter"
-              class="px-3 py-1 rounded bg-rose-700 text-white hover:bg-rose-800 w-full sm:w-auto">
+              class="px-3 py-1 rounded bg-rose-700 text-white hover:bg-rose-800 w-full sm:w-auto cursor-pointer">
               Filter by date
             </button>
-            <button @click="clearDateFilter" class="px-3 py-1 rounded bg-gray-300 hover:bg-gray-400 w-full sm:w-auto">
+            <button @click="clearDateFilter"
+              class="px-3 py-1 rounded bg-gray-300 hover:bg-gray-400 w-full sm:w-auto cursor-pointer">
               Clear
             </button>
           </div>
@@ -108,11 +111,12 @@ function applyDateFilter() {
   toDate.value = selectedTo.value;
 
   if (!gamesAvailableSelected.value) {
-    matchListRef.value?.loadPage(1);
+    matchListRef.value?.loadPage(1, fromDate.value, toDate.value);
   } else {
-    gameListRef.value?.loadPage(1);
+    gameListRef.value?.loadPage(1, fromDate.value, toDate.value);
   }
 }
+
 
 function clearDateFilter() {
   selectedFrom.value = null;
@@ -121,9 +125,9 @@ function clearDateFilter() {
   toDate.value = null;
 
   if (!gamesAvailableSelected.value) {
-    matchListRef.value?.loadPage(1);
+    matchListRef.value?.loadPage(1, fromDate.value, toDate.value);
   } else {
-    gameListRef.value?.loadPage(1);
+    gameListRef.value?.loadPage(1, fromDate.value, toDate.value);
   }
 }
 

@@ -8,7 +8,7 @@
     </div>
 
     <div v-else>
-        <div v-if="games.length === 0" class="text-center text-slate-600 py-6">
+        <div v-if="filteredAndSorted.length === 0" class="text-center text-slate-600 py-6">
             No matches found.
         </div>
 
@@ -50,12 +50,13 @@
 
         <nav v-if="lastPage > 1" class="mt-4 flex flex-row gap-2 justify-center items-center"
             aria-label="Paginação de histórico">
-            <button v-for="p in pages" :key="p" @click="loadPage(p)" :aria-current="p === page ? 'page' : null" :class="[
-                'px-3 py-1 rounded border min-w-[40px] text-center',
-                p === page
-                    ? 'bg-rose-700 text-white border-rose-700'
-                    : 'bg-white text-slate-700 hover:bg-slate-100'
-            ]" :disabled="p === page">
+            <button v-for="p in pages" :key="p" @click="loadPage(p, from, to)" :aria-current="p === page ? 'page' : null"
+                :class="[
+                    'px-3 py-1 rounded border min-w-[40px] text-center',
+                    p === page
+                        ? 'bg-rose-700 text-white border-rose-700'
+                        : 'bg-white text-slate-700 hover:bg-slate-100'
+                ]" :disabled="p === page">
                 {{ p }}
             </button>
         </nav>
@@ -114,7 +115,7 @@ const filteredAndSorted = computed(() => {
     });
 });
 
-async function loadPage(p = 1) {
+async function loadPage(p = 1, from, to) {
     loading.value = true;
     error.value = null;
     try {
@@ -122,8 +123,8 @@ async function loadPage(p = 1) {
             page: p,
             result: props.filterResult === 'all' ? null : props.filterResult,
             sortOrder: props.sortOrder,
-            from: props.from,
-            to: props.to,
+            from: from,
+            to: to,
         });
         const payload = res.data || res;
         games.value = payload.data || [];

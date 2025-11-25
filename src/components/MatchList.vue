@@ -8,7 +8,7 @@
     </div>
 
     <div v-else>
-        <div v-if="matches.length === 0" class="text-center text-slate-600 py-6">
+        <div v-if="filteredAndSorted.length === 0" class="text-center text-slate-600 py-6">
             No matches found.
         </div>
 
@@ -54,12 +54,13 @@
 
         <nav v-if="lastPage > 1" class="mt-4 flex flex-row gap-2 justify-center items-center"
             aria-label="Paginação de histórico">
-            <button v-for="p in pages" :key="p" @click="loadPage(p)" :aria-current="p === page ? 'page' : null" :class="[
-                'px-3 py-1 rounded border min-w-[40px] text-center',
-                p === page
-                    ? 'bg-rose-700 text-white border-rose-700'
-                    : 'bg-white text-slate-700 hover:bg-slate-100'
-            ]" :disabled="p === page">
+            <button v-for="p in pages" :key="p" @click="loadPage(p, from, to)"
+                :aria-current="p === page ? 'page' : null" :class="[
+                    'px-3 py-1 rounded border min-w-[40px] text-center',
+                    p === page
+                        ? 'bg-rose-700 text-white border-rose-700'
+                        : 'bg-white text-slate-700 hover:bg-slate-100'
+                ]" :disabled="p === page">
                 {{ p }}
             </button>
         </nav>
@@ -95,22 +96,22 @@ const props = defineProps({
     sortOrder: { type: String, default: 'desc' },
     from: { type: String, default: null },
     to: { type: String, default: null },
-
 });
 
 
 
 
-async function loadPage(p = 1) {
+async function loadPage(p, from, to) {
+
     loading.value = true;
     error.value = null;
     try {
         const res = await dash.getMatches({
             page: p,
-            result: props.filterResult === 'all' ? null : props.filterResult,
+            result: props.filterResult,
             sortOrder: props.sortOrder,
-            from: props.from,
-            to: props.to,
+            from: from,
+            to: to,
 
         });
 

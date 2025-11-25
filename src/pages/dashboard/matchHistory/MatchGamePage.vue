@@ -65,9 +65,14 @@
 
 					<div class="mb-4">
 						<h3 class="text-lg font-semibold mb-3">Additional Details</h3>
-						<div>
-							{{ marksByPoints(game?.winner_user_id === game?.player1_user_id ? game?.player1_points :
-								game?.player2_points) }}
+						<div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+							<div>
+								<div class="text-sm text-slate-500">Achievement:</div>
+								<div class="font-medium">
+									{{ marksByPoints(game?.winner_user_id === game?.player1_user_id ?
+										game?.player1_points : game?.player2_points) }}
+								</div>
+							</div>
 						</div>
 						<div class="grid grid-cols-1 md:grid-cols-2 gap-4 bg-slate-50 p-4 rounded">
 							<div>
@@ -83,6 +88,40 @@
 									?? 'N/A' }}</p>
 							</div>
 						</div>
+						<table
+							class="table-fixed w-full mt-6 border-collapse border border-2 border-slate-400 border-solid ">
+							<thead>
+								<tr>
+									<th class="border">Ronda</th>
+									<th class="border">Ana </th>
+									<!-- {{ winner.id === player_1.id : player_1.name ? player_2.name}} <! -->
+									<th class="border">Bot</th>
+									<!-- {{  loser.id === player_1.id : player_1.name ? player_2.name }} <! -->
+									<th class="border">Total</th>
+								</tr>
+							</thead>
+							<tbody>
+								<tr>
+									<td class="p-4 text-slate-800 border border-slate-700">1</td>
+									<td class="p-4 text-slate-800 border border-slate-700">The Sliding Mr. Bones (Next
+										Stop, Pottersville)</td>
+									<td class="p-4 text-slate-800 border border-slate-700">Malcolm Lockyer</td>
+									<td class="p-4 text-slate-800 border border-slate-700">1961</td>
+								</tr>
+								<tr>
+									<td class="p-4 text-slate-800 border border-slate-700">1</td>
+									<td class="p-4 text-slate-800 border border-slate-700">Witchy Woman</td>
+									<td class="p-4 text-slate-800 border border-slate-700">The Eagles</td>
+									<td class="p-4 text-slate-800 border border-slate-700">1972</td>
+								</tr>
+								<tr>
+									<td class="p-4 text-slate-800 border border-slate-700">1</td>
+									<td class="p-4 text-slate-800 border border-slate-700">Shining Star</td>
+									<td class="p-4 text-slate-800 border border-slate-700">Earth, Wind, and Fire</td>
+									<td class="p-4 text-slate-800 border border-slate-700">1975</td>
+								</tr>
+							</tbody>
+						</table>
 					</div>
 
 					<div class="flex justify-end">
@@ -153,6 +192,6 @@ function marksByPoints(points) {
 	if (points >= 91 && points <= 119) return 'Capote';
 	if (points >= 120) return 'Bandeira';
 
-	return 'No Medal';
+	return 'None';
 }
 </script>
