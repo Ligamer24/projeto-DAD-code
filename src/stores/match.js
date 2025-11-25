@@ -17,7 +17,7 @@ export const useMatchStore = defineStore('match', () => {
     }
 
     // Adicionar pontos de vitória (1, 2 ou 4)
-    const addScore = (winnerId, points, exactGameScore) => {
+    const addScore = (winnerId, points, exactGameScore, gameMoves) => {
         let p1Points = 0
         let p2Points = 0
         if (winnerId === 1) {
@@ -33,7 +33,8 @@ export const useMatchStore = defineStore('match', () => {
             roundNumber: gamesHistory.value.length + 1,
             winner: winnerId,
             pointsAwarded: { player1: p1Points, player2: p2Points}, //0, 1, 2 ou 4
-            scoreDetail: {...exactGameScore}   // Ex: { p1: 120, p2: 0 }
+            scoreDetail: {...exactGameScore},   // Ex: { p1: 120, p2: 0 }
+            trickByTrick: {...gameMoves}
         })
 
         console.log(gamesHistory)

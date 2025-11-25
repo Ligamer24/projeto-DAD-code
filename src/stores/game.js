@@ -155,7 +155,7 @@ export const useGameStore = defineStore("game", () => {
         // Pequeno delay para os jogadores verem o que aconteceu
         setTimeout(() => {
             checkRoundWinner()
-        }, 1500)
+        }, 1)
     } else {
         // Se só há 1 carta, passa a vez para o outro
         currentTurn.value = playerNumber === 1 ? 2 : 1
@@ -201,6 +201,7 @@ export const useGameStore = defineStore("game", () => {
     }
 
     lastRoundCards.value = [...tableCards.value]
+    moves.value.push(lastRoundCards.value)
 
     // Limpar Mesa
     tableCards.value = []
@@ -215,6 +216,9 @@ export const useGameStore = defineStore("game", () => {
         // Se não há cartas no baralho e as mãos acabaram, o jogo acabou
         if (player1Hand.value.length === 0) {
             processGameEnd()
+            
+            // Limpar Moves
+            moves.value = []
             return
         }
     }
@@ -287,7 +291,9 @@ export const useGameStore = defineStore("game", () => {
         }
         
         console.log("Winner id:", winnerId)
-        matchStore.addScore(winnerId, victoryPoints, scores.value)
+        matchStore.addScore(winnerId, victoryPoints, scores.value, moves)
+
+        
     }
 
   // --- Atualização do playBotTurn para respeitar as regras ---
@@ -295,7 +301,7 @@ export const useGameStore = defineStore("game", () => {
     if (player2Hand.value.length === 0) return
     
     // Delay de pensamento
-    await new Promise(resolve => setTimeout(resolve, 1000))
+    // await new Promise(resolve => setTimeout(resolve, 1000))
 
     // Se o Bot for o segundo a jogar, deve tentar assistir (seguir naipe)
     let cardToPlay = null
@@ -389,6 +395,7 @@ export const useGameStore = defineStore("game", () => {
     scores,
     currentTurn,
     gameEnded,
+    moves,
 
     // Actions Local
     startNewGame,
