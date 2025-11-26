@@ -7,6 +7,8 @@ export const useAuthStore = defineStore("auth", () => {
     const currentUser = ref(undefined);
     const anonymous = ref(false);
 
+    const BOT_ID = 2
+
     const isLoggedIn = computed(() => {
         return currentUser.value !== undefined;
     });
@@ -33,6 +35,7 @@ export const useAuthStore = defineStore("auth", () => {
         login,
         logout,
         getUser,
-        anonymous
+        anonymous,
+        BOT_ID
     };
 });

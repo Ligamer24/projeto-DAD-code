@@ -6,6 +6,7 @@ import router from './router'
 import './assets/main.css'
 
 const BASE_URL = 'http://localhost:8000'
+// const BASE_URL = 'https://redycore.dpdns.org'
 const API_BASE_URL = BASE_URL + '/api'
 
 const app = createApp(App)
