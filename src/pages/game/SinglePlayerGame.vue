@@ -154,10 +154,10 @@
         v-for="(card, i) in game.player1Hand"
         :key="'bottom-' + i"
         :card="card"
-        :is-interactive="game.currentTurn === 1 && game.tableCards.length < 2"
+        :is-interactive="game.currentTurn === auth.currentUser.id && game.tableCards.length < 2"
         @card-click="handlePlayCard(card, i)"
         class="transition-transform duration-200"
-        :class="{ 'hover:-translate-y-4': game.currentTurn === 1 && game.tableCards.length < 2 }"
+        :class="{ 'hover:-translate-y-4': game.currentTurn === auth.currentUser.id && game.tableCards.length < 2 }"
       />
     </section>
   </div>
@@ -201,18 +201,18 @@ const auth = useAuthStore();
 
 // Animação visual das cartas jogadas
 const playedCardSelf = computed(() =>
-  game.tableCards.find((c) => c.player === 1)
+  game.tableCards.find((c) => c.player === auth.currentUser.id)
 );
 const playedCardOpponent = computed(() =>
-  game.tableCards.find((c) => c.player === 2)
+  game.tableCards.find((c) => c.player === auth.BOT_ID)
 );
 
 // Cartas da última ronda jogadas
 const lastRoundPlayerCard = computed(() =>
-  game.lastRoundCards.find((c) => c.player === 1)
+  game.lastRoundCards.find((c) => c.player === auth.currentUser.id)
 );
 const lastRoundOpponentCard = computed(() =>
-  game.lastRoundCards.find((c) => c.player === 2)
+  game.lastRoundCards.find((c) => c.player === auth.BOT_ID)
 );
 
 //Update dos scores
@@ -228,7 +228,7 @@ onMounted(() => {
 
 function handlePlayCard(card, index) {
   // 1. O Jogador joga a carta na lógica da Store
-  game.playCardLocal(card, 1); // 1 = Jogador Humano
+  game.playCardLocal(card, auth.currentUser.id); // 1 = Jogador Humano
 }
 
 // Após Match acabar

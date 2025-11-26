@@ -4,7 +4,6 @@ import { toast } from 'vue-sonner'
 import { useAPIStore } from './api'
 import { useAuthStore } from './auth'
 
-const BOT_ID = 2
 const BISCA_TYPE = '9'
 
 const COIN_BASE_WIN = 3
@@ -20,6 +19,8 @@ export const useMatchStore = defineStore('match', () => {
     const status = ref('idle') // 'idle', 'ongoing', 'finished'
     const gamesHistory = ref([])
     const player1_id = authStore.currentUser.id
+
+    const BOT_ID = authStore.BOT_ID
 
     const matchBeganAt = ref(undefined)
     const matchEndedAt = ref(undefined)
@@ -52,7 +53,6 @@ export const useMatchStore = defineStore('match', () => {
         if (winnerId === 1) {
             marks.value.player1 += marksArgument
             p1Marks = marksArgument
-            p1TotalPoints += exactGameScore.player1
             winnerId = player1_id
             
             if (marksArgument == 2) p1TotalAchievements.capote += 1
@@ -60,11 +60,14 @@ export const useMatchStore = defineStore('match', () => {
         } else if (winnerId === 2) {
             marks.value.player2 += marksArgument
             p2Marks = marksArgument
-            p2TotalPoints += exactGameScore.player2
             winnerId = BOT_ID
         } else {
             winnerId = null
         }
+        
+        p1TotalPoints += exactGameScore.player1
+        p2TotalPoints += exactGameScore.player2
+
         checkMatchWinner()
         
         gamesHistory.value.push({

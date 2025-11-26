@@ -6,6 +6,7 @@ import { useMatchStore } from './match'
 import { toast } from 'vue-sonner'
 
 //Definição das Cartas
+
 const ALL_CARDS = [
   // --- PAUS (Clubs) ---
   { card: "p1", value: 11, suit: 'clubs', label: 'Ás de Paus' },
@@ -63,6 +64,8 @@ export const useGameStore = defineStore("game", () => {
   const matchStore = useMatchStore()
 //   const socket = inject('socket')
 
+  const BOT_ID = authStore.BOT_ID
+
   // 2. Estado do Jogo (Cartas)
   const deck = ref([])
   const player1Hand = ref([])
@@ -72,7 +75,7 @@ export const useGameStore = defineStore("game", () => {
   const tableCards = ref([])      // Cartas jogadas na mesa na ronda atual
   const lastRoundCards = ref([])  // Guarda as cartas da ronda anterior
   const moves = ref([])           // Histórico de jogadas
-  const currentTurn = ref(1) 
+  const currentTurn = ref('') 
   let gameBeganAt
   let gameEndedAt
 
@@ -94,7 +97,7 @@ export const useGameStore = defineStore("game", () => {
     moves.value = []
     tableCards.value = []
     lastRoundCards.value = [] 
-    currentTurn.value = 1
+    currentTurn.value = authStore.currentUser.id
     gameBeganAt = new Date()
     shuffle()
     dealInitialCards()
@@ -144,14 +147,14 @@ export const useGameStore = defineStore("game", () => {
     if (playerNumber !== currentTurn.value) return 
 
     // Remove da mão
-    if (playerNumber === 1) {
+    if (playerNumber === authStore.currentUser.id) {
         player1Hand.value = player1Hand.value.filter(c => c.card !== card.card)
     } else {
         player2Hand.value = player2Hand.value.filter(c => c.card !== card.card)
     }
 
     // Adiciona à mesa
-    tableCards.value.push({ ...card, player: playerNumber })
+    tableCards.value.push({ ...card, player: playerNumber === authStore.currentUser.id ? authStore.currentUser.id : BOT_ID })
 
     // Se já há 2 cartas na mesa, verifica o vencedor
     if (tableCards.value.length === 2) {
@@ -161,10 +164,10 @@ export const useGameStore = defineStore("game", () => {
         }, 1)
     } else {
         // Se só há 1 carta, passa a vez para o outro
-        currentTurn.value = playerNumber === 1 ? 2 : 1
+        currentTurn.value = playerNumber === authStore.currentUser.id ? BOT_ID : authStore.currentUser.id
         
         // Se a vez passou para o Bot, manda-o jogar
-        if (currentTurn.value === 2) {
+        if (currentTurn.value === BOT_ID) {
             playBotTurn()
         }
     }
@@ -195,7 +198,7 @@ export const useGameStore = defineStore("game", () => {
     // --- Processar Vitória ---
     const points = c1.value + c2.value
     
-    if (winnerPlayer === 1) {
+    if (winnerPlayer === authStore.currentUser.id) {
         scores.value.player1 += points
         toast.success(`You won the round! (+${points} pts)`)
     } else {
@@ -227,7 +230,7 @@ export const useGameStore = defineStore("game", () => {
     }
 
     // Se for a vez do Bot jogar primeiro na nova ronda
-    if (currentTurn.value === 2) {
+    if (currentTurn.value === BOT_ID) {
         playBotTurn()
     }
   }
@@ -257,11 +260,11 @@ export const useGameStore = defineStore("game", () => {
     const cardForLoser = pullCard()
 
     // 3. Distribuir para as mãos corretas
-    if (winnerId === 1) {
+    if (winnerId === authStore.currentUser.id) {
         if (cardForWinner) player1Hand.value.push(cardForWinner)
         if (cardForLoser) player2Hand.value.push(cardForLoser)
     } else {
-        // Se o Bot (2) ganhou
+        // Se o Bot ganhou
         if (cardForWinner) player2Hand.value.push(cardForWinner)
         if (cardForLoser) player1Hand.value.push(cardForLoser)
     }
@@ -330,7 +333,7 @@ export const useGameStore = defineStore("game", () => {
         cardToPlay = player2Hand.value[randomIndex]
     }
 
-    playCardLocal(cardToPlay, 2)
+    playCardLocal(cardToPlay, BOT_ID)
   }
 
 //   // ------------------------------------------------------------------------
