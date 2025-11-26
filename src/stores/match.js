@@ -69,6 +69,7 @@ export const useMatchStore = defineStore('match', () => {
         p2TotalPoints += exactGameScore.player2
 
         checkMatchWinner()
+
         
         gamesHistory.value.push({
             roundNumber: gamesHistory.value.length + 1,

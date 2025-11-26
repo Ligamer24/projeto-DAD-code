@@ -207,6 +207,7 @@ export const useGameStore = defineStore("game", () => {
     }
 
     lastRoundCards.value = [...tableCards.value]
+    lastRoundCards.value.push({trickWinner : winnerPlayer})
     moves.value.push(lastRoundCards.value)
 
     // Limpar Mesa
