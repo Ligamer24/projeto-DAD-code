@@ -17,7 +17,7 @@
             <div class="flex justify-between items-center px-4">
                 <div class="flex flex-col items-center">
                     <span class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-1">You</span>
-                    <span class="text-5xl font-black transition-all" :class="match.scores.player1 > match.scores.player2 ? 'text-green-600 scale-110' : 'text-gray-700'">{{ match.scores.player1 }}</span>
+                    <span class="text-5xl font-black transition-all" :class="match.marks.player1 > match.marks.player2 ? 'text-green-600 scale-110' : 'text-gray-700'">{{ match.marks.player1 }}</span>
                 </div>
                 <div class="flex flex-col items-center px-4">
                     <span class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-1">GOAL</span>
@@ -25,13 +25,13 @@
                 </div>
                 <div class="flex flex-col items-center">
                     <span class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-1">Bot</span>
-                    <span class="text-5xl font-black transition-all" :class="match.scores.player2 > match.scores.player1 ? 'text-red-600 scale-110' : 'text-gray-700'">{{ match.scores.player2 }}</span>
+                    <span class="text-5xl font-black transition-all" :class="match.marks.player2 > match.marks.player1 ? 'text-red-600 scale-110' : 'text-gray-700'">{{ match.marks.player2 }}</span>
                 </div>
             </div>
             <div class="mt-4 w-full h-2 bg-gray-200 rounded-full overflow-hidden flex">
-                <div class="h-full bg-green-500 transition-all duration-500" :style="{ width: (match.scores.player1 / 4) * 50 + '%' }"></div>
+                <div class="h-full bg-green-500 transition-all duration-500" :style="{ width: (match.marks.player1 / 4) * 50 + '%' }"></div>
                 <div class="h-full bg-transparent flex-grow"></div>
-                <div class="h-full bg-red-500 transition-all duration-500" :style="{ width: (match.scores.player2 / 4) * 50 + '%' }"></div>
+                <div class="h-full bg-red-500 transition-all duration-500" :style="{ width: (match.marks.player2 / 4) * 50 + '%' }"></div>
             </div>
          </div>
 
@@ -45,14 +45,14 @@
          <div class="mt-6 px-6"> <h3 class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-3">Match History</h3>
             <div class="space-y-3 max-h-48 overflow-y-auto pr-1 custom-scrollbar">
                 <div v-for="game in match.gamesHistory" :key="game.roundNumber" class="bg-gray-50 border border-gray-100 rounded-lg p-3 relative overflow-hidden shadow-sm">
-                    <div class="absolute left-0 top-0 bottom-0 w-1.5" :class="game.winner === 1 ? 'bg-green-500' : 'bg-red-500'"></div>
+                    <div class="absolute left-0 top-0 bottom-0 w-1.5" :class="game.winner ? (game.winner === auth.currentUser.id ? 'bg-green-500' : 'bg-red-500') : 'bg-gray-500'"></div>
                     <div class="pl-3">
                         <div class="flex justify-between items-center mb-2 border-b border-gray-200 pb-2">
                             <span class="font-bold text-gray-700 text-sm">Game {{ game.roundNumber }}</span>
                             <div class="flex items-center gap-2">
                                 <span v-if="game.scoreDetail.player1 >= 61" class="text-[10px] font-bold px-1.5 py-0.5 rounded bg-gray-200 text-gray-600">{{ game.scoreDetail.player1 < 61 ? '' : (game.scoreDetail.player1 < 91 ? 'Risca' : (game.scoreDetail.player1 < 120 ? 'Capote' : 'Bandeira')) }}</span>
-                                <span class="text-[10px] font-bold px-1.5 py-0.5 rounded bg-gray-200 text-gray-600">{{ game.pointsAwarded.player1 }} pts</span>
-                                <span class="text-xs font-black uppercase" :class="game.winner === 1 ? 'text-green-600' : 'text-red-600'">{{ game.winner === 1 ? "WIN" : "LOSE" }}</span>
+                                <span class="text-[10px] font-bold px-1.5 py-0.5 rounded bg-gray-200 text-gray-600">{{ game.marksAwarded.player1 }} pts</span>
+                                <span class="text-xs font-black uppercase" :class="game.winner ? (game.winner === auth.currentUser.id ? 'text-green-600' : 'text-red-600') : 'text-gray-600'">{{ game.winner ? (game.winner === auth.currentUser.id ? "WIN" : "LOSE") : "DRAW" }}</span>
                             </div>
                         </div>
                         <div class="grid grid-cols-3 items-center text-center">
@@ -69,7 +69,7 @@
             <button v-if="match.status === 'ongoing'" @click="game.startNewGame()" class="w-full py-4 rounded-xl font-black text-white shadow-lg transform transition-all hover:scale-[1.02] active:scale-95 flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 ring-4 ring-blue-100">
               <Hand class="w-5 h-5" /> Deal Next Hand
             </button>
-            <button v-if="match.status === 'finished'" @click="restartFullMatch" class="w-full py-4 rounded-xl font-black text-white shadow-lg transform transition-all hover:scale-[1.02] active:scale-95 flex items-center justify-center gap-2" :class="match.scores.player1 >= 4 ? 'bg-green-600 hover:bg-green-700 ring-4 ring-green-100' : 'bg-gray-800 hover:bg-gray-900 ring-4 ring-gray-200'">
+            <button v-if="match.status === 'finished'" @click="restartFullMatch" class="w-full py-4 rounded-xl font-black text-white shadow-lg transform transition-all hover:scale-[1.02] active:scale-95 flex items-center justify-center gap-2" :class="match.marks.player1 >= 4 ? 'bg-green-600 hover:bg-green-700 ring-4 ring-green-100' : 'bg-gray-800 hover:bg-gray-900 ring-4 ring-gray-200'">
               <RotateCcw class="w-5 h-5" /> Play Again
             </button>
             <button @click="exitGame" class="w-full py-3 rounded-xl font-bold text-gray-500 bg-white hover:bg-gray-50 border-2 border-transparent hover:border-gray-200 transition-all flex items-center justify-center gap-2">
@@ -167,6 +167,7 @@
 import { onMounted, ref, computed } from "vue";
 import { useGameStore } from "@/stores/game.js";
 import { useMatchStore } from "@/stores/match";
+import { useAuthStore } from "@/stores/auth";
 import { useRouter } from "vue-router";
 import GameCard from "@/components/game/GameCard.vue";
 import GameBoard from "@/components/game/GameBoard.vue";
@@ -196,6 +197,7 @@ window.addEventListener('resize', updatePagesHeight)
 const game = useGameStore();
 const router = useRouter();
 const match = useMatchStore();
+const auth = useAuthStore();
 
 // Animação visual das cartas jogadas
 const playedCardSelf = computed(() =>
@@ -239,7 +241,7 @@ const restartFullMatch = () => {
 const headerTitle = computed(() => {
   // 1. Se a PARTIDA acabou
   if (match.status === "finished") {
-    return match.scores.player1 >= 4 ? "VICTORY!" : "DEFEAT!";
+    return match.marks.player1 >= 4 ? "VICTORY!" : "DEFEAT!";
   }
   // 2. Se for apenas a RONDA
   if (game.scores.player1 > 60) return "Round Won!";
@@ -249,7 +251,7 @@ const headerTitle = computed(() => {
 
 const headerSubtitle = computed(() => {
   if (match.status === "finished") {
-    return match.scores.player1 >= 4
+    return match.marks.player1 >= 4
       ? "Congratulations! You won the match."
       : "You lost this time.";
   }
@@ -264,7 +266,7 @@ const headerSubtitle = computed(() => {
 
 const headerIcon = computed(() => {
   if (match.status === "finished") {
-    return match.scores.player1 >= 4 ? Trophy : X
+    return match.marks.player1 >= 4 ? Trophy : X
   }
   return game.scores.player1 > 60
     ? ThumbsUp
@@ -276,7 +278,7 @@ const headerIcon = computed(() => {
 const headerBgClass = computed(() => {
   // Prioridade à Match
   if (match.status === "finished") {
-    return match.scores.player1 >= 4 ? "bg-green-600" : "bg-red-700";
+    return match.marks.player1 >= 4 ? "bg-green-600" : "bg-red-700";
   }
   // Cores da Ronda (mais suaves)
   if (game.scores.player1 > 60) return "bg-blue-500"; // Azul para vitória parcial
@@ -302,7 +304,7 @@ const earnedAchievements = computed(() => {
       }
     }
   })
-  if (match.status === 'finished' && match.scores.player1 >= 4) {
+  if (match.status === 'finished' && match.marks.player1 >= 4) {
     list.unshift({ icon: Trophy, title: 'Match Winner', desc: 'Defeated the Opponent', bonus: 100 })
   }
   return list

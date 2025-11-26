@@ -12,6 +12,13 @@ export const useAPIStore = defineStore("api", () => {
     return axios.get(`${API_BASE_URL}/games`);
   };
 
+  const postMatch = (match) => {
+    return axios.post(`${API_BASE_URL}/matches`, match);
+  };
+  const getMatches = () => {
+    return axios.get(`${API_BASE_URL}/matches`);
+  };
+
   
 
   const token = ref();
@@ -89,6 +96,8 @@ export const useAPIStore = defineStore("api", () => {
   return {
     postGame,
     getGames,
+    postMatch,
+    getMatches,
     postLogin,
     postLogout,
     getAuthUser,

@@ -72,7 +72,9 @@ export const useGameStore = defineStore("game", () => {
   const tableCards = ref([])      // Cartas jogadas na mesa na ronda atual
   const lastRoundCards = ref([])  // Guarda as cartas da ronda anterior
   const moves = ref([])           // Histórico de jogadas
-  const currentTurn = ref(1)
+  const currentTurn = ref(1) 
+  let gameBeganAt
+  let gameEndedAt
 
   // Estado interno do jogo
   const scores = ref({ player1: 0, player2: 0 }) 
@@ -93,6 +95,7 @@ export const useGameStore = defineStore("game", () => {
     tableCards.value = []
     lastRoundCards.value = [] 
     currentTurn.value = 1
+    gameBeganAt = new Date()
     shuffle()
     dealInitialCards()
   }
@@ -266,6 +269,7 @@ export const useGameStore = defineStore("game", () => {
 
   const processGameEnd = () => {
         gameEnded.value = true
+        gameEndedAt = new Date()
         
         const p1Points = scores.value.player1
         const p2Points = scores.value.player2
@@ -274,7 +278,6 @@ export const useGameStore = defineStore("game", () => {
 
         if (p1Points === 60) {
             toast.info("Empate no jogo! Ninguém pontua na match.")
-            return
         }
 
         if (p1Points > 60) {
@@ -283,15 +286,18 @@ export const useGameStore = defineStore("game", () => {
             if (p1Points >= 120) victoryPoints = 4
             else if (p1Points >= 91) victoryPoints = 2
             else victoryPoints = 1
-        } else {
+        } else if (p2Points > 60) {
             winnerId = 2
             if (p2Points >= 120) victoryPoints = 4
             else if (p2Points >= 91) victoryPoints = 2
             else victoryPoints = 1
+        } else {
+            winnerId = null
+            victoryPoints = 0
         }
         
         console.log("Winner id:", winnerId)
-        matchStore.addScore(winnerId, victoryPoints, scores.value, moves)
+        matchStore.addScore(winnerId, victoryPoints, scores.value, moves.value, gameBeganAt, gameEndedAt)
 
         
     }
