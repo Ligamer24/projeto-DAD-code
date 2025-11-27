@@ -127,7 +127,7 @@
 								</p>
 							</div>
 						</div>
-						<div v-if="game && game.custom" class="w-full mt-8">
+						<div v-if="game && game.custom && game.custom[0].length >= 3" class="w-full mt-8">
 							<div class="overflow-hidden bg-white rounded-xl shadow-lg border border-slate-200">
 								<table class="w-full text-sm text-center text-slate-600">
 									<thead
@@ -168,8 +168,13 @@
 											<!-- Carta Player 1 (User) -->
 											<td class="px-6 py-4"
 												:class="{ 'bg-emerald-600/10': trick.isUserWinner, 'bg-red-500/10': !trick.isUserWinner }">
-												<div class="flex justify-center">
-													<!-- Nota: trick[0] continua acessível porque fizemos o spread ...trick -->
+												<div class="flex flex-col justify-center">
+
+													<span
+														:class="trick[0].player === game.player1_user_id ? 'bg-blue-600 text-white shadow-sm border-blue-700' : 'invisible'"
+														class="text-[10px] font-bold px-2 py-0.5 rounded-full border border-transparent leading-none uppercase tracking-wide">
+														1º
+													</span>
 													<img :src="getImageByCardName(trick, game.player1_user_id)"
 														class="h-16 object-contain drop-shadow-md transform hover:scale-110 transition-transform duration-200"
 														alt="Carta Jogador 1" />
@@ -179,7 +184,14 @@
 											<!-- Carta Player 2 (Bot) -->
 											<td class="px-6 py-4"
 												:class="{ 'bg-emerald-600/10': !trick.isUserWinner, 'bg-red-500/10': trick.isUserWinner }">
-												<div class="flex justify-center">
+												<div class="flex flex-col justify-center">
+
+													<span
+														:class="trick[0].player === game.player2_user_id ? 'bg-blue-600 text-white shadow-sm border-blue-700' : 'invisible'"
+														class="text-[10px] font-bold px-2 py-0.5 rounded-full border border-transparent leading-none uppercase tracking-wide">
+														1º
+													</span>
+
 													<img :src="getImageByCardName(trick, game.player2_user_id)"
 														class="h-16 object-contain drop-shadow-md transform hover:scale-110 transition-transform duration-200"
 														alt="Carta Jogador 2" />
@@ -329,7 +341,7 @@ function getImageByCardName(trick, playerId) {
 }
 
 const tricksWithScores = computed(() => {
-	if (!game.value?.custom) return [];
+	if (!game.value?.custom || game.value?.custom[0].length < 3) return [];
 
 	let p1Acc = 0; // Acumulador do User (Ana)
 	let p2Acc = 0; // Acumulador do Bot
