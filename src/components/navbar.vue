@@ -73,20 +73,6 @@ export default {
           }}</span>
       </RouterLink>
 
-      <!-- Rating & Rank -->
-      <RouterLink to="/leaderboard" class="flex items-center flex-col leading-tight group"
-                  aria-label="Open leaderboard">
-        <span class="flex gap-2 text-sm font-semibold text-black">
-          <Trophy class="size-4 text-emerald-700"/>
-          Rating: {{ authStore.currentUser.rating }}
-        </span>
-        <span class="flex gap-2 text-xs text-black/70 group-hover:text-black opacity-80">
-          <Crown class="size-4 text-amber-700"/>
-          <span v-if="dash.rank !== null && dash.rank !== undefined">Rank #{{ dash.rank }}</span>
-          <span v-else>No rank</span>
-        </span>
-      </RouterLink>
-
       <!-- Coins -->
       <RouterLink to="/shop" class="flex items-center gap-1 text-black">
         <span class="text-lg lg:text-xl font-bold">{{ authStore.currentUser.coins_balance }}</span>
