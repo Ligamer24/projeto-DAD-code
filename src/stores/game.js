@@ -161,7 +161,7 @@ export const useGameStore = defineStore("game", () => {
         // Pequeno delay para os jogadores verem o que aconteceu
         setTimeout(() => {
             checkRoundWinner()
-        }, 1)
+        }, 1000)
     } else {
         // Se só há 1 carta, passa a vez para o outro
         currentTurn.value = playerNumber === authStore.currentUser.id ? BOT_ID : authStore.currentUser.id
@@ -311,7 +311,7 @@ export const useGameStore = defineStore("game", () => {
     if (player2Hand.value.length === 0) return
     
     // Delay de pensamento
-    // await new Promise(resolve => setTimeout(resolve, 1000))
+    await new Promise(resolve => setTimeout(resolve, 1000))
 
     // Se o Bot for o segundo a jogar, deve tentar assistir (seguir naipe)
     let cardToPlay = null

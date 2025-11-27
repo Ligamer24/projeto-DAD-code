@@ -93,6 +93,17 @@ export const useAPIStore = defineStore("api", () => {
     });
   };
 
+  // SELECTED DECK
+    const updateSelectedDeck = async (deckId) => {
+      return axios.patch(`${API_BASE_URL}/users/me/select-deck`, {
+        deck: deckId,
+      });
+    }
+
+    const getSelectedDeck = async () => {
+      return axios.get(`${API_BASE_URL}/users/me/select-deck`);
+    }
+
   return {
     postGame,
     getGames,
@@ -106,5 +117,7 @@ export const useAPIStore = defineStore("api", () => {
     putUser,
     uploadProfilePhoto,
     changePassword,
+    updateSelectedDeck,
+    getSelectedDeck,
   };
 });
