@@ -29,6 +29,9 @@
             <button @click="open = false" class="px-4 py-2 bg-gray-300 rounded-lg font-bold">Cancelar</button>
             <button @click="confirmPayment" class="px-4 py-2 bg-green-500 text-white rounded-lg font-bold">Play</button>
           </div>
+          <div v-if="errorMessage" class="text-red-600 font-bold text-lg">
+            {{ errorMessage }}
+          </div>
         </div>
       </div>
     </div>
