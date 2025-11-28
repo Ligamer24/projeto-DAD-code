@@ -19,7 +19,14 @@ export const useAPIStore = defineStore("api", () => {
     return axios.get(`${API_BASE_URL}/matches`);
   };
 
-  
+  // COINS TRANSACTIONS
+  const postCoinsTransaction = (coinsObj) => {
+    return axios.post(`${API_BASE_URL}/coins`, coinsObj);
+  };
+
+  const updateCoinsUser = (coinsAmount) => {
+    return axios.put(`${API_BASE_URL}/users/me`, { amountToAdd: coinsAmount });
+  };
 
   const token = ref();
 
@@ -29,7 +36,7 @@ export const useAPIStore = defineStore("api", () => {
     token.value = response.data.token;
     axios.defaults.headers.common["Authorization"] = `Bearer ${token.value}`;
   };
-  
+
   const postLogout = async () => {
     await axios.post(`${API_BASE_URL}/logout`);
     token.value = undefined;
@@ -41,33 +48,38 @@ export const useAPIStore = defineStore("api", () => {
   };
 
   const putUser = (user) => {
-    return axios.put(`${API_BASE_URL}/users/me`, user)
-  }
+    return axios.put(`${API_BASE_URL}/users/me`, user);
+  };
 
   const patchUserPhoto = (id, photo_url) => {
     return axios.patch(`${API_BASE_URL}/users/me/photo-url`, {
-      photo_avatar_filename: photo_url
-     })
-  }
+      photo_avatar_filename: photo_url,
+    });
+  };
 
   // Files
 
   const uploadProfilePhoto = async (file) => {
-    const formData = new FormData()
-    formData.append('photo', file)
+    const formData = new FormData();
+    formData.append("photo", file);
 
-    const uploadPromise = axios.post(`${API_BASE_URL}/files/userphoto`, formData, {
-      headers: { 'Content-Type': 'multipart/form-data' },
-    })
+    const uploadPromise = axios.post(
+      `${API_BASE_URL}/files/userphoto`,
+      formData,
+      {
+        headers: { "Content-Type": "multipart/form-data" },
+      }
+    );
 
     toast.promise(uploadPromise, {
-      loading: 'Uploading profile photo...',
+      loading: "Uploading profile photo...",
       success: () => `Profile photo uploaded successfully`,
-      error: (data) => `Error uploading photo - ${data?.response?.data?.message}`,
-    })
+      error: (data) =>
+        `Error uploading photo - ${data?.response?.data?.message}`,
+    });
 
-    return uploadPromise
-  }
+    return uploadPromise;
+  };
 
   // UPDATE AVATAR (upload OU predefined)
   const updateAvatar = async (value, isPredefined = false) => {
@@ -98,6 +110,7 @@ export const useAPIStore = defineStore("api", () => {
     getGames,
     postMatch,
     getMatches,
+    postCoinsTransaction,
     postLogin,
     postLogout,
     getAuthUser,
@@ -106,5 +119,6 @@ export const useAPIStore = defineStore("api", () => {
     putUser,
     uploadProfilePhoto,
     changePassword,
+    updateCoinsUser
   };
 });

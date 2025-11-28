@@ -10,6 +10,8 @@ const COIN_BASE_WIN = 3
 const COIN_CAPOTE_MULTIPIER = 5
 const COIN_BANDEIRA_MULTIPIER = 20
 
+const ID_COIN_MATCH_PAYOUT = 6
+
 export const useMatchStore = defineStore('match', () => {
     
     const apiStore = useAPIStore()
@@ -19,6 +21,8 @@ export const useMatchStore = defineStore('match', () => {
     const status = ref('idle') // 'idle', 'ongoing', 'finished'
     const gamesHistory = ref([])
     const player1_id = authStore.currentUser.id
+    const coinsWonByPlayer = 0 //coins ganhas pelo jogador na match
+
 
     const BOT_ID = authStore.BOT_ID
 
@@ -43,24 +47,27 @@ export const useMatchStore = defineStore('match', () => {
     }
 
     // Adicionar pontos de vitória (1, 2 ou 4)
-    const addScore = (winnerId, marksArgument, exactGameScore, gameMoves, gameBeganAt, gameEndedAt) => {
+    const addScore = (winnerId, marksArgument, exactGameScore, gameMoves, gameBeganAt, gameEndedAt, coinsWonByPlayer) => {
         let p1Marks = 0
         let p2Marks = 0
 
+        let p1CoinsWon = 0
         
         
         
         if (winnerId === 1) {
             marks.value.player1 += marksArgument
             p1Marks = marksArgument
+            p1CoinsWon = coinsWonByPlayer
             winnerId = player1_id
             
             if (marksArgument == 2) p1TotalAchievements.capote += 1
             else if (marksArgument == 4) p1TotalAchievements.bandeira += 1
+
         } else if (winnerId === 2) {
             marks.value.player2 += marksArgument
             p2Marks = marksArgument
-            winnerId = BOT_ID
+            winnerId = BOT_ID   
         } else {
             winnerId = null
         }
@@ -79,6 +86,7 @@ export const useMatchStore = defineStore('match', () => {
             trickByTrick: {...gameMoves},
             began_at: gameBeganAt,
             ended_at: gameEndedAt, 
+            coinsWon: {player1: coinsWonByPlayer, player2: 0},
         })
 
         
@@ -104,8 +112,11 @@ export const useMatchStore = defineStore('match', () => {
                 }
                 const matchPostResult = (await apiStore.postMatch(match)).data
                 
+
                 for (const game of gamesHistory.value) {
                     const movesSnapshot = game.trickByTrick ? JSON.parse(JSON.stringify(game.trickByTrick)) : {};
+
+                    coinsWonByPlayer += game.coinsWon.player1
 
                     const gameObj = {
                         type: BISCA_TYPE,
@@ -128,12 +139,28 @@ export const useMatchStore = defineStore('match', () => {
                 };
         }
 
+    const saveCoinsUpdate = () => {
+
+        // Atualizar as coins do jogador
+        coinsObj = {
+            transaction_datetime: new Date(),
+            user_id: authStore.currentUser.id,
+            match_id: matchPostResult.id,
+            coin_transaction_type_id: ID_COIN_MATCH_PAYOUT,
+            coins: coinsWonByPlayer,
+        }
+
+        apiStore.updateCoinsUser(coinsWonByPlayer)
+        apiStore.postCoinsTransaction(coinsObj)
+    }
+
     const checkMatchWinner = () => {
         if (marks.value.player1 >= 4) {
             status.value = 'finished'
             toast.success("Match Won!")
             matchEndedAt.value = new Date()
-            saveMatch()
+            saveMatch() 
+            saveCoinsUpdate() //POIS Nao guardamos as coins do bot, e só no final da match
 
         } else if (marks.value.player2 >= 4) {
             status.value = 'finished'
