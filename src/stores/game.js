@@ -301,7 +301,9 @@ export const useGameStore = defineStore("game", () => {
         }
         
         console.log("Winner id:", winnerId)
-        matchStore.addScore(winnerId, victoryPoints, scores.value, moves.value, gameBeganAt, gameEndedAt)
+        matchStore.addScore(
+          winnerId, victoryPoints, scores.value, moves.value, 
+          gameBeganAt, gameEndedAt, trumpSuit.value)
 
         
     }

@@ -43,7 +43,7 @@ export const useMatchStore = defineStore('match', () => {
     }
 
     // Adicionar pontos de vitória (1, 2 ou 4)
-    const addScore = (winnerId, marksArgument, exactGameScore, gameMoves, gameBeganAt, gameEndedAt) => {
+    const addScore = (winnerId, marksArgument, exactGameScore, gameMoves, gameBeganAt, gameEndedAt, trumpCard) => {
         let p1Marks = 0
         let p2Marks = 0
 
@@ -70,13 +70,13 @@ export const useMatchStore = defineStore('match', () => {
 
         checkMatchWinner()
 
-        
+        const movesSnapshot = gameMoves ? JSON.parse(JSON.stringify(gameMoves)) : [];
         gamesHistory.value.push({
             roundNumber: gamesHistory.value.length + 1,
             winner: winnerId,
             marksAwarded: { player1: p1Marks, player2: p2Marks}, //0, 1, 2 ou 4
             scoreDetail: {...exactGameScore},   // Ex: { p1: 120, p2: 0 }
-            trickByTrick: {...gameMoves},
+            trickByTrick: { tricks: movesSnapshot, trump: trumpCard},
             began_at: gameBeganAt,
             ended_at: gameEndedAt, 
         })
