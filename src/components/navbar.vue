@@ -1,9 +1,9 @@
 <script setup>
-import {Coins, Crown, ExpandIcon, Trophy, UserRound} from "lucide-vue-next";
-import {RouterLink} from "vue-router";
-import {ref, computed, onMounted, inject} from "vue";
-import {useDashStore} from "@/stores/dash.js";
-import {useAuthStore} from "@/stores/auth.js";
+import { Coins, Crown, ExpandIcon, Trophy, UserRound } from "lucide-vue-next";
+import { RouterLink } from "vue-router";
+import { ref, computed, onMounted, inject } from "vue";
+import { useDashStore } from "@/stores/dash.js";
+import { useAuthStore } from "@/stores/auth.js";
 import { Avatar, AvatarImage, AvatarFallback } from "./ui/avatar";
 
 const dash = ref({
@@ -61,28 +61,26 @@ export default {
       <!-- Profile / Nickname -->
       <RouterLink :to="profileLink" class="flex items-center gap-2 group" aria-label="Open profile">
         <Avatar class="size-10 lg:size-12">
-              <AvatarImage v-if="authStore.currentUser.photo_avatar_filename"
-                  :src="`${serverBaseURL}/storage/photos_avatars/${authStore.currentUser.photo_avatar_filename}`"
-                  :alt="authStore.currentUser.name" />
-              <AvatarFallback class="text-4xl">
-                  {{ authStore.currentUser.name?.charAt(0).toUpperCase() }}
-              </AvatarFallback>
-          </Avatar>
+          <AvatarImage v-if="authStore.currentUser.photo_avatar_filename"
+            :src="`${serverBaseURL}/storage/photos_avatars/${authStore.currentUser.photo_avatar_filename}`"
+            :alt="authStore.currentUser.name" />
+          <AvatarFallback class="text-4xl">
+            {{ authStore.currentUser.name?.charAt(0).toUpperCase() }}
+          </AvatarFallback>
+        </Avatar>
         <span class="text-lg lg:text-xl font-semibold text-black group-hover:underline">{{
-            authStore.currentUser.nickname ?? authStore.currentUser.name ?? 'Anonymous'
-          }}</span>
+          authStore.currentUser.nickname ?? authStore.currentUser.name ?? 'Anonymous'
+        }}</span>
       </RouterLink>
 
       <!-- Coins -->
       <RouterLink to="/shop" class="flex items-center gap-1 text-black">
         <span class="text-lg lg:text-xl font-bold">{{ authStore.currentUser.coins_balance }}</span>
-        <Coins class="size-5 lg:size-6 text-yellow-600"/>
+        <Coins class="size-5 lg:size-6 text-yellow-600" />
       </RouterLink>
     </div>
-    <div class="mt-2 h-px w-full bg-black/40"/>
+    <div class="mt-2 h-px w-full bg-black/40" />
   </header>
 </template>
 
-<style scoped>
-
-</style>
+<style scoped></style>

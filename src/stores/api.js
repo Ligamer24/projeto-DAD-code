@@ -25,9 +25,9 @@ export const useAPIStore = defineStore("api", () => {
   };
 
   const updateCoinsUser = (coinsAmount) => {
-    return axios.put(`${API_BASE_URL}/users/me`, { amountToAdd: coinsAmount });
+    return axios.put(`${API_BASE_URL}/users/me/coins`, { amountToAdd: coinsAmount });
   };
-
+  
   const token = ref();
 
   // AUTH

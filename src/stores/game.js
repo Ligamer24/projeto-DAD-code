@@ -302,27 +302,25 @@ export const useGameStore = defineStore("game", () => {
 
     if (p1Points > 60) {
       winnerId = 1;
-      coinsWonByPlayer = 10;
+      coinsWonByPlayer = 3;
       if (p1Points >= 120) {
         victoryPoints = 4;
-        coinsWonByPlayer += 20;
+        coinsWonByPlayer += 3;
       } else if (p1Points >= 91) {
         victoryPoints = 2;
-        coinsWonByPlayer += 5;
+        coinsWonByPlayer += 1;
       } else victoryPoints = 1;
     } else if (p2Points > 60) {
       winnerId = 2;
-      coinsWonByPlayer = 10;
       if (p2Points >= 120) {
         victoryPoints = 4;
-        coinsWonByPlayer += 20;
       } else if (p2Points >= 91) {
         victoryPoints = 2;
-        coinsWonByPlayer += 5;
       } else victoryPoints = 1;
     } else {
       winnerId = null;
       victoryPoints = 0;
+      coinsWonByPlayer = 0;
     }
 
     console.log("Winner id:", winnerId);
