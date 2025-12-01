@@ -54,7 +54,7 @@ async function confirmPayment() {
   try {
 
     if (!authStore.currentUser || authStore.currentUser.coins_balance < gameCost) {
-      errorMessage.value = "Não tens moedas suficientes!";
+      errorMessage.value = "Not enough coins to play.";
       return;
     }
 
