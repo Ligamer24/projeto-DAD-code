@@ -1,4 +1,56 @@
 <template>
+  <button 
+    @click="openModal"
+    class="group flex items-center gap-2 px-4 py-2 bg-white/90 backdrop-blur-sm border border-slate-200 rounded-lg shadow-sm 
+           hover:bg-rose-50 hover:border-rose-200 hover:text-rose-600 hover:shadow-md 
+           transition-all duration-200 ease-in-out text-slate-600 font-medium text-sm"
+  >
+    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="group-hover:-translate-x-1 transition-transform duration-200">
+      <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+      <polyline points="16 17 21 12 16 7"></polyline>
+      <line x1="21" y1="12" x2="9" y2="12"></line>
+    </svg>
+    <span>Quit Match</span>
+  </button>
+
+  <!-- Div de confirmação para sair da partida -->
+    <div v-if="isOpen" class="fixed inset-0 z-50 flex items-center justify-center p-4" aria-labelledby="modal-title">
+      
+      <div class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm transition-opacity z-0" @click="closeModal"></div>
+
+      <div class="relative bg-white rounded-xl shadow-2xl border border-slate-100 max-w-sm w-full p-6 text-center transform transition-all overflow-hidden">
+        
+        <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-rose-100 mb-4">
+          <svg class="h-6 w-6 text-rose-600" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
+          </svg>
+        </div>
+
+        <h3 class="text-lg font-bold text-slate-900 mb-2" id="modal-title">
+          Forfeit the Match?
+        </h3>
+        <p class="text-sm text-slate-500 mb-6">
+          If you leave now, you will lose all the progress from this match and it will count as a <span class="font-bold text-rose-600">defeat</span>.
+        </p>
+
+        <!-- Botões de Ação -->
+        <div class="flex flex-col-reverse sm:flex-row gap-3 justify-center">
+          <button 
+            @click="closeModal"
+            class="w-full inline-flex justify-center rounded-lg border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 shadow-sm hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-slate-500 focus:ring-offset-2 transition-colors"
+          >
+            No
+          </button>
+          
+          <button 
+            @click="confirmLeave"
+            class="w-full inline-flex justify-center rounded-lg border border-transparent bg-rose-600 px-4 py-2 text-sm font-bold text-white shadow-sm hover:bg-rose-700 focus:outline-none focus:ring-2 focus:ring-rose-500 focus:ring-offset-2 transition-colors"
+          >
+            Yes
+          </button>
+        </div>
+      </div>
+    </div>
   <div 
     v-if="game.gameEnded || match.status === 'finished'" 
     class="fixed inset-0 z-50 flex items-start md:items-center justify-center bg-black/70 backdrop-blur-sm p-4 sm:p-6 overflow-y-auto"
@@ -199,6 +251,8 @@ const router = useRouter();
 const match = useMatchStore();
 const auth = useAuthStore();
 
+const isOpen = ref('')
+
 // Animação visual das cartas jogadas
 const playedCardSelf = computed(() =>
   game.tableCards.find((c) => c.player === auth.currentUser.id)
@@ -314,4 +368,21 @@ const calculateTotalCoins = computed(() => {
   // Soma os bónus de todos os achievements
   return earnedAchievements.value.reduce((total, item) => total + item.bonus, 0)
 })
+
+/////////// Sistema de Quit da partida //////////////
+const openModal = () => {
+  isOpen.value = true
+}
+
+const closeModal = () => {
+  isOpen.value = false
+}
+
+const confirmLeave = () => {
+  // Eventualmente adicionar lógica extra...
+  // matchStore.forfeitMatch()... por exemplo
+  
+  isOpen.value = false
+  router.push({ name: 'dashboard' })
+}
 </script>
