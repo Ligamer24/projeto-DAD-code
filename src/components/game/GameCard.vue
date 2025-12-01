@@ -14,6 +14,7 @@
 
 <script setup>
 import { computed } from 'vue'
+import {useShopStore} from "@/stores/shop.js";
 
 const props = defineProps({
   card: { type: Object, required: true },
@@ -21,12 +22,14 @@ const props = defineProps({
   faceDown: { type: Boolean, default: false }
 })
 
+const deck = useShopStore().selectedDeck
+
 // MUDANÇA 1: Usar kebab-case na definição
 const emit = defineEmits(['card-click'])
 
 const imageSrc = computed(() => {
   if (props.faceDown) {
-    return '/src/assets/cards/default/semFace.png'
+    return `/src/assets/cards/semFace_${deck}.png`
   }
   return `/src/assets/cards/default/${props.card.card}.png`
 })
