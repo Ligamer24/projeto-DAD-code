@@ -17,7 +17,7 @@
         </div>
         <div class="relative w-28 h-40">
           <img :src="trunfoCard" class="absolute inset-0 w-full h-full object-cover z-0" alt="trunfo"/>
-          <img src="/src/assets/cards/default/semFace.png" alt="Deck"
+          <img :src="`/src/assets/cards/semFace_${deck}.png`" alt="Deck"
                class="absolute inset-0 w-full h-full object-cover rotate-90 z-10 top-16"/>
           <p class="absolute inset-0 w-full h-full object-cover z-20 top-32 text-3xl font-bold text-center">{{ game.deck.length }} left</p>
         </div>
@@ -39,8 +39,11 @@
 <script setup>
 import {computed, onMounted, ref} from 'vue'
 import {useGameStore} from "@/stores/game.js";
+import {useShopStore} from "@/stores/shop.js";
 
 const gameDiv = ref(null);
+const deck = ref();
+deck.value = useShopStore().selectedDeck;
 
 function updatePagesHeight() {
   if (typeof window === 'undefined') return

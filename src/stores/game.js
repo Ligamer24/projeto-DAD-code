@@ -340,7 +340,7 @@ export const useGameStore = defineStore("game", () => {
     if (player2Hand.value.length === 0) return;
 
     // Delay de pensamento
-    // await new Promise(resolve => setTimeout(resolve, 1000))
+    await new Promise(resolve => setTimeout(resolve, 1000))
 
     // Se o Bot for o segundo a jogar, deve tentar assistir (seguir naipe)
     let cardToPlay = null;
