@@ -218,7 +218,7 @@ const logout = () => {
               <div class="flex flex-col sm:flex-row items-start gap-6">
                 <div class="flex-shrink-0">
                   <Avatar class="w-32 h-32">
-                    <AvatarImage v-if="authStore.currentUser.photo_avatar_filename"
+                    <AvatarImage v-if="authStore.currentUser?.photo_avatar_filename"
                       :src="`${serverBaseURL}/storage/photos_avatars/${authStore.currentUser.photo_avatar_filename}`"
                       :alt="authStore.currentUser.name" />
                     <AvatarFallback class="text-4xl">

@@ -65,7 +65,7 @@
             <p class="text-white/90 font-medium mt-1">{{ headerSubtitle }}</p>
          </div>
 
-         <div class="p-6 bg-gray-50 border-b border-gray-200">
+         <div v-if="auth.currentUser" class="p-6 bg-gray-50 border-b border-gray-200">
             <div class="flex justify-between items-center px-4">
                 <div class="flex flex-col items-center">
                     <span class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-1">You</span>
@@ -94,17 +94,17 @@
             <span :class="game.scores.player2 > 60 ? 'text-red-600 font-bold' : ''">Bot {{ game.scores.player2 }}</span>
          </div>
 
-         <div class="mt-6 px-6"> <h3 class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-3">Match History</h3>
+         <div v-if="!auth.anonymous" class="mt-6 px-6"> <h3 class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-3">Match History</h3>
             <div class="space-y-3 max-h-48 overflow-y-auto pr-1 custom-scrollbar">
                 <div v-for="game in match.gamesHistory" :key="game.roundNumber" class="bg-gray-50 border border-gray-100 rounded-lg p-3 relative overflow-hidden shadow-sm">
-                    <div class="absolute left-0 top-0 bottom-0 w-1.5" :class="game.winner ? (game.winner === auth.currentUser.id ? 'bg-green-500' : 'bg-red-500') : 'bg-gray-500'"></div>
+                    <div class="absolute left-0 top-0 bottom-0 w-1.5" :class="game.winner ? (game.winner === currentUserId ? 'bg-green-500' : 'bg-red-500') : 'bg-gray-500'"></div>
                     <div class="pl-3">
                         <div class="flex justify-between items-center mb-2 border-b border-gray-200 pb-2">
                             <span class="font-bold text-gray-700 text-sm">Game {{ game.roundNumber }}</span>
                             <div class="flex items-center gap-2">
                                 <span v-if="game.scoreDetail.player1 >= 61" class="text-[10px] font-bold px-1.5 py-0.5 rounded bg-gray-200 text-gray-600">{{ game.scoreDetail.player1 < 61 ? '' : (game.scoreDetail.player1 < 91 ? 'Risca' : (game.scoreDetail.player1 < 120 ? 'Capote' : 'Bandeira')) }}</span>
                                 <span class="text-[10px] font-bold px-1.5 py-0.5 rounded bg-gray-200 text-gray-600">{{ game.marksAwarded.player1 }} pts</span>
-                                <span class="text-xs font-black uppercase" :class="game.winner ? (game.winner === auth.currentUser.id ? 'text-green-600' : 'text-red-600') : 'text-gray-600'">{{ game.winner ? (game.winner === auth.currentUser.id ? "WIN" : "LOSE") : "DRAW" }}</span>
+                                <span class="text-xs font-black uppercase" :class="game.winner ? (game.winner === currentUserId ? 'text-green-600' : 'text-red-600') : 'text-gray-600'">{{ game.winner ? (game.winner === currentUserId ? "WIN" : "LOSE") : "DRAW" }}</span>
                             </div>
                         </div>
                         <div class="grid grid-cols-3 items-center text-center">
@@ -118,8 +118,8 @@
          </div>
 
          <div class="p-6 space-y-3 bg-white">
-            <button v-if="match.status === 'ongoing'" @click="game.startNewGame()" class="w-full py-4 rounded-xl font-black text-white shadow-lg transform transition-all hover:scale-[1.02] active:scale-95 flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 ring-4 ring-blue-100">
-              <Hand class="w-5 h-5" /> Deal Next Hand
+            <button v-if="match.status === 'ongoing' || !auth.currentUser" @click="game.startNewGame()" class="w-full py-4 rounded-xl font-black text-white shadow-lg transform transition-all hover:scale-[1.02] active:scale-95 flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 ring-4 ring-blue-100">
+              <Hand class="w-5 h-5" /> {{auth.currentUser ? 'Deal Next Hand' : 'Play again'}}
             </button>
             <button v-if="match.status === 'finished'" @click="restartFullMatch" class="w-full py-4 rounded-xl font-black text-white shadow-lg transform transition-all hover:scale-[1.02] active:scale-95 flex items-center justify-center gap-2" :class="match.marks.player1 >= 4 ? 'bg-green-600 hover:bg-green-700 ring-4 ring-green-100' : 'bg-gray-800 hover:bg-gray-900 ring-4 ring-gray-200'">
               <RotateCcw class="w-5 h-5" /> Play Again
@@ -130,7 +130,7 @@
          </div>
       </div>
 
-      <div 
+      <div v-if="!auth.anonymous"
         class="flex flex-col w-full md:w-72 bg-amber-50 rounded-b-2xl md:rounded-r-2xl md:rounded-l-none md:mt-0 border
         border-t md:border-t-0 md:border-l border-amber-100 p-6 transform transition-all duration-500 delay-100 origin-top
          md:origin-left"
@@ -206,10 +206,10 @@
         v-for="(card, i) in game.player1Hand"
         :key="'bottom-' + i"
         :card="card"
-        :is-interactive="game.currentTurn === auth.currentUser.id && game.tableCards.length < 2"
+        :is-interactive="game.currentTurn === currentUserId && game.tableCards.length < 2"
         @card-click="handlePlayCard(card, i)"
         class="transition-transform duration-200"
-        :class="{ 'hover:-translate-y-4': game.currentTurn === auth.currentUser.id && game.tableCards.length < 2 }"
+        :class="{ 'hover:-translate-y-4': game.currentTurn === currentUserId && game.tableCards.length < 2 }"
       />
     </section>
   </div>
@@ -251,11 +251,13 @@ const router = useRouter();
 const match = useMatchStore();
 const auth = useAuthStore();
 
+const currentUserId = auth.currentUser?.id ?? -1
+
 const isOpen = ref('')
 
 // Animação visual das cartas jogadas
 const playedCardSelf = computed(() =>
-  game.tableCards.find((c) => c.player === auth.currentUser.id)
+  game.tableCards.find((c) => c.player === currentUserId)
 );
 const playedCardOpponent = computed(() =>
   game.tableCards.find((c) => c.player === auth.BOT_ID)
@@ -263,7 +265,7 @@ const playedCardOpponent = computed(() =>
 
 // Cartas da última ronda jogadas
 const lastRoundPlayerCard = computed(() =>
-  game.lastRoundCards.find((c) => c.player === auth.currentUser.id)
+  game.lastRoundCards.find((c) => c.player === currentUserId)
 );
 const lastRoundOpponentCard = computed(() =>
   game.lastRoundCards.find((c) => c.player === auth.BOT_ID)
@@ -275,14 +277,14 @@ const playerScore = computed(() => game.scores.player1);
 
 onMounted(() => {
   // Inicia a Match
-  match.initMatch();
+   if (!auth.anonymous) match.initMatch();
   // Inicialização do jogo
   game.startNewGame();
 });
 
 function handlePlayCard(card, index) {
   // 1. O Jogador joga a carta na lógica da Store
-  game.playCardLocal(card, auth.currentUser.id); // 1 = Jogador Humano
+  game.playCardLocal(card, currentUserId);
 }
 
 // Após Match acabar

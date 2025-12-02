@@ -14,6 +14,7 @@ export const useMatchStore = defineStore('match', () => {
     
     const apiStore = useAPIStore()
     const authStore = useAuthStore()
+    if (authStore.anonymous) return
     // Estado (Placar da Partida 0-4)
     const marks = ref({ player1: 0, player2: 0 })
     const status = ref('idle') // 'idle', 'ongoing', 'finished'
