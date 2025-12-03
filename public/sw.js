@@ -23,21 +23,40 @@ self.addEventListener('message', (event) => {
 self.addEventListener('notificationclick', (event) => {
     console.log('Notification click received:', event)
     event.notification.close()
-    // Focus or open the app
-    event.waitUntil(
-        self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then((clientsArr) => {
-            const hadWindowToFocus = clientsArr.some((client) => {
-                if (client.url && 'focus' in client) {
-                    client.focus()
-                    return true
+    const targetUrl = (event.notification && event.notification.data && event.notification.data.url) || '/'
+
+    event.waitUntil((async () => {
+        try {
+            const clientsArr = await self.clients.matchAll({ type: 'window', includeUncontrolled: true })
+            // Try to focus an existing client with same origin, and navigate if needed
+            for (const client of clientsArr) {
+                try {
+                    const clientUrl = new URL(client.url)
+                    const target = new URL(targetUrl, self.location.origin)
+                    if (clientUrl.origin === target.origin) {
+                        if ('focus' in client) await client.focus()
+                        // Navigate if the path differs
+                        if (clientUrl.href !== target.href && 'navigate' in client) {
+                            await client.navigate(target.href)
+                        }
+                        return
+                    }
+                } catch (e) {
+                    console.warn('Client URL parsing failed:', e)
                 }
-                return false
-            })
-            if (!hadWindowToFocus && self.clients.openWindow) {
-                return self.clients.openWindow('/')
             }
-        })
-    )
+            // If no suitable client, open a new window
+            if (self.clients.openWindow) {
+                await self.clients.openWindow(targetUrl)
+            }
+        } catch (err) {
+            console.error('Error handling notification click:', err)
+            // Fallback open root if something went wrong
+            if (self.clients.openWindow) {
+                await self.clients.openWindow('/')
+            }
+        }
+    })())
 })
 
 self.addEventListener('push', (event) => {

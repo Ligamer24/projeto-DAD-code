@@ -141,8 +141,6 @@ export const useAPIStore = defineStore("api", () => {
     return axios.get(`${API_BASE_URL}/users/me/select-deck`);
   }
 
-  const vapidPublicKey = inject('vapidPublicKey');
-
   const urlBase64ToUint8Array = (base64String) => {
     const padding = '='.repeat((4 - base64String.length % 4) % 4);
     const base64 = (base64String + padding)
@@ -154,6 +152,17 @@ export const useAPIStore = defineStore("api", () => {
       outputArray[i] = rawData.charCodeAt(i);
     }
     return outputArray;
+  }
+
+  const getVapidPublicKey = async () => {
+    try {
+      const response = await axios.get(`${API_BASE_URL}/get-vapid`);
+      console.log('VAPID key response:', response.data);
+      return response.data.publicKey;
+    } catch (error) {
+      console.error('Error fetching VAPID public key:', error);
+      return null;
+    }
   }
 
   const subscribeToPushNotifications = async () => {
@@ -170,9 +179,12 @@ export const useAPIStore = defineStore("api", () => {
       const registration = await navigator.serviceWorker.ready;
       console.log('Service Worker ready:', registration);
 
+      let vapid_Key = await getVapidPublicKey();
+      console.log('VAPID Public Key:', vapid_Key);
+
       const subscription = await registration.pushManager.subscribe({
         userVisibleOnly: true,
-        applicationServerKey: urlBase64ToUint8Array(vapidPublicKey)
+        applicationServerKey: urlBase64ToUint8Array(vapid_Key),
       });
       console.log('Subscription object:', subscription);
 

@@ -175,53 +175,10 @@ onMounted(async () => {
   }
 
 
-  const permission = await Notification.requestPermission()
-  if (permission !== 'granted') {
-    alert('You will not receive notifications then.')
-  }
+  await Notification.requestPermission()
+
+  await api.subscribeToPushNotifications()
 })
-
-
-const sendNotification = async () => {
-
-  const title = 'Hello from PWA!'
-  const options = {
-    body: 'This is a test notification 🚀',
-    // Use the 512 icon which exists in public/icons
-    icon: '/icons/logo.png',
-  }
-
-  try {
-    // Prefer showing the notification via the service worker registration
-    // because it works even when the page isn't focused and better integrates
-    // with the PWA lifecycle.
-    if (swRegistration.value && typeof swRegistration.value.showNotification === 'function') {
-      swRegistration.value.showNotification(title, options)
-      return
-    }
-
-    // If we don't have the stored registration, try to get an active one.
-    if ('serviceWorker' in navigator) {
-      const reg = await navigator.serviceWorker.getRegistration()
-      if (reg && typeof reg.showNotification === 'function') {
-        reg.showNotification(title, options)
-        return
-      }
-
-      // As a last resort, post a message to the active service worker which
-      // will call showNotification from the SW (we added a message handler).
-      if (navigator.serviceWorker.controller) {
-        navigator.serviceWorker.controller.postMessage({type: 'notify', title, options})
-        return
-      }
-    }
-
-    // Fallback to the page Notification API
-    new Notification(title, options)
-  } catch (err) {
-    console.error('Error showing notification:', err)
-  }
-}
 
 </script>
 
@@ -265,11 +222,6 @@ const sendNotification = async () => {
       </div>
     </div>
   </nav>
-
-  <button class="absolute top-0 right-4 bg-blue-600 text-white px-4 py-2 rounded shadow"
-          @click="api.subscribeToPushNotifications">
-    Enable Notifications
-  </button>
 </template>
 
 <style scoped>
