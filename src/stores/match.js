@@ -7,8 +7,8 @@ import { useAuthStore } from './auth'
 const BISCA_TYPE = '9'
 
 const COIN_BASE_WIN = 3
-const COIN_CAPOTE_MULTIPIER = 5
-const COIN_BANDEIRA_MULTIPIER = 20
+const COIN_CAPOTE_MULTIPIER = 4
+const COIN_BANDEIRA_MULTIPIER = 6
 
 export const useMatchStore = defineStore('match', () => {
     
@@ -150,6 +150,9 @@ export const useMatchStore = defineStore('match', () => {
         marks,
         status,
         gamesHistory,
+        COIN_BASE_WIN,
+        COIN_CAPOTE_MULTIPIER,
+        COIN_BANDEIRA_MULTIPIER,
         initMatch,
         addScore
     }
