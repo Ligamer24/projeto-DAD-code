@@ -53,7 +53,7 @@ export const useAPIStore = defineStore("api", () => {
   const updateCoinsUser = (coinsAmount) => {
     return axios.put(`${API_BASE_URL}/users/me/coins`, { amountToAdd: coinsAmount });
   };
-  
+
 
   // AUTH
   const postLogin = async (credentials) => {
@@ -62,7 +62,6 @@ export const useAPIStore = defineStore("api", () => {
     setToken(newToken);
     return newToken;
   };
-
 
   const postLogout = async () => {
     await axios.post(`${API_BASE_URL}/logout`);
@@ -78,17 +77,14 @@ export const useAPIStore = defineStore("api", () => {
     return axios.put(`${API_BASE_URL}/users/me`, user);
   };
 
-
   const patchUserPhoto = (id, photo_url) => {
     return axios.patch(`${API_BASE_URL}/users/me/photo-url`, {
       photo_avatar_filename: photo_url,
     });
   };
 
-
   // Files
   const uploadProfilePhoto = async (file) => {
-
     const formData = new FormData();
     formData.append("photo", file);
 
@@ -135,15 +131,59 @@ export const useAPIStore = defineStore("api", () => {
   };
 
   // SELECTED DECK
-    const updateSelectedDeck = async (deckId) => {
-      return axios.patch(`${API_BASE_URL}/users/me/select-deck`, {
-        deck: deckId,
-      });
+  const updateSelectedDeck = async (deckId) => {
+    return axios.patch(`${API_BASE_URL}/users/me/select-deck`, {
+      deck: deckId,
+    });
+  }
+
+  const getSelectedDeck = async () => {
+    return axios.get(`${API_BASE_URL}/users/me/select-deck`);
+  }
+
+  const vapidPublicKey = inject('vapidPublicKey');
+
+  const urlBase64ToUint8Array = (base64String) => {
+    const padding = '='.repeat((4 - base64String.length % 4) % 4);
+    const base64 = (base64String + padding)
+      .replace(/-/g, '+')
+      .replace(/_/g, '/');
+    const rawData = window.atob(base64);
+    const outputArray = new Uint8Array(rawData.length);
+    for (let i = 0; i < rawData.length; ++i) {
+      outputArray[i] = rawData.charCodeAt(i);
+    }
+    return outputArray;
+  }
+
+  const subscribeToPushNotifications = async () => {
+    if (!('serviceWorker' in navigator)) {
+      console.log('Service Worker not supported');
+      return;
+    }
+    if (!('PushManager' in window)) {
+      console.log('PushManager not supported');
+      return;
     }
 
-    const getSelectedDeck = async () => {
-      return axios.get(`${API_BASE_URL}/users/me/select-deck`);
+    try {
+      const registration = await navigator.serviceWorker.ready;
+      console.log('Service Worker ready:', registration);
+
+      const subscription = await registration.pushManager.subscribe({
+        userVisibleOnly: true,
+        applicationServerKey: urlBase64ToUint8Array(vapidPublicKey)
+      });
+      console.log('Subscription object:', subscription);
+
+      await axios.post(`${API_BASE_URL}/subscribe`, subscription);
+      console.log('Subscription sent to backend');
+      toast.success('Subscribed to notifications!');
+    } catch (error) {
+      console.error('Error subscribing to notifications:', error);
+      toast.error('Failed to subscribe to notifications');
     }
+  };
 
   return {
     token,
@@ -166,6 +206,6 @@ export const useAPIStore = defineStore("api", () => {
     updateCoinsUser,
     updateSelectedDeck,
     getSelectedDeck,
-    
+    subscribeToPushNotifications,
   };
 });

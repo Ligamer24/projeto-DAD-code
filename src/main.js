@@ -8,7 +8,7 @@ import './assets/main.css'
 // const BASE_URL = 'http://localhost:8000'
 const BASE_URL = 'https://redycore.dpdns.org'
 const API_BASE_URL = BASE_URL + '/api'
-const VAPID_PUBLIC_KEY = 'BGhXRJGgiUkMTXtF4e6zqqeGw5hOKba6Ag2vZpvroOPxl79OKxqKNGae5Xubz6SgupjiSb4SjvfKwvXyy9kaYqE'
+const VAPID_PUBLIC_KEY = 'BIGLFVMdgB0i65VHkKWD7IygUUQoZJ8JEUmdTPDUGLxL1nAOI6zIi_36ukf2YCm-I0PzU2fE2tqQtIhkSKBXgtg'
 
 const app = createApp(App)
 

@@ -6,6 +6,9 @@ import Leaderboard from "@/components/segments/dashboard/leaderboard.vue";
 import Dashboard from "@/components/segments/dashboard/dashboard.vue";
 import Shop from "@/components/segments/dashboard/shop.vue";
 import {useRoute, useRouter} from 'vue-router'
+import {useAPIStore} from "@/stores/api";
+
+const api = useAPIStore();
 
 const currentPage = ref(1)
 const pagesRef = ref(null)
@@ -264,8 +267,8 @@ const sendNotification = async () => {
   </nav>
 
   <button class="absolute top-0 right-4 bg-blue-600 text-white px-4 py-2 rounded shadow"
-          @click="sendNotification">
-    Notify me
+          @click="api.subscribeToPushNotifications">
+    Enable Notifications
   </button>
 </template>
 

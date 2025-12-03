@@ -39,3 +39,27 @@ self.addEventListener('notificationclick', (event) => {
         })
     )
 })
+
+self.addEventListener('push', (event) => {
+    console.log('Push received', event);
+    if (event.data) {
+        const data = event.data.json();
+        console.log('Push data:', data);
+        const options = {
+            body: data.body,
+            icon: '/icons/logo.png',
+            badge: '/icons/logo.png',
+            data: {
+                url: data.data.url
+            }
+        };
+        console.log('Showing notification with options:', options);
+        event.waitUntil(
+            self.registration.showNotification(data.title, options)
+                .then(() => console.log('Notification shown'))
+                .catch(err => console.error('Error showing notification:', err))
+        );
+    } else {
+        console.log('Push event received but no data');
+    }
+});
