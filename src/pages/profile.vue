@@ -1,30 +1,16 @@
 <script setup>
-import { useRouter } from "vue-router";
-import {
-  ArrowLeft,
-  Coins,
-  Crown,
-  Trophy,
-  Upload,
-  UserRound,
-} from "lucide-vue-next";
-import { ref, watch, inject } from "vue";
-import { toast } from "vue-sonner";
-import { useAuthStore } from "@/stores/auth.js";
-import { useAPIStore } from "@/stores/api.js";
-import { useFileDialog } from "@vueuse/core";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { storeToRefs } from "pinia";
+import {useRouter} from "vue-router";
+import {ArrowLeft, Coins, Crown, Trophy,} from "lucide-vue-next";
+import {inject, ref, watch} from "vue";
+import {toast} from "vue-sonner";
+import {useAuthStore} from "@/stores/auth.js";
+import {useAPIStore} from "@/stores/api.js";
+import {useFileDialog} from "@vueuse/core";
+import {Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle,} from "@/components/ui/card";
+import {Button} from "@/components/ui/button";
+import {Input} from "@/components/ui/input";
+import {Avatar, AvatarFallback, AvatarImage} from "@/components/ui/avatar";
+import {storeToRefs} from "pinia";
 
 const predefinedAvatars = [
   new URL("@/assets/avatars/avatar1.png", import.meta.url).href,
@@ -46,7 +32,7 @@ const confirmPwd = ref("");
 const pwdErrors = ref([]);
 const pwdSuccess = ref(false);
 
-const { currentUser } = storeToRefs(authStore);
+const {currentUser} = storeToRefs(authStore);
 
 const formData = ref({
   name: "",
@@ -55,26 +41,26 @@ const formData = ref({
 });
 
 watch(
-  () => authStore.currentUser,
-  (user) => {
-    if (user) {
-      formData.value = {
-        name: user.name || "",
-        email: user.email || "",
-        nickname: user.nickname || ""
-      };
-    }
-  },
-  { immediate: true }
+    () => authStore.currentUser,
+    (user) => {
+      if (user) {
+        formData.value = {
+          name: user.name || "",
+          email: user.email || "",
+          nickname: user.nickname || ""
+        };
+      }
+    },
+    {immediate: true}
 );
 
-const { files, open, reset } = useFileDialog({
+const {files, open, reset} = useFileDialog({
   accept: "image/*",
   multiple: false,
 });
 
 function goBack() {
-  router.push({ name: "home" });
+  router.push({name: "home"});
 }
 
 //Função auxiliar formatação de data
@@ -120,7 +106,7 @@ const uploadPhoto = async (av) => {
       const filename = av.split("/").pop();
 
       // 3. Cria um objeto File a partir do blob
-      fileToUpload = new File([blob], filename, { type: blob.type });
+      fileToUpload = new File([blob], filename, {type: blob.type});
 
       // 4. Atualiza o estado da seleção
       selectedPreAvatar.value = av;
@@ -130,8 +116,8 @@ const uploadPhoto = async (av) => {
 
     if (response.data && response.data.photo_avatar_filename) {
       await apiStore.patchUserPhoto(
-        authStore.currentUser.id,
-        response.data.photo_avatar_filename
+          authStore.currentUser.id,
+          response.data.photo_avatar_filename
       );
       await authStore.getUser();
 
@@ -194,14 +180,22 @@ const logout = () => {
     error: (data) => `[API] Error logout - ${data?.response?.data?.message}`,
   });
 };
+
+const requestNotification = () => {
+  apiStore.requestNotification().then(() => {
+    toast.success('Request sent! You will be notified shortly.')
+  }).catch(() => {
+    toast.error('Failed to send request. Please try again later.')
+  });
+}
 </script>
 
 <template>
   <main class="container mx-auto px-4 pt-4 text-black pb-12">
     <button aria-label="Back to Home"
-      class="inline-flex cursor-pointer items-center gap-2 text-black/80 hover:text-black transition mb-4"
-      @click="goBack">
-      <ArrowLeft class="size-5" />
+            class="inline-flex cursor-pointer items-center gap-2 text-black/80 hover:text-black transition mb-4"
+            @click="goBack">
+      <ArrowLeft class="size-5"/>
       <span>Back</span>
     </button>
 
@@ -219,8 +213,8 @@ const logout = () => {
                 <div class="flex-shrink-0">
                   <Avatar class="w-32 h-32">
                     <AvatarImage v-if="authStore.currentUser.photo_avatar_filename"
-                      :src="`${serverBaseURL}/storage/photos_avatars/${authStore.currentUser.photo_avatar_filename}`"
-                      :alt="authStore.currentUser.name" />
+                                 :src="`${serverBaseURL}/storage/photos_avatars/${authStore.currentUser.photo_avatar_filename}`"
+                                 :alt="authStore.currentUser.name"/>
                     <AvatarFallback class="text-4xl">
                       {{ authStore.currentUser.name?.charAt(0).toUpperCase() }}
                     </AvatarFallback>
@@ -247,12 +241,12 @@ const logout = () => {
 
               <div class="grid grid-cols-5 gap-2">
                 <div v-for="(av, i) in predefinedAvatars" :key="i"
-                  class="cursor-pointer rounded-full overflow-hidden border-2 transition" :class="selectedPreAvatar === av
+                     class="cursor-pointer rounded-full overflow-hidden border-2 transition" :class="selectedPreAvatar === av
                       ? 'border-emerald-600'
                       : 'border-transparent'
                     " @click="uploadPhoto(av)">
                   <Avatar class="w-full h-full object-cover">
-                    <AvatarImage :src="av" :alt="key" />
+                    <AvatarImage :src="av" :alt="key"/>
                   </Avatar>
                 </div>
               </div>
@@ -267,7 +261,7 @@ const logout = () => {
                 Coins
               </div>
               <div class="flex items-center gap-1 text-lg font-semibold text-center justify-center">
-                <Coins class="size-4 text-yellow-600" />
+                <Coins class="size-4 text-yellow-600"/>
                 {{ currentUser?.coins_balance }}
               </div>
             </div>
@@ -276,7 +270,7 @@ const logout = () => {
                 Rating
               </div>
               <div class="flex items-center gap-1 text-lg font-semibold text-center justify-center">
-                <Trophy class="size-4 text-emerald-700" />
+                <Trophy class="size-4 text-emerald-700"/>
                 {{ currentUser?.rating }}
               </div>
             </div>
@@ -285,7 +279,7 @@ const logout = () => {
                 Rank
               </div>
               <div class="flex items-center gap-1 text-lg font-semibold text-center justify-center">
-                <Crown class="size-4 text-amber-700" />
+                <Crown class="size-4 text-amber-700"/>
                 #{{ rank }}
               </div>
             </div>
@@ -295,12 +289,12 @@ const logout = () => {
             Member since {{ formatShortDate(currentUser?.created_at) }}
           </div>
 
-          <button @click.prevent="apiStore.requestNotification" role="button"
-            class="cursor-pointer mt-4 inline-flex items-center gap-2 px-4 py-2 rounded-md border border-black/30 bg-black/5 text-black/80 hover:bg-black/10 active:bg-black/20 focus:outline-none focus:ring-2 focus:ring-emerald-500 transition">
+          <button @click.prevent="requestNotification" role="button"
+                  class="cursor-pointer mt-4 inline-flex items-center gap-2 px-4 py-2 rounded-md border border-black/30 bg-black/5 text-black/80 hover:bg-black/10 active:bg-black/20 focus:outline-none focus:ring-2 focus:ring-emerald-500 transition">
             Request Notification
           </button>
           <button @click.prevent="logout" role="button"
-            class="cursor-pointer mt-12 inline-flex items-center gap-2 px-4 py-2 rounded-md border border-black/30 bg-black/5 text-black/80 hover:bg-black/10 active:bg-black/20 focus:outline-none focus:ring-2 focus:ring-emerald-500 transition">
+                  class="cursor-pointer mt-12 inline-flex items-center gap-2 px-4 py-2 rounded-md border border-black/30 bg-black/5 text-black/80 hover:bg-black/10 active:bg-black/20 focus:outline-none focus:ring-2 focus:ring-emerald-500 transition">
             Logout
           </button>
         </div>
@@ -315,22 +309,25 @@ const logout = () => {
               <CardTitle>Account Information</CardTitle>
               <CardDescription>Update your personal details</CardDescription>
             </CardHeader>
-              <CardContent class="space-y-4 grid sm:grid-cols-2 gap-4">
-                <div class="space-y-2">
-                  <Label for="name">Name</Label>
-                  <Input id="name" v-model="formData.name" placeholder="Enter your name" class="w-full rounded-md border border-black/30 bg-white/70 px-3 py-2 outline-none focus:ring-2 focus:ring-emerald-500" />
-                </div>
-                <div class="space-y-2">
-                  <Label for="nickname">Nickname</Label>
-                  <Input id="nickname" v-model="formData.nickname" placeholder="Enter your nickname" class="w-full rounded-md border border-black/30 bg-white/70 px-3 py-2 outline-none focus:ring-2 focus:ring-emerald-500" />
-                </div>
-                <div class="space-y-2 col-span-2">
-                  <Label for="email">Email</Label>
-                  <Input id="email" v-model="formData.email" type="email" placeholder="Enter your email" class="w-full rounded-md border border-black/30 bg-white/70 px-3 py-2 outline-none focus:ring-2 focus:ring-emerald-500" />
-                </div>
-              </CardContent>
+            <CardContent class="space-y-4 grid sm:grid-cols-2 gap-4">
+              <div class="space-y-2">
+                <Label for="name">Name</Label>
+                <Input id="name" v-model="formData.name" placeholder="Enter your name"
+                       class="w-full rounded-md border border-black/30 bg-white/70 px-3 py-2 outline-none focus:ring-2 focus:ring-emerald-500"/>
+              </div>
+              <div class="space-y-2">
+                <Label for="nickname">Nickname</Label>
+                <Input id="nickname" v-model="formData.nickname" placeholder="Enter your nickname"
+                       class="w-full rounded-md border border-black/30 bg-white/70 px-3 py-2 outline-none focus:ring-2 focus:ring-emerald-500"/>
+              </div>
+              <div class="space-y-2 col-span-2">
+                <Label for="email">Email</Label>
+                <Input id="email" v-model="formData.email" type="email" placeholder="Enter your email"
+                       class="w-full rounded-md border border-black/30 bg-white/70 px-3 py-2 outline-none focus:ring-2 focus:ring-emerald-500"/>
+              </div>
+            </CardContent>
             <CardFooter class="flex justify-between">
-              <Button @click="saveProfile"> Save Changes </Button>
+              <Button @click="saveProfile"> Save Changes</Button>
             </CardFooter>
           </Card>
         </div>
@@ -343,20 +340,20 @@ const logout = () => {
             <div class="sm:col-span-2">
               <label class="block text-sm font-medium mb-1" for="current">Current password</label>
               <input id="current" v-model="currentPwd"
-                class="w-full rounded-md border border-black/30 bg-white/70 px-3 py-2 outline-none focus:ring-2 focus:ring-emerald-500"
-                type="password" />
+                     class="w-full rounded-md border border-black/30 bg-white/70 px-3 py-2 outline-none focus:ring-2 focus:ring-emerald-500"
+                     type="password"/>
             </div>
             <div>
               <label class="block text-sm font-medium mb-1" for="new">New password</label>
               <input id="new" v-model="newPwd"
-                class="w-full rounded-md border border-black/30 bg-white/70 px-3 py-2 outline-none focus:ring-2 focus:ring-emerald-500"
-                type="password" />
+                     class="w-full rounded-md border border-black/30 bg-white/70 px-3 py-2 outline-none focus:ring-2 focus:ring-emerald-500"
+                     type="password"/>
             </div>
             <div>
               <label class="block text-sm font-medium mb-1" for="confirm">Confirm new password</label>
               <input id="confirm" v-model="confirmPwd"
-                class="w-full rounded-md border border-black/30 bg-white/70 px-3 py-2 outline-none focus:ring-2 focus:ring-emerald-500"
-                type="password" />
+                     class="w-full rounded-md border border-black/30 bg-white/70 px-3 py-2 outline-none focus:ring-2 focus:ring-emerald-500"
+                     type="password"/>
             </div>
           </div>
 
@@ -366,14 +363,14 @@ const logout = () => {
             </ul>
           </div>
           <div v-if="pwdSuccess"
-            class="mt-3 rounded-md border border-emerald-300 bg-emerald-50 text-emerald-700 p-3 text-sm">
+               class="mt-3 rounded-md border border-emerald-300 bg-emerald-50 text-emerald-700 p-3 text-sm">
             Password changed successfully.
           </div>
 
           <div class="mt-4 flex justify-end">
             <button
-              class="cursor-pointer px-4 py-2 rounded-md bg-emerald-600 text-white hover:bg-emerald-700 active:bg-emerald-800"
-              type="submit">
+                class="cursor-pointer px-4 py-2 rounded-md bg-emerald-600 text-white hover:bg-emerald-700 active:bg-emerald-800"
+                type="submit">
               Update password
             </button>
           </div>
