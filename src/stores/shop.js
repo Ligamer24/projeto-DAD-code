@@ -12,7 +12,7 @@ export const useShopStore = defineStore("shop", () => {
     };
 
     const getSelectedDeck = async () => {
-        selectedDeck.value = await api.getSelectedDeck().then(res => res.data.deck);
+        selectedDeck.value = await api.getSelectedDeck().then(res => res.data.deck) ?? 1;
         console.log(selectedDeck.value);
     };
 
