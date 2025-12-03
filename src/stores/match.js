@@ -10,8 +10,10 @@ const COIN_BASE_WIN = 3
 const COIN_CAPOTE_MULTIPIER = 5
 const COIN_BANDEIRA_MULTIPIER = 20
 
+const ID_COIN_MATCH_PAYOUT = 6
+
 export const useMatchStore = defineStore('match', () => {
-    
+
     const apiStore = useAPIStore()
     const authStore = useAuthStore()
     // Estado (Placar da Partida 0-4)
@@ -19,6 +21,7 @@ export const useMatchStore = defineStore('match', () => {
     const status = ref('idle') // 'idle', 'ongoing', 'finished'
     const gamesHistory = ref([])
     const player1_id = authStore.currentUser.id
+
 
     const BOT_ID = authStore.BOT_ID
 
@@ -28,12 +31,12 @@ export const useMatchStore = defineStore('match', () => {
     let p1TotalPoints = 0
     let p2TotalPoints = 0
 
-    let p1TotalAchievements = { capote: 0, bandeira: 0}
+    let p1TotalAchievements = { capote: 0, bandeira: 0 }
 
     const calculateStake = () => {
         return (p1TotalAchievements.capote * COIN_CAPOTE_MULTIPIER + p1TotalAchievements.bandeira * COIN_BANDEIRA_MULTIPIER) + COIN_BASE_WIN
     }
-    
+
     // Iniciar uma partida do zero
     const initMatch = () => {
         marks.value = { player1: 0, player2: 0 }
@@ -43,20 +46,23 @@ export const useMatchStore = defineStore('match', () => {
     }
 
     // Adicionar pontos de vitória (1, 2 ou 4)
-    const addScore = (winnerId, marksArgument, exactGameScore, gameMoves, gameBeganAt, gameEndedAt) => {
+    const addScore = (winnerId, marksArgument, exactGameScore, gameMoves, gameBeganAt, gameEndedAt, coinsWonByPlayer) => {
         let p1Marks = 0
         let p2Marks = 0
+        let p1CoinsWon = 0
 
-        
-        
-        
+
+
+
         if (winnerId === 1) {
             marks.value.player1 += marksArgument
             p1Marks = marksArgument
+            p1CoinsWon = coinsWonByPlayer
             winnerId = player1_id
-            
+
             if (marksArgument == 2) p1TotalAchievements.capote += 1
             else if (marksArgument == 4) p1TotalAchievements.bandeira += 1
+
         } else if (winnerId === 2) {
             marks.value.player2 += marksArgument
             p2Marks = marksArgument
@@ -64,69 +70,94 @@ export const useMatchStore = defineStore('match', () => {
         } else {
             winnerId = null
         }
-        
+
         p1TotalPoints += exactGameScore.player1
         p2TotalPoints += exactGameScore.player2
 
         checkMatchWinner()
 
-        
+
         gamesHistory.value.push({
             roundNumber: gamesHistory.value.length + 1,
             winner: winnerId,
-            marksAwarded: { player1: p1Marks, player2: p2Marks}, //0, 1, 2 ou 4
-            scoreDetail: {...exactGameScore},   // Ex: { p1: 120, p2: 0 }
-            trickByTrick: {...gameMoves},
+            marksAwarded: { player1: p1Marks, player2: p2Marks }, //0, 1, 2 ou 4
+            scoreDetail: { ...exactGameScore },   // Ex: { p1: 120, p2: 0 }
+            trickByTrick: { ...gameMoves },
             began_at: gameBeganAt,
-            ended_at: gameEndedAt, 
+            ended_at: gameEndedAt,
+            coinsWon: { player1: coinsWonByPlayer, player2: 0 },
         })
 
-        
+
     }
 
     const saveMatch = async () => {
-                const player1_id = authStore.currentUser ? authStore.currentUser.id : undefined
-                const match = {
+        let coinsWonByPlayer = 0
+        const player1_id = authStore.currentUser ? authStore.currentUser.id : undefined
+        const match = {
+            type: BISCA_TYPE,
+            player1_user_id: player1_id,
+            player2_user_id: BOT_ID,
+            winner_user_id: marks.value.player1 >= 4 ? authStore.currentUser.id : BOT_ID,
+            loser_user_id: marks.value.player1 < 4 ? authStore.currentUser.id : BOT_ID,
+            status: 'Ended',
+            stake: calculateStake(),
+            began_at: matchBeganAt.value,
+            ended_at: matchEndedAt.value,
+            total_time: Math.ceil((matchEndedAt.value - matchBeganAt.value) / 1000),
+            player1_marks: marks.value.player1,
+            player2_marks: marks.value.player2,
+            player1_points: p1TotalPoints,
+            player2_points: p2TotalPoints,
+        }
+        const matchPostResult = (await apiStore.postMatch(match)).data
+
+
+        for (const game of gamesHistory.value) {
+            const movesSnapshot = game.trickByTrick ? JSON.parse(JSON.stringify(game.trickByTrick)) : {};
+
+            coinsWonByPlayer += game.coinsWon.player1
+
+            const gameObj = {
                 type: BISCA_TYPE,
                 player1_user_id: player1_id,
                 player2_user_id: BOT_ID,
-                winner_user_id: marks.value.player1 >= 4 ? authStore.currentUser.id : BOT_ID,
-                loser_user_id: marks.value.player1 < 4 ? authStore.currentUser.id : BOT_ID,
+                is_draw: game.winner ? 0 : 1,
+                winner_user_id: game.winner === player1_id ? player1_id : (game.winner === BOT_ID ? BOT_ID : null),
+                loser_user_id: game.winner === BOT_ID ? player1_id : (game.winner === player1_id ? BOT_ID : null),
+                match_id: matchPostResult.id,
                 status: 'Ended',
-                stake: calculateStake(),
-                began_at: matchBeganAt.value,
-                ended_at: matchEndedAt.value,
-                total_time: Math.ceil((matchEndedAt.value - matchBeganAt.value) / 1000),
-                player1_marks: marks.value.player1,
-                player2_marks: marks.value.player2,
-                player1_points: p1TotalPoints,
-                player2_points: p2TotalPoints,
-                }
-                const matchPostResult = (await apiStore.postMatch(match)).data
-                
-                for (const game of gamesHistory.value) {
-                    const movesSnapshot = game.trickByTrick ? JSON.parse(JSON.stringify(game.trickByTrick)) : {};
+                began_at: game.began_at,
+                ended_at: game.ended_at,
+                total_time: Math.ceil((game.ended_at - game.began_at) / 1000),
+                player1_points: game.scoreDetail.player1,
+                player2_points: game.scoreDetail.player2,
+                custom: movesSnapshot
+            }
 
-                    const gameObj = {
-                        type: BISCA_TYPE,
-                        player1_user_id: player1_id,
-                        player2_user_id: BOT_ID,
-                        is_draw: game.winner ? 0 : 1,
-                        winner_user_id: game.winner === player1_id ? player1_id : (game.winner === BOT_ID ? BOT_ID : null),
-                        loser_user_id: game.winner === BOT_ID ? player1_id : (game.winner === player1_id ? BOT_ID : null),
-                        match_id: matchPostResult.id,
-                        status: 'Ended',
-                        began_at: game.began_at,
-                        ended_at: game.ended_at,
-                        total_time: Math.ceil((game.ended_at - game.began_at) / 1000),
-                        player1_points: game.scoreDetail.player1,
-                        player2_points: game.scoreDetail.player2,
-                        custom: movesSnapshot
-                    }
+            await apiStore.postGame(gameObj)
+        };
 
-                    await apiStore.postGame(gameObj)
-                };
+        saveCoinsUpdate(matchPostResult.id, coinsWonByPlayer)
+
+    }
+
+    const saveCoinsUpdate = async (matchId, coinsWonByPlayer) => {
+
+        // Atualizar as coins do jogador
+        const coinsObj = {
+            transaction_datetime: new Date(),
+            user_id: authStore.currentUser.id,
+            match_id: matchId,
+            coin_transaction_type_id: ID_COIN_MATCH_PAYOUT,
+            coins: coinsWonByPlayer,
         }
+        authStore.currentUser.coins += coinsWonByPlayer
+        const user = await apiStore.updateCoinsUser(coinsWonByPlayer)
+        apiStore.postCoinsTransaction(coinsObj)
+
+        authStore.currentUser = user.data
+    }
 
     const checkMatchWinner = () => {
         if (marks.value.player1 >= 4) {
@@ -143,7 +174,7 @@ export const useMatchStore = defineStore('match', () => {
         }
     }
 
-    
+
 
     return {
         marks,
