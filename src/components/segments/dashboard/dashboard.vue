@@ -12,25 +12,91 @@
           Start Game
         </button>
       </div>
-      <div v-if="open" class="fixed inset-0 bg-black/50 flex items-center justify-center p-4">
-        <div class="bg-white rounded-xl p-6 text-center max-w-sm w-full space-y-6">
-          <h2 class="text-2xl font-bold">Entry fee: 3🪙</h2>
-          <hr>
-          <div class="space-y-2">
-            <h2 class="text-2xl font-bold">Rewards 👑</h2>
-            <p>Win: 6🪙</p>
-            <p>Win with capote: 7🪙</p>
-            <p>Win with bandeira: 8🪙</p>
+      <div v-if="open"
+        class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm transition-all">
+
+        <!-- Modal Container -->
+        <div
+          class="bg-white rounded-2xl shadow-2xl w-full max-w-sm overflow-hidden border border-slate-100 transform transition-all">
+
+          <!-- Header / Entry Fee -->
+          <div class="bg-slate-50 p-6 text-center border-b border-slate-100">
+            <h3 class="text-sm uppercase tracking-wider text-slate-500 font-semibold mb-2">Entry Fee</h3>
+            <div class="flex items-center justify-center gap-2 text-slate-900">
+              <span class="text-4xl font-black">3</span>
+              <Coins class="size-5 lg:size-6 text-yellow-600"/>
+            </div>
           </div>
-          <hr>
-          <h4 class="text-red-600 text-xl font-bold">⚠️The coins will be deducted from your account⚠️</h4>
-          <hr>
-          <div class="flex justify-center gap-4">
-            <button @click="open = false" class="px-4 py-2 bg-gray-300 rounded-lg font-bold">Cancelar</button>
-            <button @click="confirmPayment" class="px-4 py-2 bg-green-500 text-white rounded-lg font-bold">Play</button>
-          </div>
-          <div v-if="errorMessage" class="text-red-600 font-bold text-lg">
-            {{ errorMessage }}
+
+          <div class="p-6 space-y-6">
+
+            <!-- Rewards Section -->
+            <div>
+              <h4 class="text-sm font-bold text-slate-900 mb-3 flex items-center gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"
+                  class="w-4 h-4 text-emerald-500">
+                  <path fill-rule="evenodd"
+                    d="M5.166 2.621v.858c-1.035.148-2.059.33-3.071.543a.75.75 0 00-.584.859 6.753 6.753 0 006.138 5.6 6.73 6.73 0 002.743 1.346A6.707 6.707 0 019.279 15H8.54c-1.036 0-1.875.84-1.875 1.875V19.5h-.75a2.25 2.25 0 00-2.25 2.25c0 .414.336.75.75.75h15a.75.75 0 00.75-.75 2.25 2.25 0 00-2.25-2.25h-.75v-2.625c0-1.036-.84-1.875-1.875-1.875h-.739a6.706 6.706 0 01-1.112-3.173 6.73 6.73 0 002.743-1.347 6.753 6.753 0 006.139-5.6.75.75 0 00-.585-.858 47.077 47.077 0 00-3.07-.543V2.62a.75.75 0 00-.658-.744 49.22 49.22 0 00-6.093-.377c-2.063 0-4.096.128-6.093.377a.75.75 0 00-.657.744zm0 2.629c0 1.196.312 2.32.857 3.294A5.266 5.266 0 013.16 5.337a45.6 45.6 0 012.006-.343v.256zm13.5 0v-.256c.674.1 1.343.214 2.006.343a5.265 5.265 0 01-2.863 3.207 6.72 6.72 0 00.857-3.294z"
+                    clip-rule="evenodd" />
+                </svg>
+                Potential Rewards
+              </h4>
+
+              <ul class="space-y-3">
+                <li class="flex items-center justify-between text-sm">
+                  <span class="text-slate-600">Standard Win</span>
+                  <span class="font-bold text-slate-900 flex items-center gap-1">{{matchStore.COIN_BASE_WIN}} <span
+                      class="text-amber-500 text-xs"><Coins class="size-5 lg:size-6 text-yellow-600"/></span></span>
+                </li>
+                <li class="flex items-center justify-between text-sm">
+                  <span class="text-slate-600">Win with Capote</span>
+                  <span class="font-bold flex items-center gap-1">{{matchStore.COIN_CAPOTE_MULTIPIER}} <span
+                      class="text-amber-500 text-xs"><Coins class="size-5 lg:size-6 text-yellow-600"/></span></span>
+                </li>
+                <li class="flex items-center justify-between text-sm">
+                  <span class="text-slate-600">Win with Bandeira</span>
+                  <span class="font-bold flex items-center gap-1">{{matchStore.COIN_BANDEIRA_MULTIPIER}} <span
+                      class="text-amber-500 text-xs"><Coins class="size-5 lg:size-6 text-yellow-600"/></span></span>
+                </li>
+              </ul>
+            </div>
+
+            <!-- Warning Box -->
+            <div class="bg-amber-50 border border-amber-100 rounded-lg p-3 flex gap-3 items-start">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"
+                class="w-5 h-5 text-amber-600 shrink-0 mt-0.5">
+                <path fill-rule="evenodd"
+                  d="M2.25 12c0-5.385 4.365-9.75 9.75-9.75s9.75 4.365 9.75 9.75-4.365 9.75-9.75 9.75S2.25 17.385 2.25 12zM12 8.25a.75.75 0 01.75.75v3.75a.75.75 0 01-1.5 0V9a.75.75 0 01.75-.75zm0 8.25a.75.75 0 100-1.5.75.75 0 000 1.5z"
+                  clip-rule="evenodd" />
+              </svg>
+              <p class="text-xs text-amber-800 leading-relaxed">
+                Upon confirmation, <span class="font-bold">3 coins</span> will be immediately deducted from your account
+                balance.
+              </p>
+            </div>
+
+            <!-- Error Message -->
+            <div v-if="errorMessage" class="text-center p-2 bg-rose-50 rounded border border-rose-100">
+              <p class="text-xs text-rose-600 font-semibold">{{ errorMessage }}</p>
+            </div>
+
+            <!-- Actions -->
+            <div class="grid grid-cols-2 gap-3 pt-2">
+              <button @click="open = false"
+                class="px-4 py-2.5 rounded-lg font-medium text-slate-600 hover:bg-slate-100 hover:text-slate-800 transition-colors text-sm">
+                Cancel
+              </button>
+              <button @click="confirmPayment"
+                class="px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg font-bold shadow-lg shadow-emerald-200 transition-all transform active:scale-95 text-sm flex items-center justify-center gap-2">
+                <span>Confirm & Play</span>
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-4 h-4">
+                  <path fill-rule="evenodd"
+                    d="M4.5 5.653c0-1.426 1.529-2.33 2.779-1.643l11.54 6.348c1.295.712 1.295 2.573 0 3.285L7.28 19.991c-1.25.687-2.779-.217-2.779-1.643V5.653z"
+                    clip-rule="evenodd" />
+                </svg>
+              </button>
+            </div>
+
           </div>
         </div>
       </div>
@@ -42,13 +108,16 @@ import { ref } from "vue";
 import { useAuthStore } from "@/stores/auth";
 import { useRouter } from "vue-router";
 import axios from "axios";
-
+import { Coins } from "lucide-vue-next";
+import { useMatchStore } from "@/stores/match";
 
 const authStore = useAuthStore();
 const router = useRouter();
+const matchStore = useMatchStore()
 const open = ref(false);
 const errorMessage = ref("");
 const gameCost = 3;
+
 
 async function confirmPayment() {
   try {

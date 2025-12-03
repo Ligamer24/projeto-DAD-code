@@ -61,22 +61,36 @@ export default {
       <!-- Profile / Nickname -->
       <RouterLink :to="profileLink" class="flex items-center gap-2 group" aria-label="Open profile">
         <Avatar class="size-10 lg:size-12">
-          <AvatarImage v-if="authStore.currentUser.photo_avatar_filename"
-            :src="`${serverBaseURL}/storage/photos_avatars/${authStore.currentUser.photo_avatar_filename}`"
-            :alt="authStore.currentUser.name" />
-          <AvatarFallback class="text-4xl">
-            {{ authStore.currentUser.name?.charAt(0).toUpperCase() }}
-          </AvatarFallback>
-        </Avatar>
+              <AvatarImage v-if="authStore.currentUser?.photo_avatar_filename"
+                  :src="`${serverBaseURL}/storage/photos_avatars/${authStore.currentUser?.photo_avatar_filename}`"
+                  :alt="authStore.currentUser?.name" />
+              <AvatarFallback class="text-4xl">
+                  {{ authStore.currentUser?.name?.charAt(0).toUpperCase() }}
+              </AvatarFallback>
+          </Avatar>
         <span class="text-lg lg:text-xl font-semibold text-black group-hover:underline">{{
-          authStore.currentUser.nickname ?? authStore.currentUser.name ?? 'Anonymous'
-        }}</span>
+            authStore.currentUser?.nickname ?? authStore.currentUser?.name ?? 'Anonymous'
+          }}</span>
       </RouterLink>
 
+      <!-- Rating & Rank -->
+      <!-- <RouterLink to="/leaderboard" class="flex items-center flex-col leading-tight group"
+                  aria-label="Open leaderboard">
+        <span class="flex gap-2 text-sm font-semibold text-black">
+          <Trophy class="size-4 text-emerald-700"/>
+          Rating: {{ authStore.currentUser.rating }}
+        </span>
+        <span class="flex gap-2 text-xs text-black/70 group-hover:text-black opacity-80">
+          <Crown class="size-4 text-amber-700"/>
+          <span v-if="dash.rank !== null && dash.rank !== undefined">Rank #{{ dash.rank }}</span>
+          <span v-else>No rank</span>
+        </span>
+      </RouterLink> -->
+
       <!-- Coins -->
-      <RouterLink to="/shop" class="flex items-center gap-1 text-black">
-        <span class="text-lg lg:text-xl font-bold">{{ authStore.currentUser.coins_balance }}</span>
-        <Coins class="size-5 lg:size-6 text-yellow-600" />
+      <RouterLink v-if="authStore.currentUser" to="/shop" class="flex items-center gap-1 text-black">
+        <span class="text-lg lg:text-xl font-bold">{{ authStore.currentUser?.coins_balance }}</span>
+        <Coins class="size-5 lg:size-6 text-yellow-600"/>
       </RouterLink>
     </div>
     <div class="mt-2 h-px w-full bg-black/40" />
