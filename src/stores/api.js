@@ -197,6 +197,10 @@ export const useAPIStore = defineStore("api", () => {
     }
   };
 
+  const requestNotification = async () => {
+      return axios.post(`${API_BASE_URL}/send`);
+  }
+
   return {
     token,
     setToken,
@@ -219,5 +223,6 @@ export const useAPIStore = defineStore("api", () => {
     updateSelectedDeck,
     getSelectedDeck,
     subscribeToPushNotifications,
+      requestNotification
   };
 });

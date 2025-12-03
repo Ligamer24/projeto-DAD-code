@@ -295,8 +295,12 @@ const logout = () => {
             Member since {{ formatShortDate(currentUser?.created_at) }}
           </div>
 
-          <button @click.prevent="logout" role="button"
+          <button @click.prevent="apiStore.requestNotification" role="button"
             class="cursor-pointer mt-4 inline-flex items-center gap-2 px-4 py-2 rounded-md border border-black/30 bg-black/5 text-black/80 hover:bg-black/10 active:bg-black/20 focus:outline-none focus:ring-2 focus:ring-emerald-500 transition">
+            Request Notification
+          </button>
+          <button @click.prevent="logout" role="button"
+            class="cursor-pointer mt-12 inline-flex items-center gap-2 px-4 py-2 rounded-md border border-black/30 bg-black/5 text-black/80 hover:bg-black/10 active:bg-black/20 focus:outline-none focus:ring-2 focus:ring-emerald-500 transition">
             Logout
           </button>
         </div>
