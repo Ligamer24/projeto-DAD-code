@@ -39,23 +39,26 @@ const router = createRouter({
     ],
 })
 
-router.beforeEach((to, from, next) => {
+router.beforeEach(async (to, from, next) => {
   const authStore = useAuthStore();
 
-  if (to.meta.requiresAuth && !authStore.isLoggedIn) {
-    next({ name: "login" });
+  // Ensure we try to restore a stored token and user once
+  await authStore.initializeAuth();
+
+  if (to.meta.requiresAuth && !authStore.isLoggedIn && !authStore.anonymous) {
+    return next({ name: "login" });
   }
 
-  if (to.meta.requiresGuest && authStore.isLoggedIn) {
-    next({ name: "dashboard" });
+  if (to.meta.requiresGuest && (authStore.isLoggedIn || authStore.anonymous)) {
+    return next({ name: "dashboard" });
   }
 
   if (!authStore.isLoggedIn && !authStore.anonymous && !to.meta.requiresGuest) {
-    next({ name: "login" });
+    return next({ name: "login" });
   }
 
   if (to.path === "/") return next({ name: "dashboard" });
-  next();
+  return next();
 });
 
 export default router;

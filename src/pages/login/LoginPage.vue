@@ -111,7 +111,7 @@ const handleSubmit = async () => {
         email: email.value,
         password: password.value
     })
-    toast.promise(authStore.login(formData.value), {
+    toast.promise(authStore.login(formData.value, { remember: remember.value }), {
         loading: 'Calling API',
         success: (data) => {
             router.push('/dashboard')

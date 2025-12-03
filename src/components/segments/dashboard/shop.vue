@@ -1,17 +1,18 @@
 <script setup>
-import { ref } from 'vue';
-import { useRouter } from 'vue-router';
-import { ArrowLeft } from 'lucide-vue-next'
+import {useRouter} from 'vue-router';
+import {ArrowLeft} from 'lucide-vue-next'
 import Button from '@/components/ui/button/Button.vue';
+import { useShopStore } from '@/stores/shop';
+import {onMounted} from "vue";
 
 const router = useRouter();
-const selectedCard = ref(null);
+const shopStore = useShopStore();
 
 const cards = [
-  { id: 1, image: '/src/assets/decks/deck4.png' },
-  { id: 2, image: '/src/assets/decks/deck2.png' },
-  { id: 3, image: '/src/assets/decks/deck3.png' },
-  { id: 4, image: '/src/assets/decks/deck1.png' },
+  {id: 1, front: '/src/assets/cards/default/c2.png', back1: '/src/assets/cards/semFace_1.png', back2: '/src/assets/cards/semFace_1.png'},
+  {id: 2, front: '/src/assets/cards/default/c2.png', back1: '/src/assets/cards/semFace_2.png', back2: '/src/assets/cards/semFace_2.png'},
+  {id: 3, front: '/src/assets/cards/default/c2.png', back1: '/src/assets/cards/semFace_3.png', back2: '/src/assets/cards/semFace_3.png'},
+  {id: 4, front: '/src/assets/cards/default/c2.png', back1: '/src/assets/cards/semFace_4.png', back2: '/src/assets/cards/semFace_4.png'},
 ];
 
 function goBack() {
@@ -19,18 +20,12 @@ function goBack() {
 }
 
 function selectCard(id) {
-  selectedCard.value = id;
+  shopStore.setSelectedDeck(id);
 }
 </script>
 
 <template>
   <div class="min-h-screen bg-lime-300 p-4">
-    <button aria-label="Back to Home"
-      class="inline-flex cursor-pointer items-center gap-2 text-black/80 hover:text-black transition mb-4"
-      @click="goBack">
-      <ArrowLeft class="size-5" />
-      <span>Back</span>
-    </button>
 
     <div class="flex flex-col items-center lg:items-start text-center lg:text-left w-full max-w-xl mx-auto">
       <h2 class="text-3xl sm:text-4xl lg:text-5xl font-serif tracking-widest text-rose-800 w-full text-center">SHOP</h2>
@@ -38,24 +33,24 @@ function selectCard(id) {
 
     <div class="grid grid-cols-2 gap-4 mt-4">
       <div v-for="card in cards" :key="card.id"
-        class="bg-white/10 rounded-lg p-4 m-2 flex flex-col items-center shadow">
-        <img :src="card.image" alt="Card" class="w-32 h-32 mb-3 object-contain" />
+           class="bg-white/10 rounded-lg p-4 m-2 flex flex-col items-center shadow">
+        <div class="flex flex-wrap justify-center p-2 -space-x-10 overflow-visible">
+          <img :src="card.back1" alt="Back 1" class="w-20 -rotate-12"/>
+          <img :src="card.front" alt="Front" class="w-20 z-10"/>
+          <img :src="card.back2" alt="Back 2" class="w-20 rotate-12 z-20"/>
+        </div>
         <Button @click="selectCard(card.id)"
-        :class="[
+                :class="[
           'px-4 py-1 rounded-full border text-black font-bold min-w-24 text-center cursor-pointer',
           'transition-colors duration-150',
           'focus:outline-none',
-          selectedCard === card.id 
+          shopStore.selectedDeck === card.id
             ? 'bg-yellow-400 hover:bg-yellow-400'
             : 'bg-white border hover:bg-gray-100'
         ]">
-  {{ selectedCard === card.id ? 'Selected' : 'Select' }}
-</Button>
+          {{ shopStore.selectedDeck === card.id ? 'Selected' : 'Select' }}
+        </Button>
       </div>
     </div>
   </div>
 </template>
-
-<style scoped>
-/* Aqui podes adicionar animações ou sombras adicionais se quiseres */
-</style>

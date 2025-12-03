@@ -27,7 +27,7 @@
       
       <div class="absolute z-10 md:w-full top-8 transition-transform hover:-translate-y-2 w-12">
          <img
-            src="/src/assets/cards/default/semFace.png" 
+             :src="`/src/assets/cards/semFace_${deck}.png`"
             alt="Deck"
             class="w-full h-full rounded-sm shadow-lg rotate-90"
          />
@@ -79,6 +79,8 @@
 
 <script setup>
 import GameCard from './GameCard.vue'
+import {useShopStore} from "@/stores/shop.js";
+import {ref} from "vue";
 
 defineProps({
   trunfo: Object,
@@ -90,4 +92,7 @@ defineProps({
   lastOpponentCard: Object,
   lastPlayerCard: Object
 })
+
+const deck = ref();
+deck.value = useShopStore().selectedDeck;
 </script>
