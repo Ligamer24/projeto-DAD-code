@@ -127,14 +127,14 @@
 								</p>
 							</div>
 						</div>
-						<div v-if="game && game.custom && game.custom[0].length >= 3" class="w-full mt-8">
+						<div v-if="game && game.custom && game.custom.tricks?.length >= 3" class="w-full mt-8">
 							<div class="overflow-hidden bg-white rounded-xl shadow-lg border border-slate-200">
 								<table class="w-full text-sm text-center text-slate-600">
 									<thead
 										class="text-xs text-slate-500 uppercase bg-slate-50 border-b border-slate-200">
 										<tr>
 											<th colspan="4" class="px-6 py-4 font-bold tracking-wider">
-												Trump Suit
+												Trump Suit ({{ game.custom.trump }})
 											</th>
 										</tr>
 									</thead>
@@ -341,12 +341,12 @@ function getImageByCardName(trick, playerId) {
 }
 
 const tricksWithScores = computed(() => {
-	if (!game.value?.custom || game.value?.custom[0].length < 3) return [];
+	if (!game.value?.custom || game.value?.custom.tricks.length < 3) return [];
 
 	let p1Acc = 0; // Acumulador do User (Ana)
 	let p2Acc = 0; // Acumulador do Bot
 
-	return game.value.custom.map(trick => {
+	return game.value.custom.tricks.map(trick => {
 		const pointsInTrick = trick[0].value + trick[1].value;
 		const isUserWinner = trick[2].trickWinner === auth.currentUser.id;
 
