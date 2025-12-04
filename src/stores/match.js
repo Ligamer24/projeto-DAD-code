@@ -7,8 +7,8 @@ import { useAuthStore } from './auth'
 const BISCA_TYPE = '9'
 
 const COIN_BASE_WIN = 3
-const COIN_CAPOTE_MULTIPIER = 5
-const COIN_BANDEIRA_MULTIPIER = 20
+const COIN_CAPOTE_MULTIPIER = 4
+const COIN_BANDEIRA_MULTIPIER = 6
 
 const ID_COIN_MATCH_PAYOUT = 6
 
@@ -16,6 +16,7 @@ export const useMatchStore = defineStore('match', () => {
 
     const apiStore = useAPIStore()
     const authStore = useAuthStore()
+    if (authStore.anonymous) return
     // Estado (Placar da Partida 0-4)
     const marks = ref({ player1: 0, player2: 0 })
     const status = ref('idle') // 'idle', 'ongoing', 'finished'
@@ -46,7 +47,7 @@ export const useMatchStore = defineStore('match', () => {
     }
 
     // Adicionar pontos de vitória (1, 2 ou 4)
-    const addScore = (winnerId, marksArgument, exactGameScore, gameMoves, gameBeganAt, gameEndedAt, coinsWonByPlayer) => {
+    const addScore = (winnerId, marksArgument, exactGameScore, gameMoves, gameBeganAt, gameEndedAt, trumpCard, coinsWonByPlayer) => {
         let p1Marks = 0
         let p2Marks = 0
         let p1CoinsWon = 0
@@ -76,13 +77,13 @@ export const useMatchStore = defineStore('match', () => {
 
         checkMatchWinner()
 
-
+        const movesSnapshot = gameMoves ? JSON.parse(JSON.stringify(gameMoves)) : [];
         gamesHistory.value.push({
             roundNumber: gamesHistory.value.length + 1,
             winner: winnerId,
             marksAwarded: { player1: p1Marks, player2: p2Marks }, //0, 1, 2 ou 4
             scoreDetail: { ...exactGameScore },   // Ex: { p1: 120, p2: 0 }
-            trickByTrick: { ...gameMoves },
+            trickByTrick: {  tricks: movesSnapshot, trump: trumpCard },
             began_at: gameBeganAt,
             ended_at: gameEndedAt,
             coinsWon: { player1: coinsWonByPlayer, player2: 0 },
@@ -180,6 +181,9 @@ export const useMatchStore = defineStore('match', () => {
         marks,
         status,
         gamesHistory,
+        COIN_BASE_WIN,
+        COIN_CAPOTE_MULTIPIER,
+        COIN_BANDEIRA_MULTIPIER,
         initMatch,
         addScore
     }

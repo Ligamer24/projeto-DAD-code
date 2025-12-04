@@ -9,6 +9,8 @@ import {useRoute, useRouter} from 'vue-router'
 import {useAPIStore} from "@/stores/api";
 
 const api = useAPIStore();
+import Navbar from "@/components/navbar.vue";
+import { useAuthStore } from '@/stores/auth';
 
 const currentPage = ref(1)
 const pagesRef = ref(null)
@@ -17,6 +19,7 @@ const navRef = ref(null)
 const isMobile = ref(true)
 const scrollablePages = new Set([0, 2, 3])
 
+const authStore = useAuthStore()
 const route = useRoute()
 const router = useRouter()
 const indexToRoute = ['shop', 'dashboard', 'leaderboard', 'history']
@@ -183,45 +186,36 @@ onMounted(async () => {
 </script>
 
 <template>
-  <main class="relative mx-auto px-0 lg:px-4">
-    <div
-        ref="pagesRef"
-        class="flex w-full overflow-x-auto overflow-y-hidden snap-x snap-mandatory scroll-smooth lg:overflow-x-hidden no-scrollbar overscroll-x-contain"
-    >
-      <div :class="wrapperClass(0)">
-        <shop/>
+    <main class="relative mx-auto px-0 lg:px-4">
+      <div
+          ref="pagesRef"
+          class="flex w-full overflow-x-auto overflow-y-hidden snap-x snap-mandatory scroll-smooth lg:overflow-x-hidden no-scrollbar overscroll-x-contain"
+      >
+        <div v-if="authStore.currentUser" :class="wrapperClass(0)"><shop /></div>
+        <div :class="wrapperClass(1)"><dashboard /></div>
+        <div v-if="authStore.currentUser" :class="wrapperClass(2)"><leaderboard /></div>
+        <div v-if="authStore.currentUser" :class="wrapperClass(3)"><history /></div>
       </div>
-      <div :class="wrapperClass(1)">
-        <dashboard/>
-      </div>
-      <div :class="wrapperClass(2)">
-        <leaderboard/>
-      </div>
-      <div :class="wrapperClass(3)">
-        <history/>
-      </div>
-    </div>
-  </main>
+    </main>
 
-  <nav ref="navRef"
-       class="fixed bottom-0 left-0 right-0 sm:px-8 bg-gradient-to-t from-black/10 to-transparent backdrop-blur-sm lg:static lg:bg-transparent lg:px-0">
-    <div class="container mx-auto h-full">
-      <div class="hidden lg:block h-px w-full bg-black/40"/>
-      <div class="mx-auto max-w-xl flex items-center h-full justify-between text-black">
-        <button
-            v-for="item in navItems"
-            :key="item.idx"
-            :aria-label="item.aria"
-            :aria-current="currentPage === item.idx ? 'page' : false"
-            @click="handleNavClick(item.idx)"
-            :class="['cursor-pointer grid place-items-center size-12 w-full h-full relative transition py-5', { 'bg-black/15': currentPage === item.idx }]"
-        >
-          <component :is="item.icon" class="size-6"/>
-          <span v-if="currentPage === item.idx" class="h-1 w-6 rounded-full bg-black mt-2"/>
-        </button>
+    <nav v-if="authStore.currentUser" ref="navRef" class="fixed bottom-0 left-0 right-0 sm:px-8 bg-gradient-to-t from-black/10 to-transparent backdrop-blur-sm lg:static lg:bg-transparent lg:px-0">
+      <div class="container mx-auto h-full">
+        <div class="hidden lg:block h-px w-full bg-black/40"/>
+        <div class="mx-auto max-w-xl flex items-center h-full justify-between text-black">
+          <button
+              v-for="item in navItems"
+              :key="item.idx"
+              :aria-label="item.aria"
+              :aria-current="currentPage === item.idx ? 'page' : false"
+              @click="handleNavClick(item.idx)"
+              :class="['cursor-pointer grid place-items-center size-12 w-full h-full relative transition py-5', { 'bg-black/15': currentPage === item.idx }]"
+          >
+            <component :is="item.icon" class="size-6" />
+            <span v-if="currentPage === item.idx" class="h-1 w-6 rounded-full bg-black mt-2" />
+          </button>
+        </div>
       </div>
-    </div>
-  </nav>
+    </nav>
 </template>
 
 <style scoped>

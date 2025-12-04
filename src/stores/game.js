@@ -64,7 +64,8 @@ export const useGameStore = defineStore("game", () => {
   const matchStore = useMatchStore();
   //   const socket = inject('socket')
 
-  const BOT_ID = authStore.BOT_ID;
+  const BOT_ID = authStore.BOT_ID
+  const currentUserId = authStore.currentUser?.id ?? -1 
 
   // 2. Estado do Jogo (Cartas)
   const deck = ref([]);
@@ -92,16 +93,16 @@ export const useGameStore = defineStore("game", () => {
   // ------------------------------------------------------------------------
 
   const startNewGame = () => {
-    gameEnded.value = false;
-    scores.value = { player1: 0, player2: 0 };
-    moves.value = [];
-    tableCards.value = [];
-    lastRoundCards.value = [];
-    currentTurn.value = authStore.currentUser.id;
-    gameBeganAt = new Date();
-    shuffle();
-    dealInitialCards();
-  };
+    gameEnded.value = false
+    scores.value = { player1: 0, player2: 0 }
+    moves.value = []
+    tableCards.value = []
+    lastRoundCards.value = [] 
+    currentTurn.value = authStore.currentUser?.id ?? -1
+    gameBeganAt = new Date()
+    shuffle()
+    dealInitialCards()
+  }
 
   const shuffle = () => {
     deck.value = JSON.parse(JSON.stringify(ALL_CARDS)); // Deep copy
@@ -152,50 +153,44 @@ export const useGameStore = defineStore("game", () => {
     if (playerNumber !== currentTurn.value) return;
 
     // Remove da mão
-    if (playerNumber === authStore.currentUser.id) {
-      player1Hand.value = player1Hand.value.filter((c) => c.card !== card.card);
+    if (playerNumber === currentUserId) {
+        player1Hand.value = player1Hand.value.filter(c => c.card !== card.card)
+        console.log(playerNumber === currentUserId)
     } else {
       player2Hand.value = player2Hand.value.filter((c) => c.card !== card.card);
     }
 
     // Adiciona à mesa
-    tableCards.value.push({
-      ...card,
-      player:
-        playerNumber === authStore.currentUser.id
-          ? authStore.currentUser.id
-          : BOT_ID,
-    });
+    tableCards.value.push({ ...card, player: playerNumber === currentUserId ? currentUserId : BOT_ID })
 
     // Se já há 2 cartas na mesa, verifica o vencedor
     if (tableCards.value.length === 2) {
-      // Pequeno delay para os jogadores verem o que aconteceu
-      setTimeout(() => {
-        checkRoundWinner();
-      }, 1);
-    } else {
-      // Se só há 1 carta, passa a vez para o outro
-      currentTurn.value =
-        playerNumber === authStore.currentUser.id
-          ? BOT_ID
-          : authStore.currentUser.id;
+        // Pequeno delay para os jogadores verem o que aconteceu
+        setTimeout(() => {
 
-      // Se a vez passou para o Bot, manda-o jogar
-      if (currentTurn.value === BOT_ID) {
-        playBotTurn();
-      }
+            checkRoundWinner()
+        }, 1)
+    } else {
+        // Se só há 1 carta, passa a vez para o outro
+        currentTurn.value = playerNumber === currentUserId ? BOT_ID : currentUserId
+        
+        // Se a vez passou para o Bot, manda-o jogar
+        if (currentTurn.value === BOT_ID) {
+            playBotTurn()
+        }
     }
-  };
+
+  }
 
   // --- LÓGICA PRINCIPAL: Verificar Vencedor da Vaza ---
   const checkRoundWinner = () => {
-    const c1 = tableCards.value[0]; // Carta de Saída (quem jogou primeiro)
-    const c2 = tableCards.value[1]; // Carta de Resposta
-
-    const currentTrumpSuit = trumpSuit.value;
-
-    let winnerPlayer = c1.player; // Assume que o primeiro ganha por defeito
-
+    const c1 = tableCards.value[0] // Carta de Saída (quem jogou primeiro)
+    const c2 = tableCards.value[1] // Carta de Resposta
+    
+    const currentTrumpSuit = trumpSuit.value
+    
+    let winnerPlayer = c1.player // Assume que o primeiro ganha por defeito
+    
     // CASO 1: O segundo jogador jogou Trunfo e o primeiro não
     if (c2.suit === currentTrumpSuit && c1.suit !== currentTrumpSuit) {
       winnerPlayer = c2.player;
@@ -210,11 +205,11 @@ export const useGameStore = defineStore("game", () => {
     // CASO 3: Naipes diferentes e nenhum é trunfo -> O primeiro jogador mantém a vitória (winnerPlayer = c1.player)
 
     // --- Processar Vitória ---
-    const points = c1.value + c2.value;
-
-    if (winnerPlayer === authStore.currentUser.id) {
-      scores.value.player1 += points;
-      toast.success(`You won the round! (+${points} pts)`);
+    const points = c1.value + c2.value
+    
+    if (winnerPlayer === currentUserId) {
+        scores.value.player1 += points
+        toast.success(`You won the round! (+${points} pts)`)
     } else {
       scores.value.player2 += points;
       toast.info(`Opponent won the round. (+${points} pts)`);
@@ -275,9 +270,9 @@ export const useGameStore = defineStore("game", () => {
     const cardForLoser = pullCard();
 
     // 3. Distribuir para as mãos corretas
-    if (winnerId === authStore.currentUser.id) {
-      if (cardForWinner) player1Hand.value.push(cardForWinner);
-      if (cardForLoser) player2Hand.value.push(cardForLoser);
+    if (winnerId === currentUserId) {
+        if (cardForWinner) player1Hand.value.push(cardForWinner)
+        if (cardForLoser) player2Hand.value.push(cardForLoser)
     } else {
       // Se o Bot ganhou
       if (cardForWinner) player2Hand.value.push(cardForWinner);
@@ -323,7 +318,7 @@ export const useGameStore = defineStore("game", () => {
       coinsWonByPlayer = 0;
     }
 
-    console.log("Winner id:", winnerId);
+    if (authStore.currentUser) {
     matchStore.addScore(
       winnerId,
       victoryPoints,
@@ -331,8 +326,10 @@ export const useGameStore = defineStore("game", () => {
       moves.value,
       gameBeganAt,
       gameEndedAt,
+      trumpSuit.value,
       coinsWonByPlayer
     );
+  }
   };
 
   // --- Atualização do playBotTurn para respeitar as regras ---
@@ -340,7 +337,7 @@ export const useGameStore = defineStore("game", () => {
     if (player2Hand.value.length === 0) return;
 
     // Delay de pensamento
-    await new Promise(resolve => setTimeout(resolve, 1000))
+    // await new Promise(resolve => setTimeout(resolve, 1000))
 
     // Se o Bot for o segundo a jogar, deve tentar assistir (seguir naipe)
     let cardToPlay = null;
@@ -409,21 +406,21 @@ export const useGameStore = defineStore("game", () => {
   //   // COMPUTED PROPERTIES (GETTERS)
   //   // ------------------------------------------------------------------------
 
-  //   const myGames = computed(() => {
-  //     if (!authStore.currentUser) return []
-  //     return games.value.filter((g) => g.creator == authStore.currentUser.id)
-  //   })
+//   const myGames = computed(() => {
+//     if (!authStore.currentUser) return []
+//     return games.value.filter((g) => g.creator == currentUserId)
+//   })
 
-  //   const availableGames = computed(() => {
-  //     if (!authStore.currentUser) return []
-  //     return games.value.filter((g) => g.creator != authStore.currentUser.id && g.status === 'pending')
-  //   })
+//   const availableGames = computed(() => {
+//     if (!authStore.currentUser) return []
+//     return games.value.filter((g) => g.creator != currentUserId && g.status === 'pending')
+//   })
 
-  //   // Exemplo: Saber se é a minha vez (assumindo que o servidor manda 'currentTurnPlayerId')
-  //   const isMyTurn = computed(() => {
-  //     if (!multiplayerGame.value || !authStore.currentUser) return false
-  //     return multiplayerGame.value.currentTurnPlayerId === authStore.currentUser.id
-  //   })
+//   // Exemplo: Saber se é a minha vez (assumindo que o servidor manda 'currentTurnPlayerId')
+//   const isMyTurn = computed(() => {
+//     if (!multiplayerGame.value || !authStore.currentUser) return false
+//     return multiplayerGame.value.currentTurnPlayerId === currentUserId
+//   })
 
   return {
     // State Local
