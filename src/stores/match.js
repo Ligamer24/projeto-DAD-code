@@ -21,6 +21,7 @@ export const useMatchStore = defineStore('match', () => {
     const marks = ref({ player1: 0, player2: 0 })
     const status = ref('idle') // 'idle', 'ongoing', 'finished'
     const gamesHistory = ref([])
+    const isRanked = ref(false)
     const player1_id = authStore.currentUser.id
 
 

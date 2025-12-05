@@ -5,11 +5,17 @@
         <img src="@/assets/logo.png" alt="Bisca Royal logo" />
       </div>
       <div class="flex flex-col items-center gap-5 w-full">
-        <button @click="startGame"
+        <button v-if="authStore.currentUser" @click="startGame(true)"
           class="cursor-pointer w-64 sm:w-72 lg:w-80 rounded-md border-2 border-black bg-gradient-to-b 
                  from-gray-200 to-gray-400 px-6 py-3 lg:py-4 text-xl lg:text-2xl font-extrabold text-black 
                  shadow-[4px_4px_0_0_rgba(0,0,0,0.6)] active:translate-y-0.5 active:shadow-[2px_2px_0_0_rgba(0,0,0,0.6)]">
-          Start Game
+          Ranked Match
+        </button>
+        <button @click="startGame(false)"
+          class="cursor-pointer w-64 sm:w-72 lg:w-80 rounded-md border-2 border-black bg-gradient-to-b 
+                 from-gray-200 to-gray-400 px-6 py-3 lg:py-4 text-xl lg:text-2xl font-extrabold text-black 
+                 shadow-[4px_4px_0_0_rgba(0,0,0,0.6)] active:translate-y-0.5 active:shadow-[2px_2px_0_0_rgba(0,0,0,0.6)]">
+          Practice Match
         </button>
       </div>
       <div v-if="open"
@@ -152,8 +158,8 @@ async function confirmPayment() {
   }
 }
 
-function startGame() {
-  if (!authStore.isLoggedIn) {
+function startGame(isRanked) {
+  if (!authStore.isLoggedIn || !isRanked) {
     router.push("/games/singleplayer");
     return;
   }
