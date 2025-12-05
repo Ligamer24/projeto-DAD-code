@@ -8,6 +8,7 @@ import Shop from "@/components/segments/dashboard/shop.vue";
 import Navbar from "@/components/navbar.vue";
 import { useRoute, useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth';
+import Anonymous from "@/components/segments/dashboard/anonymous.vue";
 
 const currentPage = ref(1)
 const pagesRef = ref(null)
@@ -153,13 +154,17 @@ function wrapperClass(idx) {
           class="flex w-full overflow-x-auto overflow-y-hidden snap-x snap-mandatory scroll-smooth lg:overflow-x-hidden no-scrollbar overscroll-x-contain"
       >
         <div v-if="authStore.currentUser" :class="wrapperClass(0)"><shop /></div>
+        <div v-else :class="wrapperClass(0)"><anonymous/></div>
         <div :class="wrapperClass(1)"><dashboard /></div>
         <div v-if="authStore.currentUser" :class="wrapperClass(2)"><leaderboard /></div>
+        <div v-else :class="wrapperClass(2)"><anonymous/></div>
         <div v-if="authStore.currentUser" :class="wrapperClass(3)"><history /></div>
+        <div v-else :class="wrapperClass(3)"><anonymous/></div>
+
       </div>
     </main>
 
-    <nav v-if="authStore.currentUser" ref="navRef" class="fixed bottom-0 left-0 right-0 sm:px-8 bg-gradient-to-t from-black/10 to-transparent backdrop-blur-sm lg:static lg:bg-transparent lg:px-0">
+    <nav ref="navRef" class="fixed bottom-0 left-0 right-0 sm:px-8 bg-gradient-to-t from-black/10 to-transparent backdrop-blur-sm lg:static lg:bg-transparent lg:px-0">
       <div class="container mx-auto h-full">
         <div class="hidden lg:block h-px w-full bg-black/40"/>
         <div class="mx-auto max-w-xl flex items-center h-full justify-between text-black">
