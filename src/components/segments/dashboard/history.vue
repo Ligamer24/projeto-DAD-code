@@ -23,10 +23,10 @@ export default {
               :class="['hover:cursor-pointer px-3 py-1 rounded w-full sm:w-auto', !gamesAvailableSelected ? 'bg-rose-700 text-white' : 'bg-white text-slate-700']">
               Matches
             </button>
-            <button @click="selectGames"
-              :class="['hover:cursor-pointer px-3 py-1 rounded w-full sm:w-auto', gamesAvailableSelected ? 'bg-rose-700 text-white' : 'bg-white text-slate-700']">
-              Individual games
-            </button>
+<!--            <button @click="selectGames"-->
+<!--              :class="['hover:cursor-pointer px-3 py-1 rounded w-full sm:w-auto', gamesAvailableSelected ? 'bg-rose-700 text-white' : 'bg-white text-slate-700']">-->
+<!--              Individual games-->
+<!--            </button>-->
           </div>
 
           <div class="flex flex-col sm:flex-row gap-2 w-full sm:w-auto ml-0 sm:ml-auto">

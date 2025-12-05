@@ -115,6 +115,7 @@ export const useMatchStore = defineStore('match', () => {
 
 
         for (const game of gamesHistory.value) {
+            console.log(game)
             const movesSnapshot = game.trickByTrick ? JSON.parse(JSON.stringify(game.trickByTrick)) : {};
 
             coinsWonByPlayer += game.coinsWon.player1
@@ -137,9 +138,9 @@ export const useMatchStore = defineStore('match', () => {
             }
 
             await apiStore.postGame(gameObj)
-        };
+        }
 
-        saveCoinsUpdate(matchPostResult.id, coinsWonByPlayer)
+        await saveCoinsUpdate(matchPostResult.id, coinsWonByPlayer)
 
     }
 
