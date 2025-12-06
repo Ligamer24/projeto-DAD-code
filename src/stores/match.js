@@ -23,9 +23,9 @@ export const useMatchStore = defineStore('match', () => {
     const gamesHistory = ref([])
     const isRanked = ref(false)
     const player1_id = ref(authStore.currentUser.id)
-
-
+    
     const BOT_ID = authStore.BOT_ID
+    const opponent = ref({})
 
     const matchBeganAt = ref(undefined)
     const matchEndedAt = ref(undefined)
@@ -40,8 +40,10 @@ export const useMatchStore = defineStore('match', () => {
     }
 
     // Iniciar uma partida do zero
-    const initMatch = () => {
+    const initMatch = async () => {
+        console.log('MAtch nit')
         player1_id.value = authStore.currentUser.id
+        opponent.value = await apiStore.getUser(BOT_ID)
         marks.value = { player1: 0, player2: 0 }
         status.value = 'ongoing'
         gamesHistory.value = []
@@ -187,6 +189,7 @@ export const useMatchStore = defineStore('match', () => {
         status,
         gamesHistory,
         isRanked,
+        opponent,
         COIN_BASE_WIN,
         COIN_CAPOTE_MULTIPIER,
         COIN_BANDEIRA_MULTIPIER,

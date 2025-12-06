@@ -73,14 +73,68 @@
         </div>
       </div>
 
+
+    </div>
+    <!-- Área dos Avatares -->
+    <div class="flex flex-col justify-between items-center bg-white/60 p-3 rounded-xl border border-white/50 shadow-sm min-h-[160px] w-20 md:w-28">
+      
+      <!-- OPPONENT -->
+      <div class="flex flex-col items-center gap-1">
+        <div class="relative">
+          <Avatar class="size-10 lg:size-12 border-2 border-red-200 shadow-sm">
+            <AvatarImage v-if="opponent.photo_avatar_filename"
+            :src="`${serverBaseURL}/storage/photos_avatars/${opponent.photo_avatar_filename}`"
+            :alt="opponent.name" />
+            <AvatarFallback class="bg-red-100 text-red-700 font-bold">
+              {{ opponent.name?.charAt(0).toUpperCase() }}
+            </AvatarFallback>
+          </Avatar>
+          <!-- <span v-if="currentTurn == opponent.id" class="absolute -top-1 -right-1 flex h-3 w-3">
+            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+            <span class="relative inline-flex rounded-full h-3 w-3 bg-red-500"></span>
+          </span> -->
+        </div>
+        <span class="text-[10px] uppercase font-bold text-slate-500 tracking-wider">Bot</span>
+      </div>
+
+      <!-- VS Separator -->
+      <div class="h-8 w-px bg-gradient-to-b from-transparent via-slate-300 to-transparent"></div>
+
+      <!-- PLAYER (ME) -->
+      <div class="flex flex-col items-center gap-1">
+        <span class="text-[10px] uppercase font-bold text-slate-500 tracking-wider">You</span>
+        
+        <div class="relative"> 
+            
+            <Avatar class="size-10 lg:size-12 border-2 border-green-200 shadow-sm">
+              <AvatarImage v-if="player.photo_avatar_filename"
+                :src="`${serverBaseURL}/storage/photos_avatars/${player.photo_avatar_filename}`"
+                :alt="player.name" />
+              <AvatarFallback class="bg-green-100 text-green-700 font-bold">
+                {{ player.name?.charAt(0).toUpperCase() }}
+              </AvatarFallback>
+            </Avatar>
+
+            <!-- <span v-if="currentTurn === player.id" class="absolute -top-1 -right-1 flex h-3 w-3 z-10">
+                <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+                <span class="relative inline-flex rounded-full h-3 w-3 bg-red-500"></span>
+            </span> -->
+
+        </div> 
+      </div>
+
     </div>
   </div>
 </template>
 
 <script setup>
 import GameCard from './GameCard.vue'
+import { ref, inject } from "vue";
 import {useShopStore} from "@/stores/shop.js";
-import {ref} from "vue";
+import { Avatar, AvatarImage, AvatarFallback } from "../ui/avatar";
+
+const serverBaseURL = inject("baseURL")
+
 
 defineProps({
   trunfo: Object,
@@ -90,7 +144,10 @@ defineProps({
   opponentScore: Number,
   playerScore: Number,
   lastOpponentCard: Object,
-  lastPlayerCard: Object
+  lastPlayerCard: Object,
+  currentTurn: Number,
+  player: Object,
+  opponent: Object,
 })
 
 const deck = ref();

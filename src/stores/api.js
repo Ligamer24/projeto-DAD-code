@@ -70,6 +70,12 @@ export const useAPIStore = defineStore("api", () => {
     };
 
     // Users
+    const getUser = async (id) => {    
+        const response = await axios.get(`${API_BASE_URL}/users/${id}`);
+
+        return response.data.data;
+    }
+    
     const getAuthUser = () => {
         return axios.get(`${API_BASE_URL}/users/me`);
     };
@@ -161,6 +167,7 @@ export const useAPIStore = defineStore("api", () => {
         postCoinsTransaction,
         postLogin,
         postLogout,
+        getUser,
         getAuthUser,
         updateAvatar,
         patchUserPhoto,
