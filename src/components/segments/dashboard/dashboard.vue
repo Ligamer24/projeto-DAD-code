@@ -159,6 +159,7 @@ async function confirmPayment() {
 }
 
 function startGame(isRanked) {
+  matchStore.isRanked = isRanked
   if (!authStore.isLoggedIn || !isRanked) {
     router.push("/games/singleplayer");
     return;

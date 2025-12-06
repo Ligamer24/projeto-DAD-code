@@ -131,7 +131,7 @@
          </div>
       </div>
 
-      <div v-if="!auth.anonymous"
+      <div v-if="!auth.anonymous && match.isRanked"
         class="flex flex-col w-full md:w-72 bg-amber-50 rounded-b-2xl md:rounded-r-2xl md:rounded-l-none md:mt-0 border
         border-t md:border-t-0 md:border-l border-amber-100 p-6 transform transition-all duration-500 delay-100 origin-top
          md:origin-left" :class="match.status === 'finished' ? 'scale-100 opacity-100' : 'scale-95 opacity-0'">
