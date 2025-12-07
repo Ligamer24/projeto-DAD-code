@@ -82,14 +82,14 @@
       <div class="flex flex-col items-center gap-1">
         <div class="relative">
           <Avatar class="size-10 lg:size-12 border-2 border-red-200 shadow-sm">
-            <AvatarImage v-if="opponent.photo_avatar_filename"
+            <AvatarImage v-if="opponent?.photo_avatar_filename"
             :src="`${serverBaseURL}/storage/photos_avatars/${opponent.photo_avatar_filename}`"
-            :alt="opponent.name" />
+            :alt="opponent?.name" />
             <AvatarFallback class="bg-red-100 text-red-700 font-bold">
-              {{ opponent.name?.charAt(0).toUpperCase() }}
+              {{ opponent?.name?.charAt(0).toUpperCase() }}
             </AvatarFallback>
           </Avatar>
-          <span v-if="currentTurn == opponent.id" class="absolute -top-1 -right-1 flex h-3 w-3">
+          <span v-if="currentTurn == opponent?.id" class="absolute -top-1 -right-1 flex h-3 w-3">
             <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
             <span class="relative inline-flex rounded-full h-3 w-3 bg-red-500"></span>
           </span>
@@ -107,14 +107,14 @@
         <div class="relative"> 
             
             <Avatar class="size-10 lg:size-12 border-2 border-green-200 shadow-sm">
-              <AvatarImage v-if="player.photo_avatar_filename"
-                :src="`${serverBaseURL}/storage/photos_avatars/${player.photo_avatar_filename}`"
-                :alt="player.name" />
+              <AvatarImage v-if="player?.photo_avatar_filename"
+                :src="`${serverBaseURL}/storage/photos_avatars/${player?.photo_avatar_filename}`"
+                :alt="player?.name" />
               <AvatarFallback class="bg-green-100 text-green-700 font-bold">
-                {{ player.name?.charAt(0).toUpperCase() }}
+                {{ player?.name?.charAt(0).toUpperCase() ?? 'A' }}
               </AvatarFallback>
             </Avatar>
-            <span v-if="currentTurn === player.id" class="absolute -top-1 -right-1 flex h-3 w-3 z-10">
+            <span v-if="currentTurn === (player?.id ?? -1)" class="absolute -top-1 -right-1 flex h-3 w-3 z-10">
                 <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
                 <span class="relative inline-flex rounded-full h-3 w-3 bg-red-500"></span>
             </span>
@@ -142,8 +142,8 @@
           <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/>
           <path d="M3 3v5h5"/>
         </svg>
-        <div class="flex items-center gap-1 text-xs font-extrabold bg-amber-900/10 px-2 py-0.5 rounded-full text-amber-900 mt-1">
-          5 <Coins />
+        <div v-if="isRanked" class="flex items-center gap-1 text-xs font-extrabold bg-amber-900/10 px-2 py-0.5 rounded-full text-amber-900 mt-1">
+          {{ undoPrice }} <Coins />
         </div>
       </button>
     </div>
@@ -172,6 +172,8 @@ defineProps({
   currentTurn: Number,
   player: Object,
   opponent: Object,
+  undoPrice: Number, 
+  isRanked: Boolean,
 })
 
 defineEmits(['undo'])

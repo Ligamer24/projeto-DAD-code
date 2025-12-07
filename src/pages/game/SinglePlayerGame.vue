@@ -188,7 +188,7 @@
       <GameBoard :trunfo="game.trunfo" :deck-count="game.deck.length" :player-played-card="playedCardSelf"
         :opponent-played-card="playedCardOpponent" :opponent-score="opponentScore" :player-score="playerScore"
         :last-opponent-card="lastRoundOpponentCard" :last-player-card="lastRoundPlayerCard" :currentTurn="currentTurn"
-        :player="auth.currentUser" :opponent="opponent" @undo="handleUndo" />
+        :player="auth.currentUser" :opponent="opponent" @undo="handleUndo" :undo-price="undoPrice" :is-ranked="match.isRanked" />
     </section>
 
     <section class="flex flex-wrap gap-2 justify-center p-4 md:pb-8 pb-24">
@@ -248,6 +248,7 @@ const currentTurn = computed(() => (game.currentTurn))
 
 const isOpen = ref('')
 
+const undoPrice = computed(() => (game.undoPrice))
 const handleUndo = () => {
   game.undoAction()
 }
