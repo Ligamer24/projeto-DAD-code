@@ -165,6 +165,25 @@ export const useGameStore = defineStore("game", () => {
     // Validar se é a vez do jogador
     if (playerNumber !== currentTurn.value) return;
 
+    if (deck.value.length === 0 && tableCards.value.length === 1) {
+        
+        const leadSuit = tableCards.value[0].suit; // O naipe que foi puxado
+        const playedSuit = card.suit;              // O naipe que o jogador está a tentar jogar
+        
+        // Se o jogador não está a seguir o naipe
+        if (playedSuit !== leadSuit) {
+            // Confirmar se tem alguma carta desse naipe na mão
+            const handToCheck = playerNumber === currentUserId ? player1Hand.value : player2Hand.value;
+            const hasSuit = handToCheck.some(c => c.suit === leadSuit);
+
+            if (hasSuit) {
+                // Se tem o naipe, bloqueia a jogada e avisa
+                toast.warning(`You must assist with ${leadSuit} suit!`);
+                return; // Não joga a carta
+            }
+        }
+    }
+
     // Remove da mão
     if (playerNumber === currentUserId) {
         player1Hand.value = player1Hand.value.filter(c => c.card !== card.card)
