@@ -171,7 +171,7 @@ export const useGameStore = defineStore("game", () => {
         const playedSuit = card.suit;              // O naipe que o jogador está a tentar jogar
         
         // Se o jogador não está a seguir o naipe
-        if (playedSuit !== leadSuit) {
+        if (playedSuit !== leadSuit && playedSuit !== trumpSuit) {
             // Confirmar se tem alguma carta desse naipe na mão
             const handToCheck = playerNumber === currentUserId ? player1Hand.value : player2Hand.value;
             const hasSuit = handToCheck.some(c => c.suit === leadSuit);
