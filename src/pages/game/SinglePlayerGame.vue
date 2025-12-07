@@ -187,7 +187,8 @@
     <section class="flex-grow flex items-center justify-center">
       <GameBoard :trunfo="game.trunfo" :deck-count="game.deck.length" :player-played-card="playedCardSelf"
         :opponent-played-card="playedCardOpponent" :opponent-score="opponentScore" :player-score="playerScore"
-        :last-opponent-card="lastRoundOpponentCard" :last-player-card="lastRoundPlayerCard" :currentTurn="currentTurn" :player="auth.currentUser" :opponent="opponent" />
+        :last-opponent-card="lastRoundOpponentCard" :last-player-card="lastRoundPlayerCard" :currentTurn="currentTurn"
+        :player="auth.currentUser" :opponent="opponent" @undo="handleUndo" />
     </section>
 
     <section class="flex flex-wrap gap-2 justify-center p-4 md:pb-8 pb-24">
@@ -246,6 +247,10 @@ const opponent = computed (() => (match.opponent))
 const currentTurn = computed(() => (game.currentTurn))
 
 const isOpen = ref('')
+
+const handleUndo = () => {
+  game.undoAction()
+}
 
 // Animação visual das cartas jogadas
 const playedCardSelf = computed(() =>

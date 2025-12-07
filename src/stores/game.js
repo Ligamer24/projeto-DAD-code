@@ -337,7 +337,7 @@ export const useGameStore = defineStore("game", () => {
     if (player2Hand.value.length === 0) return;
 
     // Delay de pensamento
-    await new Promise(resolve => setTimeout(resolve, 1000))
+    await new Promise(resolve => setTimeout(resolve, 4000))
 
     // Se o Bot for o segundo a jogar, deve tentar assistir (seguir naipe)
     let cardToPlay = null;
@@ -364,6 +364,14 @@ export const useGameStore = defineStore("game", () => {
 
     playCardLocal(cardToPlay, BOT_ID);
   };
+
+  const undoAction = () => {
+    if (tableCards.value[0]?.player !== currentUserId) return
+
+    player1Hand.value.push(tableCards.value[0])
+    tableCards.value = []
+    currentTurn.value = currentUserId
+  }
 
   //   // ------------------------------------------------------------------------
   //   // LÓGICA MULTIPLAYER (SOCKETS)
@@ -440,6 +448,7 @@ export const useGameStore = defineStore("game", () => {
     playCardLocal,
     playBotTurn,
     checkRoundWinner,
+    undoAction,
 
     // // State Multiplayer
     // games,
