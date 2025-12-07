@@ -76,7 +76,7 @@ export const useGameStore = defineStore("game", () => {
   const tableCards = ref([]); // Cartas jogadas na mesa na ronda atual
   const lastRoundCards = ref([]); // Guarda as cartas da ronda anterior
   const moves = ref([]); // Histórico de jogadas
-  const currentTurn = ref("");
+  const currentTurn = ref(0);
   let gameBeganAt;
   let gameEndedAt;
 
@@ -169,7 +169,7 @@ export const useGameStore = defineStore("game", () => {
         setTimeout(() => {
 
             checkRoundWinner()
-        }, 1)
+        }, 1500)
     } else {
         // Se só há 1 carta, passa a vez para o outro
         currentTurn.value = playerNumber === currentUserId ? BOT_ID : currentUserId
@@ -337,7 +337,7 @@ export const useGameStore = defineStore("game", () => {
     if (player2Hand.value.length === 0) return;
 
     // Delay de pensamento
-    // await new Promise(resolve => setTimeout(resolve, 1000))
+    await new Promise(resolve => setTimeout(resolve, 1000))
 
     // Se o Bot for o segundo a jogar, deve tentar assistir (seguir naipe)
     let cardToPlay = null;

@@ -21,10 +21,11 @@ export const useMatchStore = defineStore('match', () => {
     const marks = ref({ player1: 0, player2: 0 })
     const status = ref('idle') // 'idle', 'ongoing', 'finished'
     const gamesHistory = ref([])
-    const player1_id = authStore.currentUser.id
-
-
+    const isRanked = ref(false)
+    const player1_id = ref(authStore.currentUser.id)
+    
     const BOT_ID = authStore.BOT_ID
+    const opponent = ref({})
 
     const matchBeganAt = ref(undefined)
     const matchEndedAt = ref(undefined)
@@ -39,7 +40,10 @@ export const useMatchStore = defineStore('match', () => {
     }
 
     // Iniciar uma partida do zero
-    const initMatch = () => {
+    const initMatch = async () => {
+        console.log('MAtch nit')
+        player1_id.value = authStore.currentUser.id
+        opponent.value = await apiStore.getUser(BOT_ID)
         marks.value = { player1: 0, player2: 0 }
         status.value = 'ongoing'
         gamesHistory.value = []
@@ -59,7 +63,7 @@ export const useMatchStore = defineStore('match', () => {
             marks.value.player1 += marksArgument
             p1Marks = marksArgument
             p1CoinsWon = coinsWonByPlayer
-            winnerId = player1_id
+            winnerId = player1_id.value
 
             if (marksArgument == 2) p1TotalAchievements.capote += 1
             else if (marksArgument == 4) p1TotalAchievements.bandeira += 1
@@ -165,12 +169,14 @@ export const useMatchStore = defineStore('match', () => {
         if (marks.value.player1 >= 4) {
             status.value = 'finished'
             toast.success("Match Won!")
-            matchEndedAt.value = new Date()
-            saveMatch()
-
+            
         } else if (marks.value.player2 >= 4) {
             status.value = 'finished'
             toast.error("Match Lost")
+        }
+
+        if (isRanked.value && (marks.value.player1 >= 4 || marks.value.player2 >= 4)) {
+            console.log("Guardar match!")
             matchEndedAt.value = new Date()
             saveMatch()
         }
@@ -182,6 +188,8 @@ export const useMatchStore = defineStore('match', () => {
         marks,
         status,
         gamesHistory,
+        isRanked,
+        opponent,
         COIN_BASE_WIN,
         COIN_CAPOTE_MULTIPIER,
         COIN_BANDEIRA_MULTIPIER,
