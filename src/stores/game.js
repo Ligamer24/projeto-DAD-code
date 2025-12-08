@@ -171,7 +171,7 @@ export const useGameStore = defineStore("game", () => {
         const playedSuit = card.suit;              // O naipe que o jogador está a tentar jogar
         
         // Se o jogador não está a seguir o naipe
-        if (playedSuit !== leadSuit && playedSuit !== trumpSuit) {
+        if (playedSuit !== leadSuit && playedSuit !== trumpSuit.value) {
             // Confirmar se tem alguma carta desse naipe na mão
             const handToCheck = playerNumber === currentUserId ? player1Hand.value : player2Hand.value;
             const hasSuit = handToCheck.some(c => c.suit === leadSuit);
@@ -372,7 +372,7 @@ export const useGameStore = defineStore("game", () => {
     if (player2Hand.value.length === 0) return;
 
     // Delay de pensamento
-    await new Promise(resolve => setTimeout(resolve, 4000))
+    await new Promise(resolve => setTimeout(resolve, 3000))
 
     // Se o Bot for o segundo a jogar, deve tentar assistir (seguir naipe)
     let cardToPlay = null;
