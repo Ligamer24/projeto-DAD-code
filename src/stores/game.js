@@ -67,6 +67,7 @@ export const useGameStore = defineStore("game", () => {
   //   const socket = inject('socket')
 
   const BOT_ID = authStore.BOT_ID
+  const botStatus = ref('');
   const currentUserId = authStore.currentUser?.id ?? -1 
 
   // 2. Estado do Jogo (Cartas)
@@ -371,8 +372,13 @@ export const useGameStore = defineStore("game", () => {
   const playBotTurn = async () => {
     if (player2Hand.value.length === 0) return;
 
-    // Delay de pensamento
-    await new Promise(resolve => setTimeout(resolve, 3000))
+    // --- ESTADO: THINKING ---
+    botStatus.value = "Thinking...";
+    await new Promise(resolve => setTimeout(resolve, 1500));
+
+    // --- ESTADO: CHECKING ---
+    botStatus.value = "Checking if viable...";
+    await new Promise(resolve => setTimeout(resolve, 1500));
 
     // Se o Bot for o segundo a jogar, deve tentar assistir (seguir naipe)
     let cardToPlay = null;
@@ -397,7 +403,14 @@ export const useGameStore = defineStore("game", () => {
       cardToPlay = player2Hand.value[randomIndex];
     }
 
+    // --- ESTADO: PLAYING ---
+    botStatus.value = "Playing...";
+    // Um mini delay final só para se ver o "Playing" antes da carta cair na mesa
+    await new Promise(resolve => setTimeout(resolve, 500));
+
     playCardLocal(cardToPlay, BOT_ID);
+
+    botStatus.value = "";
   };
 
   const undoAction = () => {
@@ -495,6 +508,7 @@ export const useGameStore = defineStore("game", () => {
     gameEnded,
     moves,
     undoPrice,
+    botStatus,
 
     // Actions Local
     startNewGame,
