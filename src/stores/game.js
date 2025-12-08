@@ -375,10 +375,19 @@ export const useGameStore = defineStore("game", () => {
     // --- ESTADO: THINKING ---
     botStatus.value = "Thinking...";
     await new Promise(resolve => setTimeout(resolve, 1500));
+    if (currentTurn.value !== BOT_ID) {
+      botStatus.value = "";
+      return 
+    }
 
     // --- ESTADO: CHECKING ---
     botStatus.value = "Checking if viable...";
     await new Promise(resolve => setTimeout(resolve, 1500));
+    if (currentTurn.value !== BOT_ID) {
+      botStatus.value = "";
+      return 
+    }
+
 
     // Se o Bot for o segundo a jogar, deve tentar assistir (seguir naipe)
     let cardToPlay = null;
@@ -405,8 +414,11 @@ export const useGameStore = defineStore("game", () => {
 
     // --- ESTADO: PLAYING ---
     botStatus.value = "Playing...";
-    // Um mini delay final só para se ver o "Playing" antes da carta cair na mesa
     await new Promise(resolve => setTimeout(resolve, 500));
+    if (currentTurn.value !== BOT_ID) {
+      botStatus.value = "";
+      return 
+    }
 
     playCardLocal(cardToPlay, BOT_ID);
 
