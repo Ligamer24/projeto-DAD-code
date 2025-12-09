@@ -149,12 +149,10 @@ const filteredAndSorted = computed(() => {
 
 onMounted(() => loadPage(1));
 
-watch(() => props.sortOrder, () => {
+watch(() => [props.sortOrder, props.filterResult], () => {
     page.value = 1;
     loadPage(1);
 });
-
-
 
 const pages = computed(() =>
     Array.from({ length: Math.max(0, Number(lastPage.value) || 0) }, (_, i) => i + 1)
