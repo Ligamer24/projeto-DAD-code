@@ -49,7 +49,7 @@ router.beforeEach(async (to, from, next) => {
     return next({ name: "login" });
   }
 
-  if (to.meta.requiresGuest && (authStore.isLoggedIn || authStore.anonymous)) {
+  if (to.meta.requiresGuest && (authStore.isLoggedIn)) {
     return next({ name: "dashboard" });
   }
 

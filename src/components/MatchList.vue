@@ -30,8 +30,7 @@
                             #{{ match.id }}
                         </span>
 
-                        <span v-if="history.resultLabel(match) === 'Victory'"
-                            class="text-xs text-slate-500 px-2 py-0.5 bg-white/40 rounded border border-slate-100">
+                        <span class="text-xs text-slate-500 px-2 py-0.5 bg-white/40 rounded border border-slate-100">
                             Coins earned: {{ stakeLabel(match) }}
                         </span>
                     </div>

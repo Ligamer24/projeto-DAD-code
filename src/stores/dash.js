@@ -57,5 +57,14 @@ export const useDashStore = defineStore("dash", () => {
     });
   };
 
-    return {getDash, getHistory, getLeaderboard, getGame, getGames, getPersonalScore, getMatches, getGamesByMatch};
+  const getPositionByUserId =  (sortOrder, id) => {
+    return axios.get(`${API_BASE_URL}/leaderboard/`, {
+      params: {
+        order_by: sortOrder,
+        me : id
+      }
+    });
+};
+
+    return {getDash, getHistory, getLeaderboard, getGame, getGames, getPersonalScore, getMatches, getGamesByMatch, getPositionByUserId};
 })
