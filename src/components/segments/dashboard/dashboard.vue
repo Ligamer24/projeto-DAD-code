@@ -110,6 +110,7 @@ import { useRouter } from "vue-router";
 import axios from "axios";
 import { Coins } from "lucide-vue-next";
 import { useMatchStore } from "@/stores/match";
+import { useAPIStore } from "@/stores/api.js";
 
 const authStore = useAuthStore();
 const router = useRouter();
@@ -117,6 +118,7 @@ const matchStore = useMatchStore()
 const open = ref(false);
 const errorMessage = ref("");
 const gameCost = 3;
+const apiStore = useAPIStore();
 
 
 async function confirmPayment() {
@@ -127,7 +129,14 @@ async function confirmPayment() {
       return;
     }
 
-    const { data: user } = await axios.post("http://localhost:8000/api/start-game");
+
+    /* Comentar isto se tiver a dar erro a começar jogo */
+    const startGame = await apiStore.sendStartGame();
+    const user = startGame.data;
+    /* ate aqui */
+
+
+    // const { data: user } = await axios.post("https://redycore.dpdns.org/api/start-game"); // descomentar se tiver a dar erro a começar jogo
 
     authStore.currentUser = user;
 
