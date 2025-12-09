@@ -155,6 +155,67 @@ export const useAPIStore = defineStore("api", () => {
         return axios.post(`${API_BASE_URL}/start-game`);
     }
 
+    const urlBase64ToUint8Array = (base64String) => {
+        const padding = '='.repeat((4 - base64String.length % 4) % 4);
+        const base64 = (base64String + padding)
+            .replace(/-/g, '+')
+            .replace(/_/g, '/');
+        const rawData = window.atob(base64);
+        const outputArray = new Uint8Array(rawData.length);
+        for (let i = 0; i < rawData.length; ++i) {
+            outputArray[i] = rawData.charCodeAt(i);
+        }
+        return outputArray;
+    }
+
+    const getVapidPublicKey = async () => {
+        try {
+            const response = await axios.get(`${API_BASE_URL}/get-vapid`);
+            console.log('VAPID key response:', response.data);
+            return response.data.publicKey;
+        } catch (error) {
+            console.error('Error fetching VAPID public key:', error);
+            return null;
+        }
+    }
+
+    const subscribeToPushNotifications = async () => {
+        if (!('serviceWorker' in navigator)) {
+            console.log('Service Worker not supported');
+            return;
+        }
+        if (!('PushManager' in window)) {
+            console.log('PushManager not supported');
+            return;
+        }
+
+        try {
+            const registration = await navigator.serviceWorker.ready;
+            console.log('Service Worker ready:', registration);
+
+            let vapid_Key = await getVapidPublicKey();
+            console.log('VAPID Public Key:', vapid_Key);
+
+            const subscription = await registration.pushManager.subscribe({
+                userVisibleOnly: true,
+                applicationServerKey: urlBase64ToUint8Array(vapid_Key),
+            });
+            console.log('Subscription object:', subscription);
+
+            await axios.post(`${API_BASE_URL}/subscribe`, subscription);
+            console.log('Subscription sent to backend');
+            toast.success('Subscribed to notifications!');
+        } catch (error) {
+            console.error('Error subscribing to notifications:', error);
+            toast.error('Failed to subscribe to notifications');
+        }
+    };
+
+    const requestNotification = async () => {
+        return axios.post(`${API_BASE_URL}/send`);
+    }
+
+
     return {
         token,
         setToken,
@@ -177,6 +238,8 @@ export const useAPIStore = defineStore("api", () => {
         updateCoinsUser,
         updateSelectedDeck,
         getSelectedDeck,
-        sendStartGame
+        sendStartGame,
+        subscribeToPushNotifications,
+        requestNotification
     };
 });
