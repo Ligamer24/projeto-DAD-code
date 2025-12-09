@@ -57,6 +57,8 @@ const ALL_CARDS = [
   { card: "c2", value: 0, suit: "hearts", label: "Dois de Copas" },
 ];
 
+const UNDO_ACTION_PRICE_BASE = 3
+
 export const useGameStore = defineStore("game", () => {
   // 1. Dependências
   const authStore = useAuthStore();
@@ -65,6 +67,7 @@ export const useGameStore = defineStore("game", () => {
   //   const socket = inject('socket')
 
   const BOT_ID = authStore.BOT_ID
+  const botStatus = ref('');
   const currentUserId = authStore.currentUser?.id ?? -1 
 
   // 2. Estado do Jogo (Cartas)
@@ -84,6 +87,11 @@ export const useGameStore = defineStore("game", () => {
   const scores = ref({ player1: 0, player2: 0 });
   const gameEnded = ref(false);
 
+  //Variáveis auxiliares para o undo action
+  let increment
+  let lastMove
+  const undoPrice = ref(UNDO_ACTION_PRICE_BASE)
+
   // 3. Estado Multiplayer
   const games = ref([]); // Lista de jogos no lobby
   const multiplayerGame = ref({}); // Estado do jogo multiplayer atual
@@ -102,6 +110,12 @@ export const useGameStore = defineStore("game", () => {
     gameBeganAt = new Date()
     shuffle()
     dealInitialCards()
+
+    //Variáveis auxiliares para o undo action
+    increment = 1
+    lastMove = 1
+    //
+
   }
 
   const shuffle = () => {
@@ -151,6 +165,25 @@ export const useGameStore = defineStore("game", () => {
   const playCardLocal = async (card, playerNumber) => {
     // Validar se é a vez do jogador
     if (playerNumber !== currentTurn.value) return;
+
+    if (deck.value.length === 0 && tableCards.value.length === 1) {
+        
+        const leadSuit = tableCards.value[0].suit; // O naipe que foi puxado
+        const playedSuit = card.suit;              // O naipe que o jogador está a tentar jogar
+        
+        // Se o jogador não está a seguir o naipe
+        if (playedSuit !== leadSuit && playedSuit !== trumpSuit.value) {
+            // Confirmar se tem alguma carta desse naipe na mão
+            const handToCheck = playerNumber === currentUserId ? player1Hand.value : player2Hand.value;
+            const hasSuit = handToCheck.some(c => c.suit === leadSuit);
+
+            if (hasSuit) {
+                // Se tem o naipe, bloqueia a jogada e avisa
+                toast.warning(`You must assist with ${leadSuit} suit!`);
+                return; // Não joga a carta
+            }
+        }
+    }
 
     // Remove da mão
     if (playerNumber === currentUserId) {
@@ -224,6 +257,9 @@ export const useGameStore = defineStore("game", () => {
 
     // Atualizar quem joga primeiro na próxima
     currentTurn.value = winnerPlayer;
+
+    // Atualizar o price do undoAction
+    undoPrice.value = UNDO_ACTION_PRICE_BASE
 
     // Pescar Cartas (Draw) se o baralho ainda tiver cartas
     if (deck.value.length > 0) {
@@ -336,8 +372,22 @@ export const useGameStore = defineStore("game", () => {
   const playBotTurn = async () => {
     if (player2Hand.value.length === 0) return;
 
-    // Delay de pensamento
-    await new Promise(resolve => setTimeout(resolve, 1000))
+    // --- ESTADO: THINKING ---
+    botStatus.value = "Thinking...";
+    await new Promise(resolve => setTimeout(resolve, 1500));
+    if (currentTurn.value !== BOT_ID) {
+      botStatus.value = "";
+      return 
+    }
+
+    // --- ESTADO: CHECKING ---
+    botStatus.value = "Checking if viable...";
+    await new Promise(resolve => setTimeout(resolve, 1500));
+    if (currentTurn.value !== BOT_ID) {
+      botStatus.value = "";
+      return 
+    }
+
 
     // Se o Bot for o segundo a jogar, deve tentar assistir (seguir naipe)
     let cardToPlay = null;
@@ -362,8 +412,43 @@ export const useGameStore = defineStore("game", () => {
       cardToPlay = player2Hand.value[randomIndex];
     }
 
+    // --- ESTADO: PLAYING ---
+    botStatus.value = "Playing...";
+    await new Promise(resolve => setTimeout(resolve, 500));
+    if (currentTurn.value !== BOT_ID) {
+      botStatus.value = "";
+      return 
+    }
+
     playCardLocal(cardToPlay, BOT_ID);
+
+    botStatus.value = "";
   };
+
+  const undoAction = () => {
+    if (tableCards.value[0]?.player !== currentUserId) return
+    if ((authStore.currentUser?.coins_balance - undoPrice.value) <= 0) {
+      toast.info(`You don't have enough coins!`)
+      return
+    }  
+    toast.info(`Action undone! ${matchStore.isRanked ? '-' + undoPrice.value + ' Coins' : ''} `)
+    matchStore.isRanked ? (authStore.currentUser.coins_balance -= undoPrice.value) : ''
+    
+
+    if (moves.value.length === lastMove) {
+      increment++
+    } else {
+      increment = 1
+      lastMove = moves.value.length
+    }
+        
+    undoPrice.value = UNDO_ACTION_PRICE_BASE * (increment + 1)
+
+    player1Hand.value.push(tableCards.value[0])
+    tableCards.value = []
+    currentTurn.value = currentUserId
+
+  }
 
   //   // ------------------------------------------------------------------------
   //   // LÓGICA MULTIPLAYER (SOCKETS)
@@ -434,12 +519,15 @@ export const useGameStore = defineStore("game", () => {
     currentTurn,
     gameEnded,
     moves,
+    undoPrice,
+    botStatus,
 
     // Actions Local
     startNewGame,
     playCardLocal,
     playBotTurn,
     checkRoundWinner,
+    undoAction,
 
     // // State Multiplayer
     // games,
