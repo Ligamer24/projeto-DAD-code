@@ -15,7 +15,7 @@
     <span>Quit Match</span>
   </button>
 
-  <div class="absolute top-24 right-4">
+  <div v-if="auth.currentUser.type === 'A'" class="absolute top-24 right-4">
     <button
         @click="_win"
         class="group flex items-center gap-2 px-4 py-2 bg-green-200 border mx-auto cursor-pointer
