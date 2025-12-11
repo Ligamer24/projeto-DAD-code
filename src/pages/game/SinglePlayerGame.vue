@@ -55,6 +55,11 @@
     v-if="game.gameEnded || match.status === 'finished'" 
     class="fixed inset-0 z-50 flex items-start md:items-center justify-center bg-black/70 backdrop-blur-sm p-4 sm:p-6 overflow-y-auto"
   >
+  <div 
+      v-if="(game.gameEnded || match.status === 'finished') && earnedAchievements.length > 0"
+      class="absolute inset-0 z-0 pointer-events-none opacity-50"
+      :style="{ backgroundImage: `url(${fireworksGif})`, backgroundSize: 'contain' }"
+    ></div>
     <div class="flex flex-col md:flex-row w-full md:w-auto md:max-w-4xl items-stretch relative animate-in fade-in zoom-in duration-300">
       <div class="bg-white rounded-t-2xl md:rounded-l-2xl md:rounded-r-none w-full md:max-w-md overflow-hidden relative z-10 flex flex-col">
          <div class="p-8 text-center" :class="headerBgClass">
@@ -134,7 +139,7 @@
       <div v-if="!auth.anonymous && match.isRanked"
         class="flex flex-col w-full md:w-72 bg-amber-50 rounded-b-2xl md:rounded-r-2xl md:rounded-l-none md:mt-0 border
         border-t md:border-t-0 md:border-l border-amber-100 p-6 transform transition-all duration-500 delay-100 origin-top
-         md:origin-left" :class="match.status === 'finished' ? 'scale-100 opacity-100' : 'scale-95 opacity-0'">
+         md:origin-left" :class="(match.status === 'finished' || game.gameEnded) ? 'scale-100 opacity-100' : 'scale-95 opacity-0'">
         <h3
           class="text-sm font-black text-amber-800 uppercase tracking-wider mb-6 flex items-center justify-center md:justify-start gap-2">
           <Gift class="w-5 h-5" /> Rewards
@@ -218,6 +223,7 @@ import {
   Trophy, X, ThumbsUp, Handshake, ThumbsDown, RotateCcw, DoorOpen, Gift, Coins,
   Flag, Badge, Sparkles, Hand
 } from 'lucide-vue-next'
+import fireworksGif from '@/assets/fireworks.gif'
 
 const gameDiv = ref(null);
 
