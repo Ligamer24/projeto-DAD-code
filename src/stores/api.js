@@ -1,7 +1,7 @@
-import {defineStore} from "pinia";
+import { defineStore } from "pinia";
 import axios from "axios";
-import {inject, ref} from "vue";
-import {toast} from "vue-sonner";
+import { inject, ref } from "vue";
+import { toast } from "vue-sonner";
 
 export const useAPIStore = defineStore("api", () => {
     const API_BASE_URL = inject("apiBaseURL");
@@ -51,7 +51,7 @@ export const useAPIStore = defineStore("api", () => {
     };
 
     const updateCoinsUser = (coinsAmount) => {
-        return axios.put(`${API_BASE_URL}/users/me/coins`, {amountToAdd: coinsAmount});
+        return axios.put(`${API_BASE_URL}/users/me/coins`, { amountToAdd: coinsAmount });
     };
 
 
@@ -70,12 +70,12 @@ export const useAPIStore = defineStore("api", () => {
     };
 
     // Users
-    const getUser = async (id) => {    
+    const getUser = async (id) => {
         const response = await axios.get(`${API_BASE_URL}/users/${id}`);
 
         return response.data.data;
     }
-    
+
     const getAuthUser = () => {
         return axios.get(`${API_BASE_URL}/users/me`);
     };
@@ -102,7 +102,7 @@ export const useAPIStore = defineStore("api", () => {
             `${API_BASE_URL}/files/userphoto`,
             formData,
             {
-                headers: {"Content-Type": "multipart/form-data"},
+                headers: { "Content-Type": "multipart/form-data" },
             }
         );
 
@@ -132,7 +132,7 @@ export const useAPIStore = defineStore("api", () => {
     };
 
     // UPDATE PASSWORD
-    const changePassword = async ({current, next, confirm}) => {
+    const changePassword = async ({ current, next, confirm }) => {
         return axios.put(`${API_BASE_URL}/profile/password`, {
             current_password: current,
             password: next,
@@ -215,6 +215,20 @@ export const useAPIStore = defineStore("api", () => {
         return axios.post(`${API_BASE_URL}/send`);
     }
 
+    const getShop = async () => {
+        return axios.get(`${API_BASE_URL}/shop`);
+    }
+
+
+    const postShopItem = async (formData) => {
+        return axios.post(`${API_BASE_URL}/shop`, formData, {
+            headers: { "Content-Type": "multipart/form-data" },
+        });
+    }
+
+    const purchaseItem = async (itemId) => {
+        return axios.post(`${API_BASE_URL}/shop/${itemId}/buy`);
+    }
 
     return {
         token,
@@ -240,6 +254,9 @@ export const useAPIStore = defineStore("api", () => {
         getSelectedDeck,
         sendStartGame,
         subscribeToPushNotifications,
-        requestNotification
+        requestNotification,
+        getShop,
+        postShopItem,
+        purchaseItem
     };
 });

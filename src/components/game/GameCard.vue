@@ -13,7 +13,7 @@
 </template>
 
 <script setup>
-import { computed } from 'vue'
+import { computed, inject } from 'vue'
 import {useShopStore} from "@/stores/shop.js";
 
 const props = defineProps({
@@ -22,14 +22,25 @@ const props = defineProps({
   faceDown: { type: Boolean, default: false }
 })
 
-const deck = useShopStore().selectedDeck
+const shopStore = useShopStore()
+const baseURL = inject('baseURL')
 
 // MUDANÇA 1: Usar kebab-case na definição
 const emit = defineEmits(['card-click'])
 
 const imageSrc = computed(() => {
   if (props.faceDown) {
-    return `/src/assets/cards/semFace_${deck}.png`
+    const selectedItem = shopStore.items.find(item => item.id === shopStore.selectedDeck)
+    
+    if (selectedItem) {
+        if (selectedItem.isLocal) {
+            return selectedItem.image
+        } else {
+            return selectedItem.image.startsWith('http') ? selectedItem.image : baseURL + selectedItem.image
+        }
+    }
+    
+    return '/src/assets/cards/semFace_1.png'
   }
   return `/src/assets/cards/default/${props.card.card}.png`
 })
