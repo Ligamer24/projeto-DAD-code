@@ -5,6 +5,8 @@ import { useAPIStore } from "./api";
 import { useMatchStore } from "./match";
 import { toast } from "vue-sonner";
 
+const SKIP_SLEEPS = true
+
 //Definição das Cartas
 
 const ALL_CARDS = [
@@ -202,7 +204,7 @@ export const useGameStore = defineStore("game", () => {
         setTimeout(() => {
 
             checkRoundWinner()
-        }, 1500)
+        }, SKIP_SLEEPS ? 0 : 1500)
     } else {
         // Se só há 1 carta, passa a vez para o outro
         currentTurn.value = playerNumber === currentUserId ? BOT_ID : currentUserId
@@ -374,7 +376,7 @@ export const useGameStore = defineStore("game", () => {
 
     // --- ESTADO: THINKING ---
     botStatus.value = "Thinking...";
-    await new Promise(resolve => setTimeout(resolve, 1500));
+    await new Promise(resolve => setTimeout(resolve, SKIP_SLEEPS ? 0 : 1500));
     if (currentTurn.value !== BOT_ID) {
       botStatus.value = "";
       return 
@@ -382,7 +384,7 @@ export const useGameStore = defineStore("game", () => {
 
     // --- ESTADO: CHECKING ---
     botStatus.value = "Checking if viable...";
-    await new Promise(resolve => setTimeout(resolve, 1500));
+    await new Promise(resolve => setTimeout(resolve, SKIP_SLEEPS ? 0 : 1500));
     if (currentTurn.value !== BOT_ID) {
       botStatus.value = "";
       return 
@@ -414,7 +416,7 @@ export const useGameStore = defineStore("game", () => {
 
     // --- ESTADO: PLAYING ---
     botStatus.value = "Playing...";
-    await new Promise(resolve => setTimeout(resolve, 500));
+    await new Promise(resolve => setTimeout(resolve, SKIP_SLEEPS ? 0 : 500));
     if (currentTurn.value !== BOT_ID) {
       botStatus.value = "";
       return 
