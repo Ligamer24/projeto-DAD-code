@@ -1,17 +1,59 @@
 <template>
-  <button 
-    @click="openModal"
-    class="group flex items-center gap-2 px-4 py-2 bg-white/90 backdrop-blur-sm border border-slate-200 rounded-lg shadow-sm 
-           hover:bg-rose-50 hover:border-rose-200 hover:text-rose-600 hover:shadow-md 
+  <button
+      @click="openModal"
+      class="group flex items-center gap-2 px-4 py-2 bg-white/90 backdrop-blur-sm border border-slate-200 rounded-lg shadow-sm
+           hover:bg-rose-50 hover:border-rose-200 hover:text-rose-600 hover:shadow-md cursor-pointer
            transition-all duration-200 ease-in-out text-slate-600 font-medium text-sm"
   >
-    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="group-hover:-translate-x-1 transition-transform duration-200">
+    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+         stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+         class="group-hover:-translate-x-1 transition-transform duration-200">
       <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
       <polyline points="16 17 21 12 16 7"></polyline>
       <line x1="21" y1="12" x2="9" y2="12"></line>
     </svg>
     <span>Quit Match</span>
   </button>
+
+  <div v-if="auth.currentUser.type === 'A'" class="absolute top-24 right-4">
+    <button
+        @click="_win"
+        class="group flex items-center gap-2 px-4 py-2 bg-green-200 border mx-auto cursor-pointer
+           transition-all duration-200 ease-in-out text-black font-medium text-sm"
+    >
+      <span>win</span>
+    </button>
+    <button
+        @click="_lose"
+        class="group flex items-center gap-2 px-4 py-2 bg-red-200 border mx-auto cursor-pointer
+           transition-all duration-200 ease-in-out text-black font-medium text-sm"
+    >
+      <span>lose</span>
+    </button>
+    <button
+        @click="_tie"
+        class="group flex items-center gap-2 px-4 py-2 bg-neutral-200 border mx-auto cursor-pointer
+           transition-all duration-200 ease-in-out text-black font-medium text-sm"
+    >
+      <span>tie</span>
+    </button>
+    <button
+        @click="_capote"
+        class="group flex items-center gap-2 px-4 py-2 bg-yellow-200 border mx-auto cursor-pointer
+           transition-all duration-200 ease-in-out text-black font-medium text-sm"
+    >
+      <span>capote</span>
+    </button>
+    <button
+        @click="_bandeira"
+        class="group flex items-center gap-2 px-4 py-2 bg-blue-200 border mx-auto cursor-pointer
+           transition-all duration-200 ease-in-out text-black font-medium text-sm"
+    >
+      <span>bandeira</span>
+    </button>
+
+  </div>
+
 
   <!-- Div de confirmação para sair da partida -->
     <div v-if="isOpen" class="fixed inset-0 z-50 flex items-center justify-center p-4" aria-labelledby="modal-title">
@@ -55,6 +97,11 @@
     v-if="game.gameEnded || match.status === 'finished'" 
     class="fixed inset-0 z-50 flex items-start md:items-center justify-center bg-black/70 backdrop-blur-sm p-4 sm:p-6 overflow-y-auto"
   >
+  <div
+      v-if="(game.gameEnded || match.status === 'finished') && earnedAchievements.length > 0"
+      class="absolute inset-0 z-0 pointer-events-none opacity-50"
+      :style="{ backgroundImage: `url(${fireworksGif})`, backgroundSize: 'contain' }"
+    ></div>
     <div class="flex flex-col md:flex-row w-full md:w-auto md:max-w-4xl items-stretch relative animate-in fade-in zoom-in duration-300">
       <div class="bg-white rounded-t-2xl md:rounded-l-2xl md:rounded-r-none w-full md:max-w-md overflow-hidden relative z-10 flex flex-col">
          <div class="p-8 text-center" :class="headerBgClass">
@@ -134,7 +181,7 @@
       <div v-if="!auth.anonymous && match.isRanked"
         class="flex flex-col w-full md:w-72 bg-amber-50 rounded-b-2xl md:rounded-r-2xl md:rounded-l-none md:mt-0 border
         border-t md:border-t-0 md:border-l border-amber-100 p-6 transform transition-all duration-500 delay-100 origin-top
-         md:origin-left" :class="match.status === 'finished' ? 'scale-100 opacity-100' : 'scale-95 opacity-0'">
+         md:origin-left" :class="(match.status === 'finished' || game.gameEnded) ? 'scale-100 opacity-100' : 'scale-95 opacity-0'">
         <h3
           class="text-sm font-black text-amber-800 uppercase tracking-wider mb-6 flex items-center justify-center md:justify-start gap-2">
           <Gift class="w-5 h-5" /> Rewards
@@ -215,9 +262,21 @@ import { useRouter } from "vue-router";
 import GameCard from "@/components/game/GameCard.vue";
 import GameBoard from "@/components/game/GameBoard.vue";
 import {
-  Trophy, X, ThumbsUp, Handshake, ThumbsDown, RotateCcw, DoorOpen, Gift, Coins,
-  Flag, Badge, Sparkles, Hand
+  Badge,
+  Coins,
+  DoorOpen,
+  Flag,
+  Gift,
+  Hand,
+  Handshake,
+  RotateCcw,
+  Sparkles,
+  ThumbsDown,
+  ThumbsUp,
+  Trophy,
+  X
 } from 'lucide-vue-next'
+import fireworksGif from '@/assets/fireworks.gif'
 
 const gameDiv = ref(null);
 
@@ -243,7 +302,7 @@ const match = useMatchStore();
 const auth = useAuthStore();
 
 const currentUserId = auth.currentUser?.id ?? -1
-const opponent = computed (() => (match.opponent))
+const opponent = computed(() => (match.opponent))
 
 const currentTurn = computed(() => (game.currentTurn))
 
@@ -256,18 +315,18 @@ const handleUndo = () => {
 
 // Animação visual das cartas jogadas
 const playedCardSelf = computed(() =>
-  game.tableCards.find((c) => c.player === currentUserId)
+    game.tableCards.find((c) => c.player === currentUserId)
 );
 const playedCardOpponent = computed(() =>
-  game.tableCards.find((c) => c.player === auth.BOT_ID)
+    game.tableCards.find((c) => c.player === auth.BOT_ID)
 );
 
 // Cartas da última ronda jogadas
 const lastRoundPlayerCard = computed(() =>
-  game.lastRoundCards.find((c) => c.player === currentUserId)
+    game.lastRoundCards.find((c) => c.player === currentUserId)
 );
 const lastRoundOpponentCard = computed(() =>
-  game.lastRoundCards.find((c) => c.player === auth.BOT_ID)
+    game.lastRoundCards.find((c) => c.player === auth.BOT_ID)
 );
 
 //Update dos scores
@@ -276,7 +335,7 @@ const playerScore = computed(() => game.scores.player1);
 
 onMounted(() => {
   // Inicia a Match
-   if (!auth.anonymous) match.initMatch();
+  if (!auth.anonymous) match.initMatch();
   // Inicialização do jogo
   game.startNewGame();
 });
@@ -307,8 +366,8 @@ const headerTitle = computed(() => {
 const headerSubtitle = computed(() => {
   if (match.status === "finished") {
     return match.marks.player1 >= 4
-      ? "Congratulations! You won the match."
-      : "You lost this time.";
+        ? "Congratulations! You won the match."
+        : "You lost this time.";
   }
   // Subtítulo da ronda
   let msg = "";
@@ -324,10 +383,10 @@ const headerIcon = computed(() => {
     return match.marks.player1 >= 4 ? Trophy : X
   }
   return game.scores.player1 > 60
-    ? ThumbsUp
-    : game.scores.player1 === 60
-      ? Handshake
-      : ThumbsDown
+      ? ThumbsUp
+      : game.scores.player1 === 60
+          ? Handshake
+          : ThumbsDown
 });
 
 const headerBgClass = computed(() => {
@@ -351,19 +410,19 @@ const earnedAchievements = computed(() => {
   match.gamesHistory.forEach(game => {
     if (game.winner == auth.currentUser.id) {
       if (game.scoreDetail.player1 >= 120) {
-        list.push({ icon: Flag, title: 'Bandeira', desc: 'Won all tricks', bonus: 6 })
+        list.push({icon: Flag, title: 'Bandeira', desc: 'Won all tricks', bonus: 6})
       } else if (game.scoreDetail.player1 >= 91) {
-        list.push({ icon: Badge, title: 'Capote', desc: 'Opponent scored 0', bonus: 4 })
+        list.push({icon: Badge, title: 'Capote', desc: 'Opponent scored 0', bonus: 4})
         console.log("Capote achieved")
       } else if (game.scoreDetail.player1 > 60) {
-        list.push({ icon: Sparkles, title: 'Victory', desc: 'Simple win', bonus: 3 })
+        list.push({icon: Sparkles, title: 'Victory', desc: 'Simple win', bonus: 3})
         console.log("Victory achieved")
       }
 
     }
   })
   if (match.status === 'finished' && match.marks.player1 >= 4) {
-    list.unshift({ icon: Trophy, title: 'Match Winner', desc: 'Defeated the Opponent', bonus: 0 })
+    list.unshift({icon: Trophy, title: 'Match Winner', desc: 'Defeated the Opponent', bonus: 0})
   }
   return list
 })
@@ -385,8 +444,29 @@ const closeModal = () => {
 const confirmLeave = () => {
   // Eventualmente adicionar lógica extra...
   // matchStore.forfeitMatch()... por exemplo
-  
+
   isOpen.value = false
-  router.push({ name: 'dashboard' })
+  router.push({name: 'dashboard'})
+}
+
+
+const _win = () => {
+  game.force_win_game()
+}
+
+const _lose = () => {
+  game.force_lose_game()
+}
+
+const _tie = () => {
+  game.force_tie_game()
+}
+
+const _capote = () => {
+  game.force_capote_game()
+}
+
+const _bandeira = () => {
+  game.force_bandeira_game()
 }
 </script>
