@@ -1,6 +1,6 @@
-import {defineStore} from "pinia";
-import {computed, ref} from "vue";
-import {useAPIStore} from "./api";
+import { defineStore } from "pinia";
+import { computed, ref } from "vue";
+import { useAPIStore } from "./api";
 
 export const useAuthStore = defineStore("auth", () => {
     const apiStore = useAPIStore();
@@ -15,6 +15,11 @@ export const useAuthStore = defineStore("auth", () => {
     const isLoggedIn = computed(() => {
         return currentUser.value !== undefined;
     });
+
+    const isAdmin = computed(() => {
+        return currentUser.value?.type === "A";
+    });
+
 
     const setStoredToken = (token, remember) => {
         if (remember && token) {
@@ -72,5 +77,6 @@ export const useAuthStore = defineStore("auth", () => {
         BOT_ID,
         initializeAuth,
         rememberMe,
+        isAdmin,
     };
 });
