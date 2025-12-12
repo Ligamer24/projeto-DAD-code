@@ -25,7 +25,7 @@
         alt="trunfo" />
 
       <div class="absolute z-10 md:w-full top-8 transition-transform hover:-translate-y-2 w-12">
-        <img :src="`/src/assets/cards/semFace_${deck}.png`" alt="Deck"
+        <img :src="deckImage" alt="Deck"
           class="w-full h-full rounded-sm shadow-lg rotate-90" />
         <p
           class="absolute inset-0 flex items-center justify-center font-extrabold text-white md:text-6xl text-xl drop-shadow-md">
@@ -157,13 +157,13 @@
 
 <script setup>
 import GameCard from './GameCard.vue'
-import { ref, inject } from "vue";
+import { ref, inject, computed } from "vue";
 import { useShopStore } from "@/stores/shop.js";
 import { Avatar, AvatarImage, AvatarFallback } from "../ui/avatar";
 import { Coins } from 'lucide-vue-next';
 
 const serverBaseURL = inject("baseURL")
-
+const shopStore = useShopStore()
 
 defineProps({
   trunfo: Object,
@@ -184,6 +184,17 @@ defineProps({
 
 defineEmits(['undo'])
 
-const deck = ref();
-deck.value = useShopStore().selectedDeck;
+const deckImage = computed(() => {
+    const selectedItem = shopStore.items.find(item => item.id === shopStore.selectedDeck)
+    
+    if (selectedItem) {
+        if (selectedItem.isLocal) {
+            return selectedItem.image
+        } else {
+            return selectedItem.image.startsWith('http') ? selectedItem.image : serverBaseURL + selectedItem.image
+        }
+    }
+    
+    return '/src/assets/cards/semFace_1.png'
+})
 </script>

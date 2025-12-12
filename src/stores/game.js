@@ -452,6 +452,34 @@ export const useGameStore = defineStore("game", () => {
 
   }
 
+
+
+  const force_win_game = () => {
+    scores.value.player1 = 70
+    scores.value.player2 = 10
+    processGameEnd()
+  }
+  const force_lose_game = () => {
+    scores.value.player1 = 10
+    scores.value.player2 = 70
+    processGameEnd()
+  }
+  const force_tie_game = () => {
+    scores.value.player1 = 50
+    scores.value.player2 = 50
+    processGameEnd()
+  }
+  const force_capote_game = () => {
+    scores.value.player1 = 91
+    scores.value.player2 = 10
+    processGameEnd()
+  }
+  const force_bandeira_game = () => {
+    scores.value.player1 = 120
+    scores.value.player2 = 10
+    processGameEnd()
+  }
+
   //   // ------------------------------------------------------------------------
   //   // LÓGICA MULTIPLAYER (SOCKETS)
   //   // ------------------------------------------------------------------------
@@ -530,6 +558,13 @@ export const useGameStore = defineStore("game", () => {
     playBotTurn,
     checkRoundWinner,
     undoAction,
+
+    // dev tools
+    force_win_game,
+    force_lose_game,
+    force_tie_game,
+    force_capote_game,
+    force_bandeira_game,
 
     // // State Multiplayer
     // games,
