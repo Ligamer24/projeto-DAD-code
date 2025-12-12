@@ -1,10 +1,12 @@
 import { defineStore } from "pinia";
 import { onMounted, ref } from "vue";
 import { useAPIStore } from "@/stores/api.js";
+import { useAuthStore } from "@/stores/auth.js";
 
 export const useShopStore = defineStore("shop", () => {
     const selectedDeck = ref(0);
     const api = useAPIStore();
+    const authStore = useAuthStore();
 
     const items = ref([]);
 
@@ -26,9 +28,10 @@ export const useShopStore = defineStore("shop", () => {
         await fetchItems();
     };
 
-    const purchaseItem = async (id) => {
+    const purchaseItem = async (id, price) => {
         await api.purchaseItem(id);
         await fetchItems();
+        authStore.currentUser.coins_balance -= price;
     };
 
     const setSelectedDeck = (id) => {

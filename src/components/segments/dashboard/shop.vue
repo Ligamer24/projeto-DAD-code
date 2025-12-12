@@ -33,7 +33,7 @@ async function confirmBuy() {
   if (!itemToBuy.value) return;
   
   try {
-    await shopStore.purchaseItem(itemToBuy.value.id);
+    await shopStore.purchaseItem(itemToBuy.value.id, itemToBuy.value.price);
     toast.success(`Successfully purchased ${itemToBuy.value.name}!`);
     closeBuyModal();
   } catch (error) {
