@@ -5,7 +5,7 @@ import { useAPIStore } from "./api";
 import { useMatchStore } from "./match";
 import { toast } from "vue-sonner";
 
-const SKIP_SLEEPS = true
+const SKIP_SLEEPS = false
 
 //Definição das Cartas
 
