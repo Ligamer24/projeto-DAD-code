@@ -9,6 +9,7 @@ import GamePage from '@/pages/game.vue';
 import GamesPage from "@/pages/dashboard/matchHistory/GamesPage.vue";
 import SinglePlayerGame from '@/pages/game/SinglePlayerGame.vue';
 import AddShopItem from '@/pages/shop/AddShopItem.vue';
+import MultiplayerGame from "@/pages/game/MultiplayerGame.vue";
 
 
 const router = createRouter({
@@ -28,8 +29,11 @@ const router = createRouter({
       path: "/games",
       children: [
         {
-          path: "singleplayer", name: "singleplayer", component: SinglePlayerGame
-        }
+          path: "singleplayer", name: "singleplayer", component: SinglePlayerGame,
+        },
+        {
+          path: "multiplayer", name: "multiplayer", component: MultiplayerGame,
+        },
       ]
     },
     { path: "/GamesPage/:id", name: "GamesPage", component: GamesPage },
