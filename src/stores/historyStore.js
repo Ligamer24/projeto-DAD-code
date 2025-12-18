@@ -5,7 +5,13 @@ export const useHistoryStore = defineStore("history", () => {
   function formatDate(value) {
     if (!value) return "—";
     try {
-      return new Date(value).toLocaleString();
+      return new Date(value).toLocaleString("en-GB", {
+        day: "2-digit",
+        month: "2-digit",
+        year: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
+      });
     } catch (e) {
       return value;
     }
@@ -15,6 +21,7 @@ export const useHistoryStore = defineStore("history", () => {
     const auth = useAuthStore();
     const meId = auth.currentUser?.id;
     if (!meId) return "-";
+    if (g.player2 && g.player2.id === 2) return "BOT";
     if (g.player1 && g.player1.id === meId)
       return g.player2?.nickname || `#${g.player2_user_id}`;
     return g.player1?.nickname || `#${g.player1_user_id}`;
