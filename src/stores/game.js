@@ -105,7 +105,8 @@ export const useGameStore = defineStore("game", () => {
     // ------------------------------------------------------------------------
 
     const searching_player = ref(false)
-    const player_found = ref({})
+    const opponent = ref({})
+    const opponent_found = ref(false)
     const game_began = ref(false)
 
     // ------------------------------------------------------------------------
@@ -113,10 +114,12 @@ export const useGameStore = defineStore("game", () => {
     // ------------------------------------------------------------------------
 
     const startNewGame = () => {
-        if (isRanked){
+        if (isRanked) {
+            searching_player.value = true
             createGame({
-                user_id: authStore.currentUser.id
-            })
+                id: authStore.currentUser.id,
+                name: authStore.currentUser.name,
+            });
             return
         }
 
@@ -134,7 +137,7 @@ export const useGameStore = defineStore("game", () => {
         //Variáveis auxiliares para o undo action
         increment = 1
         lastMove = 1
-    //
+        //
 
     }
 
@@ -502,7 +505,7 @@ export const useGameStore = defineStore("game", () => {
     // ------------------------------------------------------------------------
 
     // Criar Jogo (Lobby)
-    const createGame = (options = {}) => {
+    const createGame = (data = {}) => {
         if (!authStore.currentUser) {
             toast.error('Tens de fazer login para criar um jogo')
             return
@@ -512,7 +515,7 @@ export const useGameStore = defineStore("game", () => {
             return
         }
         // Emite para o servidor criar a sala
-        socket.emit('create-game', options)
+        socket.emit('create-game', data)
     }
 
     // Receber lista de jogos (Lobby)
@@ -524,81 +527,106 @@ export const useGameStore = defineStore("game", () => {
     // Receber estado do jogo atual do servidor
     const setMultiplayerGame = (gameState) => {
         multiplayerGame.value = gameState
-        // Aqui podes sincronizar o estado local visual com o estado do servidor
-        // Ex: trunfo.value = gameState.trunfo
+        deck.value = gameState.deck
+        player1Hand.value = gameState.player1Hand
+        player2Hand.value = gameState.player2Hand
+        trunfo.value = gameState.trunfo
+        trumpSuit.value = gameState.trumpSuit
+        tableCards.value = gameState.tableCards
+        lastRoundCards.value = gameState.lastRoundCards
+        moves.value = gameState.moves
+        currentTurn.value = gameState.currentTurn;
+        gameBeganAt = gameState.beganAt;
+        gameEndedAt = gameState.endedAt;
+        scores.value = gameState.scores;
+        gameEnded.value = gameState.gameEnded;
     }
 
-    // Jogar uma carta (Multiplayer)
-    const playCardMultiplayer = (card) => {
-        if (!socket || !socket.connected) return
-        socket.emit('play-card', {gameId: multiplayerGame.value.id, card: card})
+        // Jogar uma carta (Multiplayer)
+        const playCardMultiplayer = (card) => {
+            if (!socket || !socket.connected) return
+            socket.emit('play-card', {gameId: multiplayerGame.value.id, card: card})
+        }
+
+        // ------------------------------------------------------------------------
+        // COMPUTED PROPERTIES (GETTERS)
+        // ------------------------------------------------------------------------
+
+        const myGames = computed(() => {
+            if (!authStore.currentUser) return []
+            return games.value.filter((g) => g.creator == currentUserId)
+        })
+
+        const availableGames = computed(() => {
+            if (!authStore.currentUser) return []
+            return games.value.filter((g) => g.creator != currentUserId && g.status === 'pending')
+        })
+
+        // Exemplo: Saber se é a minha vez (assumindo que o servidor manda 'currentTurnPlayerId')
+        const isMyTurn = computed(() => {
+            if (!multiplayerGame.value || !authStore.currentUser) return false
+            return multiplayerGame.value.currentTurnPlayerId === currentUserId
+        })
+
+        socket.on('game-created', (game) => {
+            console.log('[Bisca] Game created:', game)
+            opponent.value = game.player1Data.id === currentUserId ? game.player2Data : game.player1Data
+            opponent_found.value = true
+            searching_player.value = false
+            setMultiplayerGame(game);
+            setTimeout(() => {
+                game_began.value = true
+            }, 2000);
+        });
+
+        return {
+            // State Local
+            deck,
+            player1Hand,
+            player2Hand,
+            trunfo,
+            tableCards,
+            lastRoundCards,
+            scores,
+            currentTurn,
+            gameEnded,
+            moves,
+            undoPrice,
+            botStatus,
+
+            // Actions Local
+            startNewGame,
+            playCardLocal,
+            playBotTurn,
+            checkRoundWinner,
+            undoAction,
+
+            // dev tools
+            force_win_game,
+            force_lose_game,
+            force_tie_game,
+            force_capote_game,
+            force_bandeira_game,
+
+            // State Multiplayer
+            games,
+            multiplayerGame,
+
+            // Actions Multiplayer
+            createGame,
+            setGames,
+            setMultiplayerGame,
+            playCardMultiplayer,
+
+            // Computeds
+            myGames,
+            availableGames,
+            isMyTurn,
+            searching_player,
+            opponent,
+            opponent_found,
+            game_began,
+        };
     }
-
-    // ------------------------------------------------------------------------
-    // COMPUTED PROPERTIES (GETTERS)
-    // ------------------------------------------------------------------------
-
-    const myGames = computed(() => {
-        if (!authStore.currentUser) return []
-        return games.value.filter((g) => g.creator == currentUserId)
-    })
-
-    const availableGames = computed(() => {
-        if (!authStore.currentUser) return []
-        return games.value.filter((g) => g.creator != currentUserId && g.status === 'pending')
-    })
-
-    // Exemplo: Saber se é a minha vez (assumindo que o servidor manda 'currentTurnPlayerId')
-    const isMyTurn = computed(() => {
-        if (!multiplayerGame.value || !authStore.currentUser) return false
-        return multiplayerGame.value.currentTurnPlayerId === currentUserId
-    })
-
-    return {
-        // State Local
-        deck,
-        player1Hand,
-        player2Hand,
-        trunfo,
-        tableCards,
-        lastRoundCards,
-        scores,
-        currentTurn,
-        gameEnded,
-        moves,
-        undoPrice,
-        botStatus,
-
-        // Actions Local
-        startNewGame,
-        playCardLocal,
-        playBotTurn,
-        checkRoundWinner,
-        undoAction,
-
-        // dev tools
-        force_win_game,
-        force_lose_game,
-        force_tie_game,
-        force_capote_game,
-        force_bandeira_game,
-
-        // State Multiplayer
-        games,
-        multiplayerGame,
-
-        // Actions Multiplayer
-        createGame,
-        setGames,
-        setMultiplayerGame,
-        playCardMultiplayer,
-
-        // Computeds
-        myGames,
-        availableGames,
-        isMyTurn,
-        searching_player,
-        player_found,
-        game_began,
-    };
-});
+)
+    ;

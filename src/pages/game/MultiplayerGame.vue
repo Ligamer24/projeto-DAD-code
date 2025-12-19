@@ -234,6 +234,13 @@
       <p class="text-gray-500 text-center max-w-md">Please wait while we find a suitable opponent for you to play against.</p>
     </div>
   </div>
+  <div v-else-if="game.opponent_found && !game.game_began">
+    <div class="flex flex-col items-center justify-center h-dvh w-full p-4 box-border">
+      <h2 class="text-2xl font-bold text-gray-700 mb-2">Player found!!</h2>
+      <p class="text-gray-500 text-center max-w-md">{{ game.opponent.value }}</p>
+    </div>
+
+  </div>
   <div v-else class="flex flex-col justify-between p-3 box-border h-dvh w-full" ref="gameDiv">
     <section class="flex flex-wrap md:gap-2 justify-center p-2 -space-x-6 md:space-x-2 overflow-visible">
       <GameCard v-for="(card, i) in game.player2Hand" :key="'top-' + i" :card="card" :face-down="true" />
