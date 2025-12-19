@@ -113,6 +113,14 @@ export const useGameStore = defineStore("game", () => {
     // ------------------------------------------------------------------------
 
     const startNewGame = () => {
+        if (isRanked){
+            createGame({
+                user_id: authStore.currentUser.id
+            })
+            return
+        }
+
+
         gameEnded.value = false
         scores.value = {player1: 0, player2: 0}
         moves.value = []
