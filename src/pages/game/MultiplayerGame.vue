@@ -235,9 +235,45 @@
     </div>
   </div>
   <div v-else-if="game.opponent_found && !game.game_began">
-    <div class="flex flex-col items-center justify-center h-dvh w-full p-4 box-border">
-      <h2 class="text-2xl font-bold text-gray-700 mb-2">Player found!!</h2>
-      <p class="text-gray-500 text-center max-w-md">{{ game.opponent.value }}</p>
+    <div class="flex flex-col items-center justify-center h-dvh w-full p-4 box-border ">
+      <div class="bg-white p-8 rounded-2xl shadow-xl border border-slate-100 flex flex-col items-center max-w-sm w-full animate-in fade-in zoom-in duration-500">
+
+        <div class="mb-6 text-center">
+          <h2 class="text-2xl font-black text-slate-800 uppercase tracking-wider">Opponent Found!</h2>
+          <p class="text-slate-400 text-sm font-medium">Prepare for battle</p>
+        </div>
+
+        <div class="relative mb-6 group">
+          <div class="absolute inset-0 bg-blue-500 rounded-full blur opacity-20 group-hover:opacity-30 transition-opacity"></div>
+          <Avatar class="size-24 lg:size-32 border-4 border-white shadow-lg relative">
+            <AvatarImage v-if="game.opponent.photo_avatar_filename"
+                         :src="`${serverBaseURL}/storage/photos_avatars/${game.opponent.photo_avatar_filename}`"
+                         :alt="game.opponent.name" />
+            <AvatarFallback class="text-4xl">
+              {{ game.opponent.name?.charAt(0).toUpperCase() }}
+            </AvatarFallback>
+          </Avatar>
+          <div class="absolute -bottom-3 left-1/2 -translate-x-1/2 bg-amber-400 text-white text-xs font-bold px-3 py-1 rounded-full border-2 border-white shadow-sm flex items-center gap-1 min-w-max">
+            <Trophy class="w-3 h-3" />
+            <span>{{ game.opponent.rating ?? '---' }}</span>
+          </div>
+        </div>
+
+        <div class="text-center space-y-1 mb-8">
+          <h3 class="text-xl font-bold text-slate-900">{{ game.opponent.nickname }}</h3>
+          <p class="text-sm text-slate-500 font-medium">{{ game.opponent.name }}</p>
+        </div>
+
+        <div class="w-full space-y-2">
+           <div class="flex justify-between text-xs font-bold text-slate-400 uppercase tracking-wider">
+              <span>Starting Match</span>
+              <span class="animate-pulse">...</span>
+           </div>
+           <div class="h-2 w-full bg-slate-100 rounded-full overflow-hidden">
+              <div class="h-full bg-blue-500 animate-pulse w-full origin-left"></div>
+           </div>
+        </div>
+      </div>
     </div>
 
   </div>
@@ -269,7 +305,7 @@
 </template>
 
 <script setup>
-import { onMounted, ref, computed } from "vue";
+import {onMounted, ref, computed, inject} from "vue";
 import { useGameStore } from "@/stores/game.js";
 import { useMatchStore } from "@/stores/match";
 import { useAuthStore } from "@/stores/auth";
@@ -292,8 +328,10 @@ import {
   X
 } from 'lucide-vue-next'
 import fireworksGif from '@/assets/fireworks.gif'
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 
 const gameDiv = ref(null);
+const serverBaseURL = inject("baseURL")
 
 function updatePagesHeight() {
   if (typeof window === 'undefined') return
