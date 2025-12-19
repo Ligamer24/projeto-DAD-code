@@ -100,7 +100,7 @@
               {{ botStatus }}
           </div>
         </div>
-        <span class="text-[10px] uppercase font-bold text-slate-500 tracking-wider">Bot</span>
+        <span class="text-[10px] uppercase font-bold text-slate-500 tracking-wider text-center">{{ opponent?.nickname ?? opponent?.name}}</span>
       </div>
 
       <!-- VS Separator -->

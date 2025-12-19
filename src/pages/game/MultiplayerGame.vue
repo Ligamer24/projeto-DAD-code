@@ -286,7 +286,7 @@
       <GameBoard :trunfo="game.trunfo" :deck-count="game.deck.length" :player-played-card="playedCardSelf"
         :opponent-played-card="playedCardOpponent" :opponent-score="opponentScore" :player-score="playerScore"
         :last-opponent-card="lastRoundOpponentCard" :last-player-card="lastRoundPlayerCard" :currentTurn="currentTurn"
-        :player="auth.currentUser" :opponent="opponent" @undo="handleUndo" :undo-price="undoPrice" :is-ranked="match.isRanked"
+        :player="auth.currentUser" :opponent="game.opponent" @undo="handleUndo" :undo-price="undoPrice" :is-ranked="match.isRanked"
         :bot-status="game.botStatus" />
     </section>
 
