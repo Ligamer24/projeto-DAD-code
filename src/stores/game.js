@@ -4,6 +4,7 @@ import {useAuthStore} from "./auth";
 import {useAPIStore} from "./api";
 import {useMatchStore} from "./match";
 import {toast} from "vue-sonner";
+import {useEmotesStore} from "@/stores/emotes.js";
 
 const SKIP_SLEEPS = false
 
@@ -67,6 +68,7 @@ export const useGameStore = defineStore("game", () => {
             const apiStore = useAPIStore();
             const matchStore = useMatchStore();
             const socket = inject('socket')
+            const emoteStore = useEmotesStore();
 
             const BOT_ID = authStore.BOT_ID
             const botStatus = ref('');
@@ -596,7 +598,27 @@ export const useGameStore = defineStore("game", () => {
                 setMultiplayerGame(game);
                 setTimeout(() => {
                     game_began.value = true
-                }, 5000);
+                }, SKIP_SLEEPS ? 0 : 5000);
+            });
+
+            const sendEmote = (emote) => {
+                if (!socket || !socket.connected) return
+                socket.emit('send-emote', {gameId: multiplayerGame.value.id, emote: emote, userId: currentUserId})
+            }
+
+            const showEmote = ref(null);
+            const playEmote = (emote) => {
+                // if (showEmote.value) return; // Prevent overlapping emotes
+                showEmote.value = {...emoteStore.getEmoteById(emote.id), user_id: emote.user_id};
+                const emoteAudio = new Audio('/assets/emotes/' + showEmote.value.sound);
+                emoteAudio.volume = 0.7;
+                emoteAudio.play().catch((err) => console.warn('Emote audio play blocked:', err));
+                setTimeout(() => {
+                    showEmote.value = null
+                }, 1500);
+            }
+            socket.on('receive-emote', (data) => {
+                playEmote(data);
             });
 
             return {
@@ -646,6 +668,9 @@ export const useGameStore = defineStore("game", () => {
                 opponent,
                 opponent_found,
                 game_began,
+
+                sendEmote,
+                showEmote,
             };
         }
     )

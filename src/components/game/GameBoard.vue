@@ -91,6 +91,14 @@
               {{ opponent?.name?.charAt(0).toUpperCase() }}
             </AvatarFallback>
           </Avatar>
+
+          <!-- Emote Bubble for Opponent -->
+          <div v-if="showEmote && showEmote.user_id === opponent?.id"
+               class="absolute top-0 right-full mr-3 bg-white p-2 rounded-2xl rounded-tr-none shadow-xl border border-slate-100 z-50 animate-in fade-in zoom-in duration-300 w-max flex justify-center">
+            <img :src="`/assets/emotes/${showEmote.image}`" :alt="showEmote.name" class="w-20 h-20" />
+            <div class="absolute top-3 -right-1.5 w-3 h-3 bg-white border-t border-r border-slate-100 transform rotate-45"></div>
+          </div>
+
           <span v-if="currentTurn == opponent?.id" class="absolute -top-1 -right-1 flex h-3 w-3">
             <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
             <span class="relative inline-flex rounded-full h-3 w-3 bg-red-500"></span>
@@ -119,6 +127,14 @@
               {{ player?.name?.charAt(0).toUpperCase() ?? 'A' }}
             </AvatarFallback>
           </Avatar>
+
+          <!-- Emote Bubble for Player -->
+          <div v-if="showEmote && showEmote.user_id === player?.id"
+               class="absolute bottom-0 right-full mr-3 bg-white p-2 rounded-2xl rounded-br-none shadow-xl border border-slate-100 z-50 animate-in fade-in zoom-in duration-300 w-max flex justify-center">
+            <img :src="`/assets/emotes/${showEmote.image}`" :alt="showEmote.name" class="w-20 h-20" />
+            <div class="absolute bottom-3 -right-1.5 w-3 h-3 bg-white border-t border-r border-slate-100 transform rotate-45"></div>
+          </div>
+
           <span v-if="currentTurn === (player?.id ?? -1)" class="absolute -top-1 -right-1 flex h-3 w-3 z-10">
             <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
             <span class="relative inline-flex rounded-full h-3 w-3 bg-red-500"></span>
@@ -180,6 +196,7 @@ defineProps({
   undoPrice: Number,
   isRanked: Boolean,
   botStatus: String,
+  showEmote: Object,
 })
 
 defineEmits(['undo'])
