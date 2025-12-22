@@ -5,60 +5,9 @@ import {useAPIStore} from "./api";
 import {useMatchStore} from "./match";
 import {toast} from "vue-sonner";
 import {useEmotesStore} from "@/stores/emotes.js";
+import { getCardStrength, setupNewGame } from "@/utils/gameLogic";
 
 const SKIP_SLEEPS = false
-
-//Definição das Cartas
-
-const ALL_CARDS = [
-    // --- PAUS (Clubs) ---
-    {card: "p1", value: 11, suit: "clubs", label: "Ás de Paus"},
-    {card: "p7", value: 10, suit: "clubs", label: "Sete de Paus"},
-    {card: "p13", value: 4, suit: "clubs", label: "Rei de Paus"},
-    {card: "p11", value: 3, suit: "clubs", label: "Valete de Paus"},
-    {card: "p12", value: 2, suit: "clubs", label: "Dama de Paus"},
-    {card: "p6", value: 0, suit: "clubs", label: "Seis de Paus"},
-    {card: "p5", value: 0, suit: "clubs", label: "Cinco de Paus"},
-    {card: "p4", value: 0, suit: "clubs", label: "Quatro de Paus"},
-    {card: "p3", value: 0, suit: "clubs", label: "Três de Paus"},
-    {card: "p2", value: 0, suit: "clubs", label: "Dois de Paus"},
-
-    // --- ESPADAS (Spades) ---
-    {card: "e1", value: 11, suit: "spades", label: "Ás de Espadas"},
-    {card: "e7", value: 10, suit: "spades", label: "Sete de Espadas"},
-    {card: "e13", value: 4, suit: "spades", label: "Rei de Espadas"},
-    {card: "e11", value: 3, suit: "spades", label: "Valete de Espadas"},
-    {card: "e12", value: 2, suit: "spades", label: "Dama de Espadas"},
-    {card: "e6", value: 0, suit: "spades", label: "Seis de Espadas"},
-    {card: "e5", value: 0, suit: "spades", label: "Cinco de Espadas"},
-    {card: "e4", value: 0, suit: "spades", label: "Quatro de Espadas"},
-    {card: "e3", value: 0, suit: "spades", label: "Três de Espadas"},
-    {card: "e2", value: 0, suit: "spades", label: "Dois de Espadas"},
-
-    // --- OUROS (Diamonds) ---
-    {card: "o1", value: 11, suit: "diamonds", label: "Ás de Ouros"},
-    {card: "o7", value: 10, suit: "diamonds", label: "Sete de Ouros"},
-    {card: "o13", value: 4, suit: "diamonds", label: "Rei de Ouros"},
-    {card: "o11", value: 3, suit: "diamonds", label: "Valete de Ouros"},
-    {card: "o12", value: 2, suit: "diamonds", label: "Dama de Ouros"},
-    {card: "o6", value: 0, suit: "diamonds", label: "Seis de Ouros"},
-    {card: "o5", value: 0, suit: "diamonds", label: "Cinco de Ouros"},
-    {card: "o4", value: 0, suit: "diamonds", label: "Quatro de Ouros"},
-    {card: "o3", value: 0, suit: "diamonds", label: "Três de Ouros"},
-    {card: "o2", value: 0, suit: "diamonds", label: "Dois de Ouros"},
-
-    // --- COPAS (Hearts) ---
-    {card: "c1", value: 11, suit: "hearts", label: "Ás de Copas"},
-    {card: "c7", value: 10, suit: "hearts", label: "Sete de Copas"},
-    {card: "c13", value: 4, suit: "hearts", label: "Rei de Copas"},
-    {card: "c11", value: 3, suit: "hearts", label: "Valete de Copas"},
-    {card: "c12", value: 2, suit: "hearts", label: "Dama de Copas"},
-    {card: "c6", value: 0, suit: "hearts", label: "Seis de Copas"},
-    {card: "c5", value: 0, suit: "hearts", label: "Cinco de Copas"},
-    {card: "c4", value: 0, suit: "hearts", label: "Quatro de Copas"},
-    {card: "c3", value: 0, suit: "hearts", label: "Três de Copas"},
-    {card: "c2", value: 0, suit: "hearts", label: "Dois de Copas"},
-];
 
 const UNDO_ACTION_PRICE_BASE = 3
 
@@ -136,8 +85,13 @@ export const useGameStore = defineStore("game", () => {
                 lastRoundCards.value = []
                 currentTurn.value = authStore.currentUser?.id ?? -1
                 gameBeganAt = new Date()
-                shuffle()
-                dealInitialCards()
+
+                const gameData = setupNewGame()
+                trunfo.value = gameData.trunfo
+                trumpSuit.value = gameData.trumpSuit
+                player1Hand.value = gameData.player1Hand
+                player2Hand.value = gameData.player2Hand
+                deck.value = gameData.deck
 
                 //Variáveis auxiliares para o undo action
                 increment = 1
@@ -145,50 +99,6 @@ export const useGameStore = defineStore("game", () => {
                 //
 
             }
-
-            const shuffle = () => {
-                deck.value = JSON.parse(JSON.stringify(ALL_CARDS)); // Deep copy
-                for (let i = deck.value.length - 1; i > 0; i--) {
-                    const j = Math.floor(Math.random() * (i + 1));
-                    [deck.value[i], deck.value[j]] = [deck.value[j], deck.value[i]];
-                }
-            };
-
-            const dealInitialCards = () => {
-                // Define a carta visual
-                trunfo.value = deck.value[0];
-                trunfo.value.used = false;
-
-                trumpSuit.value = trunfo.value.suit;
-
-                deck.value = deck.value.slice(1);
-
-                // Dar cartas
-                player1Hand.value = deck.value.slice(0, 9);
-
-                player2Hand.value = deck.value.slice(9, 18);
-                deck.value = deck.value.slice(18);
-            };
-
-            const getCardStrength = (cardId) => {
-                // Extrai o número da carta (ex: "c7" -> "7")
-                const rank = parseInt(cardId.substring(1));
-
-                switch (rank) {
-                    case 1:
-                        return 20; // Ás
-                    case 7:
-                        return 19; // Sete
-                    case 13:
-                        return 18; // Rei
-                    case 11:
-                        return 17; // Valete
-                    case 12:
-                        return 16; // Dama
-                    default:
-                        return rank; // 6, 5, 4, 3, 2 valem o seu número
-                }
-            };
 
             const playCardLocal = async (card, playerNumber) => {
                 // Validar se é a vez do jogador
