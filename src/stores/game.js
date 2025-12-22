@@ -100,7 +100,7 @@ export const useGameStore = defineStore("game", () => {
             const games = ref([]); // Lista de jogos no lobby
             const multiplayerGame = ref({}); // Estado do jogo multiplayer atual
 
-            const isRanked = computed(matchStore.isRanked)
+            const isRanked = computed(() => matchStore.isRanked)
 
             // ------------------------------------------------------------------------
             // VARS PARA SOCKETS
