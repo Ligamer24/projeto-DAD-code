@@ -345,7 +345,7 @@
       </div>
 
       <div class="w-full flex flex-wrap md:gap-2 justify-center p-2 -space-x-6 md:space-x-2 overflow-visible">
-        <GameCard v-for="(card, i) in game.player2Hand" :key="'top-' + i" :card="card" :face-down="true"/>
+        <GameCard v-for="(card, i) in game.opponentHand" :key="'top-' + i" :card="card" :face-down="true"/>
       </div>
     </section>
 
@@ -363,7 +363,7 @@
 
     <section class="flex flex-wrap gap-2 justify-center p-4 md:pb-8 pb-24">
       <GameCard
-          v-for="(card, i) in game.player1Hand"
+          v-for="(card, i) in game.myHand"
           :key="'bottom-' + i"
           :card="card"
           :is-interactive="game.currentTurn === currentUserId && game.tableCards.length < 2"

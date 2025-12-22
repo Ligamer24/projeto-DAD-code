@@ -46,7 +46,7 @@ export const useGameStore = defineStore("game", () => {
             const undoPrice = ref(UNDO_ACTION_PRICE_BASE)
 
             // 3. Estado Multiplayer
-            const games = ref([]); // Lista de jogos no lobby
+            const matches = ref([]); // Lista de jogos no lobby
             const multiplayerGame = ref({}); // Estado do jogo multiplayer atual
 
             const isRanked = computed(() => matchStore.isRanked)
@@ -60,6 +60,11 @@ export const useGameStore = defineStore("game", () => {
             const opponent_found = ref(false)
             const game_began = ref(false)
 
+            const myHand = ref([])
+            const opponentHand = ref([])
+            const myScore = ref(0)
+            const opponentScore = ref(0)
+
             // ------------------------------------------------------------------------
             // LÓGICA SINGLEPLAYER (LOCAL)
             // ------------------------------------------------------------------------
@@ -71,7 +76,7 @@ export const useGameStore = defineStore("game", () => {
                     opponent.value = {}
                     opponent_found.value = false
                     game_began.value = false
-                    createGame({
+                    createMatch({
                         ...authStore.currentUser
                     });
                     return
@@ -420,7 +425,7 @@ export const useGameStore = defineStore("game", () => {
             // ------------------------------------------------------------------------
 
             // Criar Jogo (Lobby)
-            const createGame = (data = {}) => {
+            const createMatch = (data = {}) => {
                 if (!authStore.currentUser) {
                     toast.error('Tens de fazer login para criar um jogo')
                     return
@@ -430,59 +435,47 @@ export const useGameStore = defineStore("game", () => {
                     return
                 }
                 // Emite para o servidor criar a sala
-                socket.emit('create-game', data)
+                socket.emit('create-match', data)
             }
 
             // Receber lista de jogos (Lobby)
-            const setGames = (newGames) => {
-                games.value = newGames
-                console.log(`[Bisca] Games list updated: ${games.value.length} games`)
+            const setMatches = (newMatches) => {
+                matches.value = newMatches
+                console.log(`[Bisca] Matches list updated: ${matches.value.length} matches`)
             }
 
             // Receber estado do jogo atual do servidor
             const setMultiplayerGame = (gameState) => {
+                const amIPlayer1 = gameState.player1 === currentUserId
+
+                if (amIPlayer1) {
+                    myHand.value = gameState.player1Hand
+                    opponentHand.value = gameState.player2Hand
+                } else {
+                    myHand.value = gameState.player2Hand
+                    opponentHand.value = gameState.player1Hand
+                }
+
+                if (amIPlayer1) {
+                    myScore.value = gameState.scores.player1
+                    opponentScore.value = gameState.scores.player2
+                } else {
+                    myScore.value = gameState.scores.player2
+                    opponentScore.value = gameState.scores.player1
+                }
+
                 multiplayerGame.value = gameState
                 deck.value = gameState.deck
-                player1Hand.value = gameState.player1Hand
-                player2Hand.value = gameState.player2Hand
                 trunfo.value = gameState.trunfo
                 trumpSuit.value = gameState.trumpSuit
                 tableCards.value = gameState.tableCards
                 lastRoundCards.value = gameState.lastRoundCards
-                moves.value = gameState.moves
-                currentTurn.value = gameState.currentTurn;
-                gameBeganAt = gameState.beganAt;
-                gameEndedAt = gameState.endedAt;
-                scores.value = gameState.scores;
-                gameEnded.value = gameState.gameEnded;
-            }
-
-            // Jogar uma carta (Multiplayer)
-            const playCardMultiplayer = (card) => {
-                if (!socket || !socket.connected) return
-                socket.emit('play-card', {gameId: multiplayerGame.value.id, card: card})
-            }
-
-            // ------------------------------------------------------------------------
-            // COMPUTED PROPERTIES (GETTERS)
-            // ------------------------------------------------------------------------
-
-            const myGames = computed(() => {
-                if (!authStore.currentUser) return []
-                return games.value.filter((g) => g.creator == currentUserId)
-            })
-
-            const availableGames = computed(() => {
-                if (!authStore.currentUser) return []
-                return games.value.filter((g) => g.creator != currentUserId && g.status === 'pending')
-            })
-
-            // Exemplo: Saber se é a minha vez (assumindo que o servidor manda 'currentTurnPlayerId')
-            const isMyTurn = computed(() => {
-                if (!multiplayerGame.value || !authStore.currentUser) return false
-                return multiplayerGame.value.currentTurnPlayerId === currentUserId
-            })
-
+                currentTurn.value = gameState.currentTurn
+                gameBeganAt = gameState.beganAt
+                gameEndedAt = gameState.endedAt
+                gameEnded.value = gameState.gameEnded
+            }   
+            
             socket.on('game-created', (game) => {
                 console.log('[Bisca] Game created:', game)
 
@@ -510,6 +503,27 @@ export const useGameStore = defineStore("game", () => {
                     game_began.value = true
                 }, SKIP_SLEEPS ? 0 : 5000);
             });
+
+
+            // ------------------------------------------------------------------------
+            // COMPUTED PROPERTIES (GETTERS)
+            // ------------------------------------------------------------------------
+
+            const myGames = computed(() => {
+                if (!authStore.currentUser) return []
+                return matches.value.filter((g) => g.creator == currentUserId)
+            })
+
+            const availableGames = computed(() => {
+                if (!authStore.currentUser) return []
+                return matches.value.filter((g) => g.creator != currentUserId && g.status === 'pending')
+            })
+
+            // Exemplo: Saber se é a minha vez (assumindo que o servidor manda 'currentTurnPlayerId')
+            const isMyTurn = computed(() => {
+                if (!multiplayerGame.value || !authStore.currentUser) return false
+                return multiplayerGame.value.currentTurnPlayerId === currentUserId
+            })
 
             const sendEmote = (emote) => {
                 if (!socket || !socket.connected) return
@@ -561,14 +575,17 @@ export const useGameStore = defineStore("game", () => {
                 force_bandeira_game,
 
                 // State Multiplayer
-                games,
+                matches,
                 multiplayerGame,
+                myHand,
+                opponentHand,
+                myScore,
+                opponentScore,
 
                 // Actions Multiplayer
-                createGame,
-                setGames,
+                createMatch,
+                setMatches,
                 setMultiplayerGame,
-                playCardMultiplayer,
 
                 // Computeds
                 myGames,

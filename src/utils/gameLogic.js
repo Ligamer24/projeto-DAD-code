@@ -1,4 +1,4 @@
-import { ALL_CARDS } from "./constants";
+import { ALL_CARDS } from "./constants.js";
 
 const createShuffledDeck = () => {
     
