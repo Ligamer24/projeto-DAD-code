@@ -444,37 +444,34 @@ export const useGameStore = defineStore("game", () => {
                 console.log(`[Bisca] Matches list updated: ${matches.value.length} matches`)
             }
 
-            // Receber estado do jogo atual do servidor
             const setMultiplayerGame = (gameState) => {
-                const amIPlayer1 = gameState.player1 === currentUserId
+                console.log('[GameStore] Recebi update do servidor:', gameState);
+                if (!gameState) return
+                multiplayerGame.value = gameState;
+
+                const amIPlayer1 = gameState.player1 === currentUserId;
 
                 if (amIPlayer1) {
-                    myHand.value = gameState.player1Hand
-                    opponentHand.value = gameState.player2Hand
+                    myHand.value = gameState.player1Hand || [];
+                    opponentHand.value = gameState.player2Hand || [];
+                    myScore.value = gameState.scores.player1;
+                    opponentScore.value = gameState.scores.player2;
                 } else {
-                    myHand.value = gameState.player2Hand
-                    opponentHand.value = gameState.player1Hand
+                    myHand.value = gameState.player2Hand || [];
+                    opponentHand.value = gameState.player1Hand || [];
+                    myScore.value = gameState.scores.player2;
+                    opponentScore.value = gameState.scores.player1;
                 }
 
-                if (amIPlayer1) {
-                    myScore.value = gameState.scores.player1
-                    opponentScore.value = gameState.scores.player2
-                } else {
-                    myScore.value = gameState.scores.player2
-                    opponentScore.value = gameState.scores.player1
-                }
-
-                multiplayerGame.value = gameState
-                deck.value = gameState.deck
-                trunfo.value = gameState.trunfo
-                trumpSuit.value = gameState.trumpSuit
-                tableCards.value = gameState.tableCards
-                lastRoundCards.value = gameState.lastRoundCards
-                currentTurn.value = gameState.currentTurn
-                gameBeganAt = gameState.beganAt
-                gameEndedAt = gameState.endedAt
-                gameEnded.value = gameState.gameEnded
-            }   
+                deck.value = gameState.deck || [];
+                trunfo.value = gameState.trunfo;
+                trumpSuit.value = gameState.trumpSuit;
+                tableCards.value = gameState.tableCards || [];
+                lastRoundCards.value = gameState.lastRoundCards || [];
+                currentTurn.value = gameState.currentTurn;
+                
+                gameEnded.value = gameState.gameEnded;
+            }
             
             socket.on('game-created', (game) => {
                 console.log('[Bisca] Game created:', game)
@@ -503,6 +500,12 @@ export const useGameStore = defineStore("game", () => {
                     game_began.value = true
                 }, SKIP_SLEEPS ? 0 : 5000);
             });
+
+            socket.on('game-change', (data) => {
+                console.log('[Socket] Game Change recebido', data);
+                setMultiplayerGame(data.game);
+                lastRoundCards.value = data.roundResult?.cards ?? []
+            })
 
 
             // ------------------------------------------------------------------------
@@ -581,6 +584,7 @@ export const useGameStore = defineStore("game", () => {
                 opponentHand,
                 myScore,
                 opponentScore,
+                multiplayerGame,
 
                 // Actions Multiplayer
                 createMatch,

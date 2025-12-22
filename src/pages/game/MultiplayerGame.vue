@@ -350,14 +350,27 @@
     </section>
 
     <section class="flex-grow flex items-center justify-center">
-      <GameBoard :trunfo="game.trunfo" :deck-count="game.deck.length" :player-played-card="playedCardSelf"
-                 :opponent-played-card="playedCardOpponent" :opponent-score="opponentScore" :player-score="playerScore"
-                 :last-opponent-card="lastRoundOpponentCard" :last-player-card="lastRoundPlayerCard"
-                 :currentTurn="currentTurn"
-                 :player="auth.currentUser" :opponent="game.opponent" @undo="handleUndo" :undo-price="undoPrice"
-                 :is-ranked="match.isRanked"
-                 :bot-status="game.botStatus"
-                 :showEmote="game.showEmote"
+      <GameBoard 
+      :trunfo="game.trunfo" 
+      :deck-count="game.deck.length"
+      :currentTurn="game.currentTurn"
+      
+      :player-played-card="playedCardSelf"
+      :opponent-played-card="playedCardOpponent"
+      
+      :opponent-score="opponentScore"
+      :player-score="playerScore"
+      
+      :last-player-card="lastRoundPlayerCard"
+      :last-opponent-card="lastRoundOpponentCard"
+      
+      :player="auth.currentUser"
+      :opponent="game.opponent"
+
+      :is-ranked="match.isRanked"
+      :showEmote="game.showEmote"
+
+      :allowUndo="false"
       />
     </section>
 
@@ -366,10 +379,10 @@
           v-for="(card, i) in game.myHand"
           :key="'bottom-' + i"
           :card="card"
-          :is-interactive="game.currentTurn === currentUserId && game.tableCards.length < 2"
-          @card-click="handlePlayCard(card, i)"
+          :is-interactive="isMyTurn"
+          @card-click="playCard(card, i)"
           class="transition-transform duration-200"
-          :class="{ 'hover:-translate-y-4': game.currentTurn === currentUserId && game.tableCards.length < 2 }"
+          :class="{ 'hover:-translate-y-4': isMyTurn }"
       />
     </section>
   </div>
@@ -402,6 +415,7 @@ import {
 import fireworksGif from '@/assets/fireworks.gif'
 import {Avatar, AvatarFallback, AvatarImage} from "@/components/ui/avatar";
 import {useEmotesStore} from "@/stores/emotes.js";
+import { useSocketStore } from "@/stores/socket";
 
 const gameDiv = ref(null);
 const serverBaseURL = inject("baseURL")
@@ -426,49 +440,42 @@ const game = useGameStore();
 const router = useRouter();
 const match = useMatchStore();
 const auth = useAuthStore();
+const socketStore = useSocketStore()
 
-const currentUserId = auth.currentUser?.id ?? -1
-const opponent = computed(() => (match.opponent))
-
-const currentTurn = computed(() => (game.currentTurn))
+const currentUserId = auth.currentUser?.id
 
 const isOpen = ref('')
 
-const undoPrice = computed(() => (game.undoPrice))
-const handleUndo = () => {
-  game.undoAction()
-}
+const isMyTurn = computed(() => game.currentTurn === currentUserId)
 
-// Animação visual das cartas jogadas
-const playedCardSelf = computed(() =>
-    game.tableCards.find((c) => c.player === currentUserId)
-);
+const iWon = computed(() => game.winner === currentUserId)
+
+const playedCardSelf = computed(() => 
+    game.tableCards.find((c) => c.playedBy === currentUserId)
+)
+
 const playedCardOpponent = computed(() =>
-    game.tableCards.find((c) => c.player === auth.BOT_ID)
-);
+    game.tableCards.find((c) => c.playedBy !== currentUserId)
+)
 
-// Cartas da última ronda jogadas
-const lastRoundPlayerCard = computed(() =>
-    game.lastRoundCards.find((c) => c.player === currentUserId)
-);
-const lastRoundOpponentCard = computed(() =>
-    game.lastRoundCards.find((c) => c.player === auth.BOT_ID)
-);
+const lastRoundPlayerCard = computed(() => 
+    game.lastRoundCards.find((c) => c.playedBy === currentUserId)
+)
+const lastRoundOpponentCard = computed(() => 
+    game.lastRoundCards.find((c) => c.playedBy !== currentUserId)
+)
 
-//Update dos scores
-const opponentScore = computed(() => game.scores.player2);
-const playerScore = computed(() => game.scores.player1);
+const opponentScore = computed(() => game.opponentScore)
+const playerScore = computed(() => game.myScore)
 
 onMounted(() => {
-  // Inicia a Match
   if (!auth.anonymous) match.initMatch();
-  // Inicialização do jogo
   game.startNewGame();
 });
 
-function handlePlayCard(card, index) {
-  // 1. O Jogador joga a carta na lógica da Store
-  game.playCardLocal(card, currentUserId);
+function playCard(card) {
+  if (!isMyTurn.value) return;
+  socketStore.emitPlayCard(game.multiplayerGame.id, card, currentUserId)
 }
 
 // Após Match acabar

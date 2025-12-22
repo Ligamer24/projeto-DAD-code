@@ -46,9 +46,10 @@ export const useSocketStore = defineStore('socket', () => {
       gameStore.setGames(games) // Import and instantiate the game store
     })
 
-    socket.on('game-change', (game) => {
-        gameStore.setMultiplayerGame(game)
-    })
+    // socket.on('game-change', (game) => {
+    //   console.log("Who the freak")
+    //     gameStore.setMultiplayerGame(game)
+    // })
   }
 
   const emitJoinGame = (game) => {
@@ -58,9 +59,9 @@ export const useSocketStore = defineStore('socket', () => {
 
   
 
-  const emitPlayCard = (card) => {
+  const emitPlayCard = (gameId, card, userId) => {
     if (!socket || !socket.connected) return
-    socket.emit('play-card', {gameId: multiplayerGame.value.id, card: card})
+    socket.emit('play-card', gameId, card, userId)
   }
 
   socket.on("round-ended", (data) => {
