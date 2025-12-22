@@ -116,7 +116,7 @@ export const useGameStore = defineStore("game", () => {
             // ------------------------------------------------------------------------
 
             const startNewGame = () => {
-                if (isRanked) {
+                if (isRanked.value) {
                     searching_player.value = true
                     searching_player.value = true
                     opponent.value = {}
