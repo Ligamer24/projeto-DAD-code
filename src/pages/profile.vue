@@ -136,7 +136,6 @@ const saveProfile = async () => {
     const user = Object.assign({}, authStore.currentUser);
 
     user.name = formData.value.name;
-    user.email = formData.value.email;
     user.nickname = formData.value.nickname
 
     await apiStore.putUser(user);
@@ -318,11 +317,6 @@ const requestNotification = () => {
               <div class="space-y-2">
                 <Label for="nickname">Nickname</Label>
                 <Input id="nickname" v-model="formData.nickname" placeholder="Enter your nickname"
-                       class="w-full rounded-md border border-black/30 bg-white/70 px-3 py-2 outline-none focus:ring-2 focus:ring-emerald-500"/>
-              </div>
-              <div class="space-y-2 col-span-2">
-                <Label for="email">Email</Label>
-                <Input id="email" v-model="formData.email" type="email" placeholder="Enter your email"
                        class="w-full rounded-md border border-black/30 bg-white/70 px-3 py-2 outline-none focus:ring-2 focus:ring-emerald-500"/>
               </div>
             </CardContent>
