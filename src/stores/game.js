@@ -332,28 +332,44 @@ export const useGameStore = defineStore("game", () => {
                 }
 
 
-                // Se o Bot for o segundo a jogar, deve tentar assistir (seguir naipe)
                 let cardToPlay = null;
+                const botHand = player2Hand.value;
 
+                //Se joga em segundo
                 if (tableCards.value.length === 1) {
-                    const leadSuit = tableCards.value[0].suit;
-                    // Tenta achar uma carta do mesmo naipe
-                    const sameSuitCards = player2Hand.value.filter(
-                        (c) => c.suit === leadSuit
-                    );
-
-                    if (sameSuitCards.length > 0) {
-                        // Joga uma aleatória do mesmo naipe (ou a mais alta para ganhar)
-                        const randomIndex = Math.floor(Math.random() * sameSuitCards.length);
-                        cardToPlay = sameSuitCards[randomIndex];
+                    const leadCard = tableCards.value[0];
+                    const leadSuit = leadCard.suit;
+                    
+                    let validCards = [...botHand];
+                    
+                    if (deck.value.length === 0) {
+                        const sameSuitCards = botHand.filter(c => c.suit === leadSuit);
+                        if (sameSuitCards.length > 0) {
+                            validCards = sameSuitCards;
+                        }
                     }
+
+                    const winningCards = validCards.filter(c => {
+                        if (c.suit === leadSuit && getCardStrength(c.card) > getCardStrength(leadCard.card)) return true;
+                        if (c.suit === trumpSuit.value && leadSuit !== trumpSuit.value) return true;
+                        return false;
+                    })
+
+                    if (winningCards.length > 0) {
+                        winningCards.sort((a, b) => getCardStrength(b.card) - getCardStrength(a.card));
+                        cardToPlay = winningCards[0];
+                    } else {
+                        validCards.sort((a, b) => getCardStrength(a.card) - getCardStrength(b.card));
+                        cardToPlay = validCards[0];
+                    }
+
+                } 
+                else {
+                    const sortedHand = [...botHand].sort((a, b) => getCardStrength(a.card) - getCardStrength(b.card));
+                    cardToPlay = sortedHand[0];
                 }
 
-                // Se não tiver do mesmo naipe ou for o primeiro a jogar, joga qualquer uma
-                if (!cardToPlay) {
-                    const randomIndex = Math.floor(Math.random() * player2Hand.value.length);
-                    cardToPlay = player2Hand.value[randomIndex];
-                }
+                if (!cardToPlay) cardToPlay = botHand[0];
 
                 // --- ESTADO: PLAYING ---
                 botStatus.value = "Playing...";
