@@ -151,9 +151,9 @@
         <div
             class="px-6 py-3 bg-white flex justify-center gap-4 text-sm text-gray-500 font-medium border-b border-gray-100">
           <span>Last Round:</span>
-          <span :class="game.scores.player1 > 60 ? 'text-green-600 font-bold' : ''">You {{ game.scores.player1 }}</span>
+          <span :class="game.myScore > 60 ? 'text-green-600 font-bold' : ''">You {{ game.myScore }}</span>
           <span>-</span>
-          <span :class="game.scores.player2 > 60 ? 'text-red-600 font-bold' : ''">Bot {{ game.scores.player2 }}</span>
+          <span :class="game.opponentScore > 60 ? 'text-red-600 font-bold' : ''">Opponent {{ game.opponentScore }}</span>
         </div>
 
         <div v-if="!auth.anonymous" class="mt-6 px-6"><h3
@@ -187,7 +187,7 @@
                       game.scoreDetail.player1
                     }}</span></div>
                   <div class="text-gray-300 font-bold text-xs italic">vs</div>
-                  <div class="flex flex-col"><span class="text-[10px] uppercase font-bold text-gray-400">Bot</span><span
+                  <div class="flex flex-col"><span class="text-[10px] uppercase font-bold text-gray-400">Opponent</span><span
                       class="text-xl font-black leading-none"
                       :class="game.scoreDetail.player2 > game.scoreDetail.player1 ? 'text-gray-800' : 'text-gray-400'">{{
                       game.scoreDetail.player2
@@ -490,10 +490,14 @@ const headerTitle = computed(() => {
   if (match.status === "finished") {
     return match.marks.player1 >= 4 ? "VICTORY!" : "DEFEAT!";
   }
-  // 2. Se for apenas a RONDA
-  if (game.scores.player1 > 60) return "Round Won!";
-  if (game.scores.player1 < 60) return "Round Lost!";
-  return "Round Draw!";
+  if (game.gameEnded) {
+    if (game.myScore > 60) return "Round Won!";
+    if (game.myScore < 60) return "Round Lost!";
+    return "Round Draw!";
+  }
+
+  // 3. Enquanto o jogo decorre
+  return "Match in Progress";
 });
 
 const headerSubtitle = computed(() => {
@@ -504,9 +508,9 @@ const headerSubtitle = computed(() => {
   }
   // Subtítulo da ronda
   let msg = "";
-  if (game.scores.player1 < 61) msg = "";
-  else if (game.scores.player1 < 91) msg = "You did a simple!";
-  else if (game.scores.player1 < 120) msg = "You achieved a capote!";
+  if (game.myScore < 61) msg = "";
+  else if (game.myScore < 91) msg = "You did a simple!";
+  else if (game.myScore < 120) msg = "You achieved a capote!";
   else msg = "You achieved a bandeira!";
   return msg;
 });
@@ -515,9 +519,9 @@ const headerIcon = computed(() => {
   if (match.status === "finished") {
     return match.marks.player1 >= 4 ? Trophy : X
   }
-  return game.scores.player1 > 60
+  return game.myScore > 60
       ? ThumbsUp
-      : game.scores.player1 === 60
+      : game.myScore === 60
           ? Handshake
           : ThumbsDown
 });
@@ -527,10 +531,15 @@ const headerBgClass = computed(() => {
   if (match.status === "finished") {
     return match.marks.player1 >= 4 ? "bg-green-600" : "bg-red-700";
   }
-  // Cores da Ronda (mais suaves)
-  if (game.scores.player1 > 60) return "bg-blue-500"; // Azul para vitória parcial
-  if (game.scores.player1 < 60) return "bg-orange-500"; // Laranja para derrota parcial
-  return "bg-gray-500";
+  
+  if (game.gameEnded) {
+    // Lógica da Ronda (120 pontos)
+    if (game.myScore > 60) return "bg-blue-500";
+    if (game.myScore < 60) return "bg-orange-500";
+    return "bg-gray-500";
+  }
+
+  return "bg-slate-800"; // Cor neutra enquanto jogam
 });
 
 const exitGame = () => {
