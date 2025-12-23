@@ -76,6 +76,10 @@ export const useAPIStore = defineStore("api", () => {
         return response.data.data;
     }
 
+    const getUsersAdmin = (page) => {
+        return axios.get(`${API_BASE_URL}/admin/users?page=${page}`);
+    }
+
     const getAuthUser = () => {
         return axios.get(`${API_BASE_URL}/users/me`);
     };
@@ -91,6 +95,11 @@ export const useAPIStore = defineStore("api", () => {
         });
     };
 
+    //Admins
+
+    const blockUser = (id) => {
+        return axios.patch(`${API_BASE_URL}/admin/users/${id}/block`);
+    }
 
     // Files
     const uploadProfilePhoto = async (file) => {
@@ -243,6 +252,8 @@ export const useAPIStore = defineStore("api", () => {
         postLogin,
         postLogout,
         getUser,
+        getUsersAdmin,
+        blockUser,
         getAuthUser,
         updateAvatar,
         patchUserPhoto,

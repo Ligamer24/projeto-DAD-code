@@ -9,6 +9,7 @@ import GamePage from '@/pages/game.vue';
 import GamesPage from "@/pages/dashboard/matchHistory/GamesPage.vue";
 import SinglePlayerGame from '@/pages/game/SinglePlayerGame.vue';
 import AddShopItem from '@/pages/shop/AddShopItem.vue';
+import AdminPage from "@/pages/admin/adminPage.vue";
 
 
 const router = createRouter({
@@ -24,6 +25,7 @@ const router = createRouter({
     { path: "/login", name: "login", component: LoginPage, meta: { requiresGuest: true } },
     { path: "/register", name: "register", component: RegisterPage, meta: { requiresGuest: true } },
     { path: "/MatchDetails/:id", name: "MatchDetails", component: MatchGamePage },
+    { path: "/adminPage", name: "adminPage", component: AdminPage },
     {
       path: "/games",
       children: [
