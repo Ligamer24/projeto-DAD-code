@@ -20,6 +20,11 @@ export const useAuthStore = defineStore("auth", () => {
         return currentUser.value?.type === "A";
     });
 
+    const register = async (credentials) => {
+        const user = await apiStore.postRegister(credentials)
+        return user
+    }
+
 
     const setStoredToken = (token, remember) => {
         if (remember && token) {
@@ -70,6 +75,7 @@ export const useAuthStore = defineStore("auth", () => {
     return {
         currentUser,
         isLoggedIn,
+        register,
         login,
         logout,
         getUser,

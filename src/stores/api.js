@@ -56,6 +56,11 @@ export const useAPIStore = defineStore("api", () => {
 
 
     // AUTH
+    const postRegister = async (credentials) => {
+        const response = await axios.post(`${API_BASE_URL}/register`, credentials);
+        return response.data
+    };
+
     const postLogin = async (credentials) => {
         const response = await axios.post(`${API_BASE_URL}/login`, credentials);
         const newToken = response.data.token;
@@ -240,6 +245,7 @@ export const useAPIStore = defineStore("api", () => {
         postMatch,
         getMatches,
         postCoinsTransaction,
+        postRegister,
         postLogin,
         postLogout,
         getUser,
