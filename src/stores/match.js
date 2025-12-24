@@ -225,35 +225,60 @@ export const useMatchStore = defineStore('match', () => {
     }
 
     socket.on('match-started', (data) => {
-                console.log('[Bisca] Match created:', data)
-                const game = data.game
-                const match = data.match
-                try {
-                    if (!window.matchFoundAudio) {
-                        window.matchFoundAudio = new Audio('/assets/Match_Found.mp3');
-                        window.matchFoundAudio.volume = 0.7;
-                        window.matchFoundAudio.preload = 'auto';
-                    }
-                    window.matchFoundAudio.currentTime = 0;
-                    const playPromise = window.matchFoundAudio.play();
-                    if (playPromise !== undefined) {
-                        playPromise.catch((err) => console.warn('Audio play blocked:', err));
-                    }
-                } catch (err) {
-                    console.warn('Error playing match found audio:', err);
-                }
+        console.log('[Bisca] Match created:', data)
+        const game = data.game
+        const match = data.match
+        try {
+            if (!window.matchFoundAudio) {
+                window.matchFoundAudio = new Audio('/assets/Match_Found.mp3');
+                window.matchFoundAudio.volume = 0.7;
+                window.matchFoundAudio.preload = 'auto';
+            }
+            window.matchFoundAudio.currentTime = 0;
+            const playPromise = window.matchFoundAudio.play();
+            if (playPromise !== undefined) {
+                playPromise.catch((err) => console.warn('Audio play blocked:', err));
+            }
+        } catch (err) {
+            console.warn('Error playing match found audio:', err);
+        }
 
-                setMultiplayerMatch(match);
+        setMultiplayerMatch(match);
 
-                searching_player.value = false
-                opponent_found.value = true
-                // opponent.value = game.player1Data.id === currentUserId ? game.player2Data : game.player1Data
-                gameStore.setMultiplayerGame(game)
+        searching_player.value = false
+        opponent_found.value = true
+        // opponent.value = game.player1Data.id === currentUserId ? game.player2Data : game.player1Data
+        gameStore.setMultiplayerGame(game)
 
-                setTimeout(() => {
-                    match_began.value = true
-                }, SKIP_SLEEPS ? 0 : 5000);
-            });
+        setTimeout(() => {
+            match_began.value = true
+        }, SKIP_SLEEPS ? 0 : 5000);
+    });
+
+    socket.on("match-update", (updatedMatch) => {
+        console.log("[Match] Atualização de pontuação:", updatedMatch.marks)
+
+        setMultiplayerMatch(updatedMatch)
+
+        // Feedback visual para o utilizador
+        // toast.info("A ronda terminou! Pontuação atualizada.")
+    })
+
+    socket.on("match-ended", (finalMatch) => {
+        console.log("[Match] FIM DA PARTIDA:", finalMatch)
+
+        setMultiplayerMatch(finalMatch, currentUserId)
+
+        // const amIWinner = finalMatch.winner === currentUserId
+
+        setTimeout(() => {
+            // Limpar estados antigos para não entrarem em conflito no próximo jogo
+            // resetState() 
+            // gameStore.resetState() 
+            
+            // router.push('/dashboard') 
+        }, 10000) 
+    })
 
     return {
         marks,

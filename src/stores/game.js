@@ -523,6 +523,15 @@ export const useGameStore = defineStore("game", () => {
                 lastRoundCards.value = data.roundResult?.cards ?? []
             })
 
+            socket.on("new-game-started", (newGame) => {
+                console.log("[Game] A iniciar nova ronda:", newGame.id)
+
+                setMultiplayerGame(newGame)
+                
+                // toast.success("Nova ronda começou! É a vez de: " + 
+                //     (newGame.currentTurn === authStore.user.id ? "TI" : "OPONENTE"))
+            })
+
 
             // ------------------------------------------------------------------------
             // COMPUTED PROPERTIES (GETTERS)

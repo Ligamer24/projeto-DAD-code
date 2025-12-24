@@ -97,11 +97,11 @@
     </div>
   </div>
   <div
-      v-if="game.gameEnded || match.status === 'finished'"
+      v-if="game.multiplayerGame.gameEnded || match.status === 'finished'"
       class="fixed inset-0 z-50 flex items-start md:items-center justify-center bg-black/70 backdrop-blur-sm p-4 sm:p-6 overflow-y-auto"
   >
     <div
-        v-if="(game.gameEnded || match.status === 'finished') && earnedAchievements.length > 0"
+        v-if="(game.multiplayerGame.gameEnded || match.status === 'finished') && earnedAchievements.length > 0"
         class="absolute inset-0 z-0 pointer-events-none opacity-50"
         :style="{ backgroundImage: `url(${fireworksGif})`, backgroundSize: 'contain' }"
     ></div>
@@ -158,7 +158,7 @@
 
         <div v-if="!auth.anonymous" class="mt-6 px-6"><h3
             class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-3">Match History</h3>
-          <div class="space-y-3 max-h-48 overflow-y-auto pr-1 custom-scrollbar">
+          <!-- <div class="space-y-3 max-h-48 overflow-y-auto pr-1 custom-scrollbar">
             <div v-for="game in match.gamesHistory" :key="game.roundNumber"
                  class="bg-gray-50 border border-gray-100 rounded-lg p-3 relative overflow-hidden shadow-sm">
               <div class="absolute left-0 top-0 bottom-0 w-1.5"
@@ -195,7 +195,7 @@
                 </div>
               </div>
             </div>
-          </div>
+          </div> -->
         </div>
 
         <div class="p-6 space-y-3 bg-white">
@@ -222,7 +222,7 @@
            class="flex flex-col w-full md:w-72 bg-amber-50 rounded-b-2xl md:rounded-r-2xl md:rounded-l-none md:mt-0 border
         border-t md:border-t-0 md:border-l border-amber-100 p-6 transform transition-all duration-500 delay-100 origin-top
          md:origin-left"
-           :class="(match.status === 'finished' || game.gameEnded) ? 'scale-100 opacity-100' : 'scale-95 opacity-0'">
+           :class="(match.status === 'finished' || game.multiplayerGame.gameEnded) ? 'scale-100 opacity-100' : 'scale-95 opacity-0'">
         <h3
             class="text-sm font-black text-amber-800 uppercase tracking-wider mb-6 flex items-center justify-center md:justify-start gap-2">
           <Gift class="w-5 h-5"/>
