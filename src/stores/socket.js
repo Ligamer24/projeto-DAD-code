@@ -59,21 +59,26 @@ export const useSocketStore = defineStore('socket', () => {
 
   
 
-  const emitPlayCard = (gameId, card, userId) => {
+  const emitPlayCard = (matchId, gameId, card, userId) => {
     if (!socket || !socket.connected) return
-    socket.emit('play-card', gameId, card, userId)
+      socket.emit('play-card', {
+      matchID: matchId, 
+      gameID: gameId, 
+      card: card,
+      userId: userId
+  })
   }
 
-  socket.on("round-ended", (data) => {
+  // socket.on("round-ended", (data) => {
 
-    tableCards.value = data.lastRound.cards
+  //   // tableCards.value = data.lastRound.cards
+  //   console.log(data)
+  //   toast.info(`Trick Winner: ${data.lastRound.winner}`)
 
-    toast.info(`Trick Winner: ${data.lastRound.winner}`)
-
-    setTimeout(() => {
-        updateLocalGameState(data.game); 
-    }, 2000)
-  })
+  //   setTimeout(() => {
+  //       updateLocalGameState(data.game); 
+  //   }, 2000)
+  // })
   
   return {
     emitJoin,

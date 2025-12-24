@@ -451,7 +451,7 @@ export const useGameStore = defineStore("game", () => {
                     return
                 }
                 // Emite para o servidor criar a sala
-                socket.emit('create-match', data)
+                socket.emit('find-match', data)
             }
 
             // Receber lista de jogos (Lobby)
@@ -489,33 +489,33 @@ export const useGameStore = defineStore("game", () => {
                 gameEnded.value = gameState.gameEnded;
             }
             
-            socket.on('game-created', (game) => {
-                console.log('[Bisca] Game created:', game)
+            // socket.on('game-created', (game) => {
+            //     console.log('[Bisca] Game created:', game)
 
-                try {
-                    if (!window.matchFoundAudio) {
-                        window.matchFoundAudio = new Audio('/assets/Match_Found.mp3');
-                        window.matchFoundAudio.volume = 0.7;
-                        window.matchFoundAudio.preload = 'auto';
-                    }
-                    window.matchFoundAudio.currentTime = 0;
-                    const playPromise = window.matchFoundAudio.play();
-                    if (playPromise !== undefined) {
-                        playPromise.catch((err) => console.warn('Audio play blocked:', err));
-                    }
-                } catch (err) {
-                    console.warn('Error playing match found audio:', err);
-                }
+            //     try {
+            //         if (!window.matchFoundAudio) {
+            //             window.matchFoundAudio = new Audio('/assets/Match_Found.mp3');
+            //             window.matchFoundAudio.volume = 0.7;
+            //             window.matchFoundAudio.preload = 'auto';
+            //         }
+            //         window.matchFoundAudio.currentTime = 0;
+            //         const playPromise = window.matchFoundAudio.play();
+            //         if (playPromise !== undefined) {
+            //             playPromise.catch((err) => console.warn('Audio play blocked:', err));
+            //         }
+            //     } catch (err) {
+            //         console.warn('Error playing match found audio:', err);
+            //     }
 
-                opponent.value = game.player1Data.id === currentUserId ? game.player2Data : game.player1Data
-                opponent_found.value = true
-                searching_player.value = false
-                console.log(opponent.value);
-                setMultiplayerGame(game);
-                setTimeout(() => {
-                    game_began.value = true
-                }, SKIP_SLEEPS ? 0 : 5000);
-            });
+            //     opponent.value = game.player1Data.id === currentUserId ? game.player2Data : game.player1Data
+            //     opponent_found.value = true
+            //     searching_player.value = false
+            //     console.log(opponent.value);
+            //     setMultiplayerGame(game);
+            //     setTimeout(() => {
+            //         game_began.value = true
+            //     }, SKIP_SLEEPS ? 0 : 5000);
+            // });
 
             socket.on('game-change', (data) => {
                 console.log('[Socket] Game Change recebido', data);
@@ -600,7 +600,6 @@ export const useGameStore = defineStore("game", () => {
                 opponentHand,
                 myScore,
                 opponentScore,
-                multiplayerGame,
 
                 // Actions Multiplayer
                 createMatch,

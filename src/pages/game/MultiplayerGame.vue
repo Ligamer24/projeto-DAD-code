@@ -270,7 +270,7 @@
     </div>
   </div>
 
-  <div v-else-if="game.searching_player">
+  <div v-else-if="match.searching_player">
     <div class="flex flex-col items-center justify-center h-dvh w-full p-4 box-border">
       <div class="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-blue-500 mb-6"></div>
       <h2 class="text-2xl font-bold text-gray-700 mb-2">Searching for an opponent...</h2>
@@ -278,7 +278,7 @@
         against.</p>
     </div>
   </div>
-  <div v-else-if="game.opponent_found && !game.game_began">
+  <div v-else-if="match.opponent_found && !match.match_began">
     <div class="flex flex-col items-center justify-center h-dvh w-full p-4 box-border ">
       <div
           class="bg-white p-8 rounded-2xl shadow-xl border border-slate-100 flex flex-col items-center max-w-sm w-full animate-in fade-in zoom-in duration-500">
@@ -292,23 +292,23 @@
           <div
               class="absolute inset-0 bg-blue-500 rounded-full blur opacity-20 group-hover:opacity-30 transition-opacity"></div>
           <Avatar class="size-24 lg:size-32 border-4 border-white shadow-lg relative">
-            <AvatarImage v-if="game.opponent.photo_avatar_filename"
-                         :src="`${serverBaseURL}/storage/photos_avatars/${game.opponent.photo_avatar_filename}`"
-                         :alt="game.opponent.name"/>
+            <AvatarImage v-if="match.opponent.photo_avatar_filename"
+                         :src="`${serverBaseURL}/storage/photos_avatars/${match.opponent.photo_avatar_filename}`"
+                         :alt="match.opponent.name"/>
             <AvatarFallback class="text-4xl">
-              {{ game.opponent.name?.charAt(0).toUpperCase() }}
+              {{ match.opponent.name?.charAt(0).toUpperCase() }}
             </AvatarFallback>
           </Avatar>
           <div
               class="absolute -bottom-3 left-1/2 -translate-x-1/2 bg-amber-400 text-white text-xs font-bold px-3 py-1 rounded-full border-2 border-white shadow-sm flex items-center gap-1 min-w-max">
             <Trophy class="w-3 h-3"/>
-            <span>{{ game.opponent.rating ?? '---' }}</span>
+            <span>{{ match.opponent.rating ?? '---'}}</span>
           </div>
         </div>
 
         <div class="text-center space-y-1 mb-8">
-          <h3 class="text-xl font-bold text-slate-900">{{ game.opponent.nickname }}</h3>
-          <p class="text-sm text-slate-500 font-medium">{{ game.opponent.name }}</p>
+          <h3 class="text-xl font-bold text-slate-900">{{ match.opponent.nickname }}</h3>
+          <p class="text-sm text-slate-500 font-medium">{{ match.opponent.name }}</p>
         </div>
 
         <div class="w-full space-y-2">
@@ -365,7 +365,7 @@
       :last-opponent-card="lastRoundOpponentCard"
       
       :player="auth.currentUser"
-      :opponent="game.opponent"
+      :opponent="match.opponent"
 
       :is-ranked="match.isRanked"
       :showEmote="game.showEmote"
@@ -475,7 +475,7 @@ onMounted(() => {
 
 function playCard(card) {
   if (!isMyTurn.value) return;
-  socketStore.emitPlayCard(game.multiplayerGame.id, card, currentUserId)
+  socketStore.emitPlayCard(match.multiplayerMatch.id, game.multiplayerGame.id, card, currentUserId)
 }
 
 // Após Match acabar
