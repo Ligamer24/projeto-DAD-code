@@ -132,7 +132,7 @@
               <span class="text-xl font-black text-gray-300">4</span>
             </div>
             <div class="flex flex-col items-center">
-              <span class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-1">Bot</span>
+              <span class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-1">Opponent</span>
               <span class="text-5xl font-black transition-all"
                     :class="match.marks.player2 > match.marks.player1 ? 'text-red-600 scale-110' : 'text-gray-700'">{{
                   match.marks.player2
@@ -156,61 +156,64 @@
           <span :class="game.opponentScore > 60 ? 'text-red-600 font-bold' : ''">Opponent {{ game.opponentScore }}</span>
         </div>
 
-        <div v-if="!auth.anonymous" class="mt-6 px-6"><h3
-            class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-3">Match History</h3>
-          <!-- <div class="space-y-3 max-h-48 overflow-y-auto pr-1 custom-scrollbar">
-            <div v-for="game in match.gamesHistory" :key="game.roundNumber"
-                 class="bg-gray-50 border border-gray-100 rounded-lg p-3 relative overflow-hidden shadow-sm">
-              <div class="absolute left-0 top-0 bottom-0 w-1.5"
-                   :class="game.winner ? (game.winner === currentUserId ? 'bg-green-500' : 'bg-red-500') : 'bg-gray-500'"></div>
-              <div class="pl-3">
-                <div class="flex justify-between items-center mb-2 border-b border-gray-200 pb-2">
-                  <span class="font-bold text-gray-700 text-sm">Game {{ game.roundNumber }}</span>
-                  <div class="flex items-center gap-2">
-                    <span v-if="game.scoreDetail.player1 >= 61"
-                          class="text-[10px] font-bold px-1.5 py-0.5 rounded bg-gray-200 text-gray-600">{{
-                        game.scoreDetail.player1 < 61 ? '' : (game.scoreDetail.player1 < 91 ? 'Risca' : (game.scoreDetail.player1 < 120 ? 'Capote' : 'Bandeira'))
-                      }}</span>
-                    <span class="text-[10px] font-bold px-1.5 py-0.5 rounded bg-gray-200 text-gray-600">{{
-                        game.marksAwarded.player1
-                      }} pts</span>
-                    <span class="text-xs font-black uppercase"
-                          :class="game.winner ? (game.winner === currentUserId ? 'text-green-600' : 'text-red-600') : 'text-gray-600'">{{
-                        game.winner ? (game.winner === currentUserId ? "WIN" : "LOSE") : "DRAW"
-                      }}</span>
+        <div v-if="!auth.anonymous && historyWithDisplay.length > 0" class="mt-6 px-6">
+          
+          <h3 class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-3">
+              Match History
+          </h3>
+
+          <div class="space-y-3 max-h-48 overflow-y-auto pr-1 custom-scrollbar">
+              
+              <div v-for="game in historyWithDisplay" :key="game.id"
+                  class="bg-gray-50 border border-gray-100 rounded-lg p-3 relative overflow-hidden shadow-sm">
+                  
+                  <div class="absolute left-0 top-0 bottom-0 w-1.5" :class="game.display.colorClass"></div>
+
+                  <div class="pl-3">
+                      <div class="flex justify-between items-center mb-2 border-b border-gray-200 pb-2">
+                          <span class="font-bold text-gray-700 text-sm">Ronda {{ game.roundNumber }}</span>
+                          
+                          <div class="flex items-center gap-2">
+                              <span class="text-[10px] font-bold px-1.5 py-0.5 rounded" :class="game.display.badgeColor">
+                                  {{ game.winType }}
+                              </span>
+
+                              <span class="text-[10px] font-bold px-1.5 py-0.5 rounded bg-gray-200 text-gray-600">
+                                  {{ game.pointsAwarded }} pts
+                              </span>
+
+                              <span class="text-xs font-black uppercase" :class="game.display.textClass">
+                                  {{ game.display.resultLabel }}
+                              </span>
+                          </div>
+                      </div>
+
+                      <div class="grid grid-cols-3 items-center text-center">
+                          <div class="flex flex-col">
+                              <span class="text-[10px] uppercase font-bold text-gray-400">You</span>
+                              <span class="text-xl font-black leading-none" 
+                                    :class="game.display.myScore > game.display.oppScore ? 'text-gray-800' : 'text-gray-400'">
+                                  {{ game.display.myScore }}
+                              </span>
+                          </div>
+
+                          <div class="text-gray-300 font-bold text-xs italic">vs</div>
+
+                          <div class="flex flex-col">
+                              <span class="text-[10px] uppercase font-bold text-gray-400">Opponent</span>
+                              <span class="text-xl font-black leading-none"
+                                    :class="game.display.oppScore > game.display.myScore ? 'text-gray-800' : 'text-gray-400'">
+                                  {{ game.display.oppScore }}
+                              </span>
+                          </div>
+                      </div>
                   </div>
-                </div>
-                <div class="grid grid-cols-3 items-center text-center">
-                  <div class="flex flex-col"><span class="text-[10px] uppercase font-bold text-gray-400">Me</span><span
-                      class="text-xl font-black leading-none"
-                      :class="game.scoreDetail.player1 > game.scoreDetail.player2 ? 'text-gray-800' : 'text-gray-400'">{{
-                      game.scoreDetail.player1
-                    }}</span></div>
-                  <div class="text-gray-300 font-bold text-xs italic">vs</div>
-                  <div class="flex flex-col"><span class="text-[10px] uppercase font-bold text-gray-400">Opponent</span><span
-                      class="text-xl font-black leading-none"
-                      :class="game.scoreDetail.player2 > game.scoreDetail.player1 ? 'text-gray-800' : 'text-gray-400'">{{
-                      game.scoreDetail.player2
-                    }}</span></div>
-                </div>
               </div>
-            </div>
-          </div> -->
-        </div>
+          </div>
+      </div>
 
         <div class="p-6 space-y-3 bg-white">
-          <button v-if="match.status === 'ongoing' || !auth.currentUser" @click="game.startNewGame()"
-                  class="w-full py-4 rounded-xl font-black text-white shadow-lg transform transition-all hover:scale-[1.02] active:scale-95 flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 ring-4 ring-blue-100">
-            <Hand class="w-5 h-5"/>
-            {{ auth.currentUser ? 'Deal Next Hand' : 'Play again' }}
-          </button>
-          <button v-if="match.status === 'finished'" @click="restartFullMatch"
-                  class="w-full py-4 rounded-xl font-black text-white shadow-lg transform transition-all hover:scale-[1.02] active:scale-95 flex items-center justify-center gap-2"
-                  :class="match.marks.player1 >= 4 ? 'bg-green-600 hover:bg-green-700 ring-4 ring-green-100' : 'bg-gray-800 hover:bg-gray-900 ring-4 ring-gray-200'">
-            <RotateCcw class="w-5 h-5"/>
-            Play Again
-          </button>
-          <button @click="exitGame"
+          <button v-if="match.status === 'finished'" @click="exitMatch"
                   class="w-full py-3 rounded-xl font-bold text-gray-500 bg-white hover:bg-gray-50 border-2 border-transparent hover:border-gray-200 transition-all flex items-center justify-center gap-2">
             <DoorOpen class="w-5 h-5"/>
             Exit to Lobby
@@ -542,7 +545,7 @@ const headerBgClass = computed(() => {
   return "bg-slate-800"; // Cor neutra enquanto jogam
 });
 
-const exitGame = () => {
+const exitMatch = () => { //TODO: implementar reset da match/game após fim de match
   router.push("/dashboard");
 };
 
@@ -551,14 +554,12 @@ const earnedAchievements = computed(() => {
   const list = []
   match.gamesHistory.forEach(game => {
     if (game.winner == auth.currentUser.id) {
-      if (game.scoreDetail.player1 >= 120) {
-        list.push({icon: Flag, title: 'Bandeira', desc: 'Won all tricks', bonus: 6})
-      } else if (game.scoreDetail.player1 >= 91) {
-        list.push({icon: Badge, title: 'Capote', desc: 'Opponent scored 0', bonus: 4})
-        console.log("Capote achieved")
-      } else if (game.scoreDetail.player1 > 60) {
+      if (game.scores.player1 >= 120) {
+        list.push({icon: Flag, title: 'Bandeira', desc: 'Opponent scored 0', bonus: 6})
+      } else if (game.scores.player1 >= 91) {
+        list.push({icon: Badge, title: 'Capote', desc: 'Opponent scored less than 29', bonus: 4})
+      } else if (game.scores.player1 > 60) {
         list.push({icon: Sparkles, title: 'Victory', desc: 'Simple win', bonus: 3})
-        console.log("Victory achieved")
       }
 
     }
@@ -573,6 +574,42 @@ const calculateTotalCoins = computed(() => {
   console.log("Somand")
   return earnedAchievements.value.reduce((total, item) => total + item.bonus, 0)
 })
+
+/////////// Função auxiliar para o gamesHistory //////////
+const historyWithDisplay = computed(() => {
+    if (!match.gamesHistory) return [];
+
+    const myId = auth.currentUser.id
+
+    const strMyId = String(myId);
+    
+    return match.gamesHistory.map(game => {
+        const p1Id = String(match.player1_id); 
+        
+        const amIPlayer1 = p1Id === strMyId;
+
+        // Definir pontos
+        const myScore = amIPlayer1 ? game.scores.player1 : game.scores.player2;
+        const oppScore = amIPlayer1 ? game.scores.player2 : game.scores.player1;
+
+        // Verificar vencedor
+        const iWon = String(game.winner) === strMyId;
+
+        // Retorna o objeto original do jogo + as propriedades visuais
+        return {
+            ...game, 
+            display: {
+                myScore,
+                oppScore,
+                iWon,
+                colorClass: iWon ? 'bg-green-500' : 'bg-red-500',
+                textClass: iWon ? 'text-green-600' : 'text-red-600',
+                resultLabel: iWon ? 'Victory' : 'Defeat',
+                badgeColor: iWon ? 'bg-green-100 text-green-700' : 'bg-gray-200 text-gray-600'
+            }
+        };
+    })
+});
 
 /////////// Sistema de Quit da partida //////////////
 const openModal = () => {

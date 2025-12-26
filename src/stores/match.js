@@ -29,7 +29,8 @@ export const useMatchStore = defineStore('match', () => {
     const isRanked = ref(false)
     const searching_player = ref(false)
 
-    const player1_id = ref(authStore.currentUser.id)
+    const player1_id = ref(null)
+    const player2_id = ref(null)
     const currentUserId = authStore.currentUser?.id ?? -1
     const BOT_ID = authStore.BOT_ID
 
@@ -54,9 +55,11 @@ export const useMatchStore = defineStore('match', () => {
 
     // Iniciar uma partida do zero
     const initMatch = async () => {
-        console.log('MAtch nit')
+        console.log('Init match')
+        
         player1_id.value = authStore.currentUser.id
-        // opponent.value = await apiStore.getUser(BOT_ID)
+        player2_id.value = BOT_ID 
+        
         marks.value = { player1: 0, player2: 0 }
         status.value = 'ongoing'
         gamesHistory.value = []
@@ -199,9 +202,12 @@ export const useMatchStore = defineStore('match', () => {
     const setMultiplayerMatch = (serverMatch) => {
         console.log('[MatchStore] Recebi update do servidor:', serverMatch);
         if (!serverMatch) return
+        player1_id.value = serverMatch.player1_id || serverMatch.player1
+        player2_id.value = serverMatch.player2_id || serverMatch.player2
+
         multiplayerMatch.value = serverMatch
 
-        const amIPlayer1 = serverMatch.player1_id === currentUserId;
+        const amIPlayer1 = player1_id.value === currentUserId;
 
         opponent.value = amIPlayer1 ? serverMatch.player2Data : serverMatch.player1Data;
 
@@ -219,8 +225,8 @@ export const useMatchStore = defineStore('match', () => {
         status.value = serverMatch.status // 'ongoing', 'finished'
         matchBeganAt.value = serverMatch.created_at
         
-        if (serverMatch.history) {
-            gamesHistory.value = serverMatch.history
+        if (serverMatch.gamesHistory) {
+            gamesHistory.value = serverMatch.gamesHistory
         }
     }
 
@@ -256,7 +262,7 @@ export const useMatchStore = defineStore('match', () => {
     });
 
     socket.on("match-update", (updatedMatch) => {
-        console.log("[Match] Atualização de pontuação:", updatedMatch.marks)
+        console.log("[Match] Atualização da match:", updatedMatch)
 
         setMultiplayerMatch(updatedMatch)
 
@@ -297,6 +303,7 @@ export const useMatchStore = defineStore('match', () => {
         opponent_found,
         match_began,
         multiplayerMatch,
+        player1_id,
         setMultiplayerMatch
     }
 })
