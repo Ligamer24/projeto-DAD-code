@@ -153,18 +153,11 @@
         </div>
       </button>
     </div>
-    <div v-if="currentTurn === (player?.id ?? -1)" class="flex flex-col items-center justify-center min-w-[80px]">
-      <GameTimer 
-        :key="`${currentTurn}-${playerScore}-${opponentScore}`"
-        :duration="20" 
-        @timeout="$emit('timeout')" />
-    </div>
   </div>
 </template>
 
 <script setup>
 import GameCard from './GameCard.vue'
-import GameTimer from './GameTimer.vue'
 import { RotateCcw } from 'lucide-vue-next';
 import { ref, inject, computed } from "vue";
 import { useShopStore } from "@/stores/shop.js";

@@ -1,7 +1,7 @@
 <template>
-  <div class="flex flex-col items-center justify-center">
+  <div class="flex flex-col items-center justify-center w-fit h-fit bg-white/10 backdrop-blur-md rounded-full p-1 border border-white/20 shadow-xl">
     <div 
-      class="relative w-32 h-32 transition-all duration-500"
+      class="relative w-20 h-20 md:w-28 md:h-28 transition-all duration-500"
       :class="timerColor.glow"
     >
       <svg viewBox="0 0 120 120" class="transform -rotate-90 w-full h-full">
@@ -10,7 +10,7 @@
           fill="none" 
           stroke="currentColor" 
           stroke-width="8" 
-          class="text-slate-100" 
+          class="text-slate-200/50" 
         />
         <circle
           cx="60" cy="60" r="54"
@@ -29,12 +29,12 @@
 
       <div class="absolute inset-0 flex flex-col items-center justify-center leading-none">
         <span 
-          class="text-4xl font-black transition-all duration-300"
+          class="text-2xl md:text-3xl font-black transition-all duration-300"
           :class="[timerColor.text, { 'animate-pulse scale-110': timeLeft <= 5 }]"
         >
           {{ timeLeft }}
         </span>
-        <span class="text-[10px] font-bold uppercase tracking-widest text-slate-400 mt-1">seg</span>
+        <span class="text-[8px] md:text-[10px] font-bold uppercase tracking-widest text-slate-500 mt-1">seg</span>
       </div>
     </div>
   </div>

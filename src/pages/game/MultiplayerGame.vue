@@ -349,7 +349,20 @@
       </div>
     </section>
 
-    <section class="flex-grow flex items-center justify-center">
+    <section class="flex-grow flex items-center justify-center relative">
+
+      <div 
+        v-if="isMyTurn" 
+        class="absolute z-50 right-4 md:right-10 top-1/2 -translate-y-1/2 pointer-events-none"
+      >
+        <div class="pointer-events-auto">
+          <GameTimer 
+            :key="`${game.currentTurn}-${playerScore}-${opponentScore}`"
+            :duration="20" 
+            @timeout="handleTimeout" 
+          />
+        </div>
+      </div>
       <GameBoard 
       :trunfo="game.trunfo" 
       :deck-count="game.deck.length"
@@ -396,6 +409,7 @@ import {useAuthStore} from "@/stores/auth";
 import {useRouter} from "vue-router";
 import GameCard from "@/components/game/GameCard.vue";
 import GameBoard from "@/components/game/GameBoard.vue";
+import GameTimer from "@/components/game/GameTimer.vue";
 import {
   Badge,
   Coins,
