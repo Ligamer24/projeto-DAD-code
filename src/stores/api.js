@@ -114,6 +114,14 @@ export const useAPIStore = defineStore("api", () => {
         return axios.get(`${API_BASE_URL}/admin/transactions?page=${page}`);
     }
 
+    const getGamesAdmin = (page) => {
+        return axios.get(`${API_BASE_URL}/admin/games?page=${page}`);
+    }
+
+    const getMatchesAdmin = (page) => {
+        return axios.get(`${API_BASE_URL}/admin/matches?page=${page}`);
+    }
+
     // Files
     const uploadProfilePhoto = async (file) => {
 
@@ -270,6 +278,8 @@ export const useAPIStore = defineStore("api", () => {
         createAdmin,
         deleteUser,
         getTransactionsAdmin,
+        getGamesAdmin,
+        getMatchesAdmin,
         getAuthUser,
         updateAvatar,
         patchUserPhoto,

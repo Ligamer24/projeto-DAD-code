@@ -1,4 +1,6 @@
 <template>
+    <adminBar />
+
     <div
         class="mt-5 max-w-7xl mx-auto bg-white/90 backdrop-blur-sm rounded-3xl shadow-xl border border-white/20 overflow-hidden">
         <div class="flex items-center justify-between px-8 py-6 border-b border-gray-100">
@@ -29,7 +31,7 @@
                                 d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                         </svg>
                         <span class="text-sm font-semibold">{{ transaction.user.nickname }} #{{ transaction.user_id
-                            }}</span>
+                        }}</span>
                     </div>
                     <div class="flex items-center gap-2 text-[11px] text-slate-400 font-medium">
                         <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -103,6 +105,7 @@
 </template>
 
 <script setup>
+import AdminBar from '@/components/admin/adminBar.vue';
 import { ref, onMounted } from 'vue';
 import { useAPIStore } from '@/stores/api';
 

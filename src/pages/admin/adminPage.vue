@@ -1,21 +1,5 @@
 <template>
-
-    <div
-        class="mt-5 max-w-7xl mx-auto bg-white rounded-3xl shadow-md border border-gray-200 overflow-hidden px-6 py-4 flex items-center justify-start gap-6">
-        <RouterLink to="/transactionsPage"
-            class="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-2 px-6 rounded-lg shadow-md transition-all">
-            See all transactions
-
-        </RouterLink>
-        <!-- <RouterLink
-            class="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-2 px-6 rounded-lg shadow-md transition-all">
-            See all games
-        </RouterLink>
-        <RouterLink
-            class="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-2 px-6 rounded-lg shadow-md transition-all">
-            See all matches
-        </RouterLink> -->
-    </div>
+    <adminBar />
 
     <div
         class="mt-5 max-w-7xl mx-auto bg-white/90 backdrop-blur-sm rounded-3xl shadow-xl border border-white/20 overflow-hidden">
@@ -107,7 +91,7 @@
                     <div>
                         <h2 class="font-semibold text-gray-900 leading-none">{{ user.name }}</h2>
                         <span class="text-sm text-gray-500 italic">{{ user.nickname ? '@' + user.nickname : 'N/A'
-                        }}</span>
+                            }}</span>
                     </div>
                 </div>
 
@@ -215,6 +199,7 @@
 
 </template>
 <script setup>
+import AdminBar from '@/components/admin/adminBar.vue';
 import { ref, onMounted, inject } from 'vue';
 import { useAPIStore } from '@/stores/api';
 import { useAuthStore } from "@/stores/auth.js";
