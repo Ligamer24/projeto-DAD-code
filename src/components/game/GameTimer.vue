@@ -44,7 +44,7 @@
 import { ref, computed, onMounted, onUnmounted } from 'vue';
 
 const props = defineProps({
-  duration: { type: Number, default: 30 }
+  duration: { type: Number, default: 20 }
 });
 
 const emit = defineEmits(['timeout']);

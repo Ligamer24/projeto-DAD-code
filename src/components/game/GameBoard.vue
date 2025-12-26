@@ -156,7 +156,7 @@
     <div v-if="currentTurn === (player?.id ?? -1)" class="flex flex-col items-center justify-center min-w-[80px]">
       <GameTimer 
         :key="`${currentTurn}-${playerScore}-${opponentScore}`"
-        :duration="30" 
+        :duration="20" 
         @timeout="$emit('timeout')" />
     </div>
   </div>
