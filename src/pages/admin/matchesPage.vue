@@ -101,7 +101,7 @@
                 </div>
 
                 <div>
-                    <router-link :to="`/GamesPage/${match.id}`"
+                    <router-link :to="`/admin/games/${match.id}`"
                         class="flex items-center gap-2 px-4 py-2 text-xs font-black uppercase tracking-widest text-indigo-600 bg-indigo-50 hover:bg-indigo-600 hover:text-white rounded-xl border border-indigo-100 transition-all duration-300 group">
                         View Details
                         <svg class="w-4 h-4 transform group-hover:translate-x-1 transition-transform" fill="none"
