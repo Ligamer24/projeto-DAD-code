@@ -114,11 +114,17 @@ export const useAPIStore = defineStore("api", () => {
         return axios.get(`${API_BASE_URL}/admin/transactions?page=${page}`);
     }
 
-    const getGamesAdmin = (page) => {
+    const getGamesAdmin = (page, user = undefined) => {
+        if (user) {
+            return axios.get(`${API_BASE_URL}/admin/games?user_id=${user}&page=${page}`);
+        }
         return axios.get(`${API_BASE_URL}/admin/games?page=${page}`);
     }
 
-    const getMatchesAdmin = (page) => {
+    const getMatchesAdmin = (page, user = undefined) => {
+        if (user) {
+            return axios.get(`${API_BASE_URL}/admin/matches?user_id=${user}&page=${page}`);
+        }
         return axios.get(`${API_BASE_URL}/admin/matches?page=${page}`);
     }
 

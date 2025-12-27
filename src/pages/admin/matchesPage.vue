@@ -172,7 +172,11 @@ import { Coins } from "lucide-vue-next";
 
 import { ref, onMounted } from 'vue';
 import { useAPIStore } from '@/stores/api';
+import {useRoute} from "vue-router";
 const api = useAPIStore();
+
+const route = useRoute();
+const userId = ref(route.params.id || undefined);
 
 const matches = ref([]);
 const totalPages = ref(1);
@@ -180,7 +184,7 @@ const currentPage = ref(1);
 
 const fetchMatches = async (page = 1) => {
     try {
-        const response = await api.getMatchesAdmin(page);
+        const response = await api.getMatchesAdmin(page, userId.value);
         matches.value = response.data.data;
         currentPage.value = response.data.current_page;
         totalPages.value = response.data.last_page;

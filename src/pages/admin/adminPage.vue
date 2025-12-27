@@ -6,7 +6,7 @@
         <div class="flex items-center justify-between px-8 py-6 border-b border-gray-100">
             <h1 class="text-2xl font-bold text-gray-800">System users</h1>
             <button @click="isOpen = true"
-                class="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-2 px-6 rounded-lg shadow-md transition-all">
+                class="cursor-pointer bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-2 px-6 rounded-lg shadow-md transition-all">
                 + Add New Admin
             </button>
 
@@ -95,67 +95,28 @@
                     </div>
                 </div>
 
-                <div class="flex items-center gap-8">
-                    <span>
-                        <button v-if="authStore.currentUser.id !== user.id" @click="openDeleteModal(user)"
-                            class="bg-red-400 hover:bg-red-600 text-white font-bold py-2 px-4 rounded-full">
-                            Delete
-                        </button>
-                        <div v-if="isDeleteModalOpen"
-                            class="fixed inset-0 z-50 flex items-center justify-center bg-black/20 backdrop-blur-[2px] transition-opacity">
-                            <div
-                                class="relative bg-white p-8 rounded-2xl shadow-2xl max-w-sm w-full transform transition-all border border-gray-100">
+                <div class="flex items-center gap-4">
+                    <RouterLink :to="'/admin/matches/' + user.id" class="cursor-pointer px-3 py-1.5 text-xs font-bold text-indigo-600 bg-indigo-50 hover:bg-indigo-100 rounded-lg transition-colors">
+                        Matches
+                    </RouterLink>
+                    <RouterLink :to="'/admin/games/' + user.id" class="cursor-pointer px-3 py-1.5 text-xs font-bold text-purple-600 bg-purple-50 hover:bg-purple-100 rounded-lg transition-colors">
+                        Games
+                    </RouterLink>
 
-                                <button @click="isDeleteModalOpen = false"
-                                    class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 transition-colors">
-                                    <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M6 18L18 6M6 6l12 12" />
-                                    </svg>
-                                </button>
+                    <button v-if="authStore.currentUser.id !== user.id" @click="openDeleteModal(user)"
+                        class="cursor-pointer px-3 py-1.5 text-xs font-bold text-red-600 bg-red-50 hover:bg-red-100 rounded-lg transition-colors">
+                        Delete
+                    </button>
 
-                                <div
-                                    class="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-red-100 mb-6">
-                                    <svg class="h-8 w-8 text-red-600" fill="none" viewBox="0 0 24 24"
-                                        stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-                                    </svg>
-                                </div>
-
-                                <div class="text-center mb-8">
-                                    <h3 class="text-xl font-bold text-gray-900 mb-2">Delete User</h3>
-                                    <p class="text-sm text-gray-500">
-                                        Are you sure you want to delete the user <span
-                                            class="font-semibold text-gray-900">{{
-                                                userToDelete?.name }}</span>?
-                                        This action cannot be undone.
-                                    </p>
-                                </div>
-
-                                <div class="flex flex-col sm:flex-row-reverse gap-3">
-                                    <button @click="handleDelete(userToDelete?.id)"
-                                        class="w-full inline-flex justify-center rounded-xl bg-red-600 px-5 py-3 text-sm font-semibold text-white shadow-sm hover:bg-red-700 focus:ring-4 focus:ring-red-200 transition-all">
-                                        Yes, delete
-                                    </button>
-
-                                    <button @click="isDeleteModalOpen = false"
-                                        class="w-full inline-flex justify-center rounded-xl bg-white px-5 py-3 text-sm font-semibold text-gray-700 border border-gray-300 shadow-sm hover:bg-gray-50 transition-all">
-                                        Cancel
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    </span>
                     <span v-if="user.blocked === 1">
                         <button @click="blockUser(user)"
-                            class="bg-green-400 hover:bg-green-600 text-white font-bold py-2 px-4 rounded-full">
+                            class="cursor-pointer px-3 py-1.5 text-xs font-bold text-green-600 bg-green-50 hover:bg-green-100 rounded-lg transition-colors">
                             Unblock
                         </button>
                     </span>
                     <span v-else>
                         <button v-if="authStore.currentUser.id !== user.id" @click="blockUser(user)"
-                            class="bg-blue-400 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-full">
+                            class="cursor-pointer px-3 py-1.5 text-xs font-bold text-amber-600 bg-amber-50 hover:bg-amber-100 rounded-lg transition-colors">
                             Block
                         </button>
                     </span>
@@ -171,6 +132,53 @@
 
             </div>
         </div>
+
+        <div v-if="isDeleteModalOpen"
+            class="fixed inset-0 z-50 flex items-center justify-center bg-black/20 backdrop-blur-[2px] transition-opacity">
+            <div
+                class="relative bg-white p-8 rounded-2xl shadow-2xl max-w-sm w-full transform transition-all border border-gray-100">
+
+                <button @click="isDeleteModalOpen = false"
+                    class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 transition-colors">
+                    <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+
+                <div
+                    class="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-red-100 mb-6">
+                    <svg class="h-8 w-8 text-red-600" fill="none" viewBox="0 0 24 24"
+                        stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                    </svg>
+                </div>
+
+                <div class="text-center mb-8">
+                    <h3 class="text-xl font-bold text-gray-900 mb-2">Delete User</h3>
+                    <p class="text-sm text-gray-500">
+                        Are you sure you want to delete the user <span
+                            class="font-semibold text-gray-900">{{
+                                userToDelete?.name }}</span>?
+                        This action cannot be undone.
+                    </p>
+                </div>
+
+                <div class="flex flex-col sm:flex-row-reverse gap-3">
+                    <button @click="handleDelete(userToDelete?.id)"
+                        class="w-full inline-flex justify-center rounded-xl bg-red-600 px-5 py-3 text-sm font-semibold text-white shadow-sm hover:bg-red-700 focus:ring-4 focus:ring-red-200 transition-all">
+                        Yes, delete
+                    </button>
+
+                    <button @click="isDeleteModalOpen = false"
+                        class="w-full inline-flex justify-center rounded-xl bg-white px-5 py-3 text-sm font-semibold text-gray-700 border border-gray-300 shadow-sm hover:bg-gray-50 transition-all">
+                        Cancel
+                    </button>
+                </div>
+            </div>
+        </div>
+
         <div class="px-8 py-5 bg-gray-50/50 border-t border-gray-100 flex items-center justify-between">
             <div class="flex items-center gap-2 text-sm font-medium text-gray-500">
                 <span>Page</span>
@@ -183,12 +191,12 @@
 
             <div class="flex items-center gap-3">
                 <button @click="prevPage" :disabled="currentPage === 1"
-                    class="px-5 py-2 text-xs font-black uppercase tracking-widest border-2 border-black bg-white shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] active:shadow-none active:translate-x-1 active:translate-y-1 transition-all disabled:opacity-30 disabled:cursor-not-allowed disabled:shadow-none disabled:translate-x-0">
+                    class="cursor-pointer px-5 py-2 text-xs font-black uppercase tracking-widest border-2 border-black bg-white shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] active:shadow-none active:translate-x-1 active:translate-y-1 transition-all disabled:opacity-30 disabled:cursor-not-allowed disabled:shadow-none disabled:translate-x-0">
                     Previous
                 </button>
 
                 <button @click="nextPage" :disabled="currentPage === totalPages"
-                    class="px-5 py-2 text-xs font-black uppercase tracking-widest border-2 border-black bg-lime-300 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] active:shadow-none active:translate-x-1 active:translate-y-1 transition-all disabled:opacity-30 disabled:cursor-not-allowed disabled:shadow-none disabled:translate-x-0">
+                    class="cursor-pointer px-5 py-2 text-xs font-black uppercase tracking-widest border-2 border-black bg-lime-300 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] active:shadow-none active:translate-x-1 active:translate-y-1 transition-all disabled:opacity-30 disabled:cursor-not-allowed disabled:shadow-none disabled:translate-x-0">
                     Next
                 </button>
             </div>

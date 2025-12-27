@@ -158,8 +158,11 @@
 import AdminBar from '@/components/admin/adminBar.vue';
 import { ref, onMounted } from 'vue';
 import { useAPIStore } from '@/stores/api';
+import {useRoute} from "vue-router";
 const api = useAPIStore();
 
+const route = useRoute();
+const userId = ref(route.params.id || undefined);
 
 const games = ref([]);
 const currentPage = ref(1)
@@ -167,7 +170,7 @@ const totalPages = ref(1)
 
 const fetchGames = async (page = 1) => {
     try {
-        const response = await api.getGamesAdmin(page);
+        const response = await api.getGamesAdmin(page, userId.value);
         games.value = response.data.data;
         totalPages.value = response.data.last_page;
         currentPage.value = response.data.current_page;

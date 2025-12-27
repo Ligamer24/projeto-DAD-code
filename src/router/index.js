@@ -33,7 +33,9 @@ const router = createRouter({
                 {path: "users", name: "adminPage", component: AdminPage},
                 {path: "transactions", name: "transactionsPage", component: TransactionsPage},
                 {path: "games", name: "gamesPage", component: GamesPageAdmin},
-                {path: "matches", name: "matchesPage", component: MatchesPageAdmin}
+                {path: "games/:id", name: "gamesPageUser", component: GamesPageAdmin},
+                {path: "matches", name: "matchesPage", component: MatchesPageAdmin},
+                {path: "matches/:id", name: "matchesPageUser", component: MatchesPageAdmin}
             ]
         },
         {
