@@ -89,7 +89,7 @@ import { useDashStore } from '@/stores/dash';
 import { useHistoryStore } from '@/stores/historyStore';
 
 const route = useRoute();
-const dash = useDashStore();
+const dash = useDashStore();    
 const history = useHistoryStore();
 
 
