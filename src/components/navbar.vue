@@ -57,21 +57,27 @@ export default {
 
 <template>
   <header class="container mx-auto px-4 pt-5">
-    <div class="flex items-center justify-between gap-4">
+    <div class="flex items-center w-full gap-4">
       <!-- Profile / Nickname -->
-      <RouterLink :to="profileLink" class="flex items-center gap-2 group" aria-label="Open profile">
-        <Avatar class="size-10 lg:size-12">
-              <AvatarImage v-if="authStore.currentUser?.photo_avatar_filename"
-                  :src="`${serverBaseURL}/storage/photos_avatars/${authStore.currentUser?.photo_avatar_filename}`"
-                  :alt="authStore.currentUser?.name" />
-              <AvatarFallback class="text-4xl">
-                  {{ authStore.currentUser?.name?.charAt(0).toUpperCase() }}
-              </AvatarFallback>
-          </Avatar>
-        <span class="text-lg lg:text-xl font-semibold text-black group-hover:underline">{{
-            authStore.currentUser?.nickname ?? authStore.currentUser?.name ?? 'Anonymous'
-          }}</span>
-      </RouterLink>
+      <div class="flex items-center gap-4">
+        <RouterLink :to="profileLink" class="flex items-center gap-2 group" aria-label="Open profile">
+          <Avatar class="size-10 lg:size-12">
+                <AvatarImage v-if="authStore.currentUser?.photo_avatar_filename"
+                    :src="`${serverBaseURL}/storage/photos_avatars/${authStore.currentUser?.photo_avatar_filename}`"
+                    :alt="authStore.currentUser?.name" />
+                <AvatarFallback class="text-4xl">
+                    {{ authStore.currentUser?.name?.charAt(0).toUpperCase() }}
+                </AvatarFallback>
+            </Avatar>
+          <span class="text-lg lg:text-xl font-semibold text-black group-hover:underline">{{
+              authStore.currentUser?.nickname ?? authStore.currentUser?.name ?? 'Anonymous'
+            }}</span>
+        </RouterLink>
+        <RouterLink :to="'/adminPage'" v-if="authStore.currentUser?.type === 'A'" class="flex text-black ">
+          <button class="bg-gray-200 hover:bg-gray-100 text-gray-800 font-semibold py-2 px-4 border border-gray-400 rounded shadow">Admin panel</button>
+        </RouterLink>
+      </div>
+
 
       <!-- Rating & Rank -->
       <!-- <RouterLink to="/leaderboard" class="flex items-center flex-col leading-tight group"
@@ -88,7 +94,7 @@ export default {
       </RouterLink> -->
 
       <!-- Coins -->
-      <RouterLink v-if="authStore.currentUser" to="/shop" class="flex items-center gap-1 text-black">
+      <RouterLink v-if="authStore.currentUser" to="/shop" class="ml-auto flex items-center gap-1 text-black">
         <span class="text-lg lg:text-xl font-bold">{{ authStore.currentUser?.coins_balance }}</span>
         <Coins class="size-5 lg:size-6 text-yellow-600"/>
       </RouterLink>

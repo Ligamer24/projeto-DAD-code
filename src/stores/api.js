@@ -76,6 +76,7 @@ export const useAPIStore = defineStore("api", () => {
         return response.data.data;
     }
 
+
     const getAuthUser = () => {
         return axios.get(`${API_BASE_URL}/users/me`);
     };
@@ -91,6 +92,35 @@ export const useAPIStore = defineStore("api", () => {
         });
     };
 
+    //Admins
+
+    const getUsersAdmin = (page) => {
+        return axios.get(`${API_BASE_URL}/admin/users?page=${page}`);
+    }
+
+    const blockUser = (id) => {
+        return axios.patch(`${API_BASE_URL}/admin/users/${id}/block`);
+    }
+
+    const createAdmin = (adminForm) => {
+        return axios.post(`${API_BASE_URL}/admin/create-admin`, adminForm);
+    }
+
+    const deleteUser = (id) => {
+        return axios.delete(`${API_BASE_URL}/admin/users/${id}`);
+    }
+
+    const getTransactionsAdmin = (page) => {
+        return axios.get(`${API_BASE_URL}/admin/transactions?page=${page}`);
+    }
+
+    const getGamesAdmin = (page) => {
+        return axios.get(`${API_BASE_URL}/admin/games?page=${page}`);
+    }
+
+    const getMatchesAdmin = (page) => {
+        return axios.get(`${API_BASE_URL}/admin/matches?page=${page}`);
+    }
 
     // Files
     const uploadProfilePhoto = async (file) => {
@@ -243,6 +273,13 @@ export const useAPIStore = defineStore("api", () => {
         postLogin,
         postLogout,
         getUser,
+        getUsersAdmin,
+        blockUser,
+        createAdmin,
+        deleteUser,
+        getTransactionsAdmin,
+        getGamesAdmin,
+        getMatchesAdmin,
         getAuthUser,
         updateAvatar,
         patchUserPhoto,
