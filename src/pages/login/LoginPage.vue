@@ -114,7 +114,7 @@ const handleSubmit = async () => {
     toast.promise(authStore.login(formData.value, { remember: remember.value }), {
         loading: 'Calling API',
         success: (data) => {
-            router.push('/dashboard')
+            router.push('/home')
             return `Login Sucessfull - ${data?.name}`
         },
         error: (data) => `[API] Error saving game - ${data?.response?.data?.message}`,
@@ -125,7 +125,7 @@ const handleSubmit = async () => {
 
 const logAsAnonymous = () => {
     authStore.anonymous = true
-    router.push('/dashboard')
+    router.push('/home')
 }
 
 function forgot() {
