@@ -68,6 +68,25 @@ export const useSocketStore = defineStore('socket', () => {
       userId: userId
   })
   }
+  const emitPlayerTimeout = (matchId, gameId, userId) => {
+    if (!socket || !socket.connected) return
+      console.log('Emitting player-timeout via socket')
+      socket.emit('player-timeout', { 
+        matchId : matchId, 
+        gameId : gameId, 
+        userId : userId 
+      })   
+  }
+  
+  const emitForfeitMatch = (matchId, gameId, userId) => {
+    if (!socket || !socket.connected) return
+      console.log('Emitting forfeit-match via socket')
+      socket.emit('forfeit-match', { 
+        matchId : matchId,
+        gameId : gameId,
+        userId : userId 
+      })   
+  }
 
   // socket.on("round-ended", (data) => {
 
@@ -88,5 +107,7 @@ export const useSocketStore = defineStore('socket', () => {
     handleGameEvents,
     emitJoinGame,
     emitPlayCard,
+    emitPlayerTimeout,
+    emitForfeitMatch,
   }
 })

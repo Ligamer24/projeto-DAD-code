@@ -495,6 +495,19 @@ function playCard(card) {
   socketStore.emitPlayCard(match.multiplayerMatch.id, game.multiplayerGame.id, card, currentUserId)
 }
 
+// Lógica de Timeout do Timer
+const handleTimeout = () => {
+  if (!isMyTurn.value) return;
+  
+    const matchId = match.multiplayerMatch.id
+    const gameId = game.multiplayerGame.id
+    const userId = currentUserId
+  
+  
+  console.log("Timeout emitted:", matchId, gameId, userId);
+  socketStore.emitPlayerTimeout(matchId, gameId, userId);
+};
+
 // Após Match acabar
 const restartFullMatch = () => {
   match.initMatch();
@@ -636,7 +649,11 @@ const closeModal = () => {
 
 const confirmLeave = () => {
   // Eventualmente adicionar lógica extra...
-  // matchStore.forfeitMatch()... por exemplo
+  const matchId = match.multiplayerMatch.id
+  const gameId = game.multiplayerGame.id
+  const userId = currentUserId
+  console.log("Forfeit emitted:", matchId, userId);
+  socketStore.emitForfeitMatch(matchId, gameId, userId)
 
   isOpen.value = false
   router.push({name: 'dashboard'})
