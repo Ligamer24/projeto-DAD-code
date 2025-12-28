@@ -80,7 +80,7 @@ export default {
             Home
           </button>
         </RouterLink>
-        <RouterLink to="/admin/users" v-else-if="authStore.isAdmin"
+        <RouterLink to="/admin/dashboard" v-else-if="authStore.isAdmin"
                     class="flex text-black ">
           <button
               class="bg-gray-200 hover:bg-gray-100 text-gray-800 font-semibold py-2 px-4 border border-gray-400 rounded shadow">

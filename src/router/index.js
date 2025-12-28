@@ -8,10 +8,11 @@ import MatchGamePage from '@/pages/dashboard/matchHistory/MatchGamePage.vue';
 import GamesPage from "@/pages/dashboard/matchHistory/GamesPage.vue";
 import SinglePlayerGame from '@/pages/game/SinglePlayerGame.vue';
 import AddShopItem from '@/pages/shop/AddShopItem.vue';
-import AdminPage from "@/pages/admin/adminPage.vue";
+import UsersPage from "@/pages/admin/usersPage.vue";
 import TransactionsPage from "@/pages/admin/transactionsPage.vue";
 import GamesPageAdmin from "@/pages/admin/gamesPage.vue";
 import MatchesPageAdmin from "@/pages/admin/matchesPage.vue";
+import adminDash from "@/pages/admin/dashboard.vue";
 
 const router = createRouter({
     history: createWebHistory(import.meta.env.BASE_URL),
@@ -30,7 +31,8 @@ const router = createRouter({
             path: "/admin",
             meta: {admin: true},
             children: [
-                {path: "users", name: "adminPage", component: AdminPage},
+                {path: "dashboard", name: "adminDashboard", component: adminDash},
+                {path: "users", name: "adminPage", component: UsersPage},
                 {path: "transactions", name: "transactionsPage", component: TransactionsPage},
                 {path: "games", name: "gamesPage", component: GamesPageAdmin},
                 {path: "games/:id", name: "gamesPageUser", component: GamesPageAdmin},
