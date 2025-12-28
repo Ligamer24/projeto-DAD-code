@@ -101,7 +101,7 @@
                 </div>
 
                 <div>
-                    <router-link :to="`/GamesPage/${match.id}`"
+                    <router-link :to="`/admin/games/${match.id}`"
                         class="flex items-center gap-2 px-4 py-2 text-xs font-black uppercase tracking-widest text-indigo-600 bg-indigo-50 hover:bg-indigo-600 hover:text-white rounded-xl border border-indigo-100 transition-all duration-300 group">
                         View Details
                         <svg class="w-4 h-4 transform group-hover:translate-x-1 transition-transform" fill="none"
@@ -172,7 +172,11 @@ import { Coins } from "lucide-vue-next";
 
 import { ref, onMounted } from 'vue';
 import { useAPIStore } from '@/stores/api';
+import {useRoute} from "vue-router";
 const api = useAPIStore();
+
+const route = useRoute();
+const userId = ref(route.params.id || undefined);
 
 const matches = ref([]);
 const totalPages = ref(1);
@@ -180,7 +184,7 @@ const currentPage = ref(1);
 
 const fetchMatches = async (page = 1) => {
     try {
-        const response = await api.getMatchesAdmin(page);
+        const response = await api.getMatchesAdmin(page, userId.value);
         matches.value = response.data.data;
         currentPage.value = response.data.current_page;
         totalPages.value = response.data.last_page;

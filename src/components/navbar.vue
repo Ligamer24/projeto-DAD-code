@@ -1,10 +1,10 @@
 <script setup>
-import { Coins, Crown, ExpandIcon, Trophy, UserRound } from "lucide-vue-next";
-import { RouterLink } from "vue-router";
-import { ref, computed, onMounted, inject } from "vue";
-import { useDashStore } from "@/stores/dash.js";
-import { useAuthStore } from "@/stores/auth.js";
-import { Avatar, AvatarImage, AvatarFallback } from "./ui/avatar";
+import {Coins} from "lucide-vue-next";
+import {RouterLink} from "vue-router";
+import {computed, inject, onMounted, ref} from "vue";
+import {useDashStore} from "@/stores/dash.js";
+import {useAuthStore} from "@/stores/auth.js";
+import {Avatar, AvatarFallback, AvatarImage} from "./ui/avatar";
 
 const dash = ref({
   coins_balance: 0,
@@ -62,19 +62,30 @@ export default {
       <div class="flex items-center gap-4">
         <RouterLink :to="profileLink" class="flex items-center gap-2 group" aria-label="Open profile">
           <Avatar class="size-10 lg:size-12">
-                <AvatarImage v-if="authStore.currentUser?.photo_avatar_filename"
-                    :src="`${serverBaseURL}/storage/photos_avatars/${authStore.currentUser?.photo_avatar_filename}`"
-                    :alt="authStore.currentUser?.name" />
-                <AvatarFallback class="text-4xl">
-                    {{ authStore.currentUser?.name?.charAt(0).toUpperCase() }}
-                </AvatarFallback>
-            </Avatar>
+            <AvatarImage v-if="authStore.currentUser?.photo_avatar_filename"
+                         :src="`${serverBaseURL}/storage/photos_avatars/${authStore.currentUser?.photo_avatar_filename}`"
+                         :alt="authStore.currentUser?.name"/>
+            <AvatarFallback class="text-4xl">
+              {{ authStore.currentUser?.name?.charAt(0).toUpperCase() }}
+            </AvatarFallback>
+          </Avatar>
           <span class="text-lg lg:text-xl font-semibold text-black group-hover:underline">{{
               authStore.currentUser?.nickname ?? authStore.currentUser?.name ?? 'Anonymous'
             }}</span>
         </RouterLink>
-        <RouterLink :to="'/adminPage'" v-if="authStore.currentUser?.type === 'A'" class="flex text-black ">
-          <button class="bg-gray-200 hover:bg-gray-100 text-gray-800 font-semibold py-2 px-4 border border-gray-400 rounded shadow">Admin panel</button>
+        <RouterLink to="/dashboard" v-if="authStore.isAdmin && $route.path.startsWith('/admin')"
+                    class="flex text-black ">
+          <button
+              class="bg-gray-200 hover:bg-gray-100 text-gray-800 font-semibold py-2 px-4 border border-gray-400 rounded shadow">
+            Home
+          </button>
+        </RouterLink>
+        <RouterLink to="/admin/users" v-else-if="authStore.isAdmin"
+                    class="flex text-black ">
+          <button
+              class="bg-gray-200 hover:bg-gray-100 text-gray-800 font-semibold py-2 px-4 border border-gray-400 rounded shadow">
+            Admin panel
+          </button>
         </RouterLink>
       </div>
 
@@ -99,7 +110,7 @@ export default {
         <Coins class="size-5 lg:size-6 text-yellow-600"/>
       </RouterLink>
     </div>
-    <div class="mt-2 h-px w-full bg-black/40" />
+    <div class="mt-2 h-px w-full bg-black/40"/>
   </header>
 </template>
 
