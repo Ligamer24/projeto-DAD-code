@@ -105,6 +105,32 @@
 
           </div>
         </div>
+        <div v-if="openTypeSelector" 
+     class="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-slate-900/80 backdrop-blur-md transition-all">
+  <div class="bg-white rounded-2xl shadow-2xl w-full max-w-sm p-6 border border-slate-100 text-center">
+    <h3 class="text-xl font-black text-slate-900 mb-6">Escolha o modo de jogo</h3>
+    
+    <div class="grid grid-cols-1 gap-4">
+      <button @click="selectGameMode(3)"
+        class="group flex items-center justify-between p-4 rounded-xl border-2 border-slate-200 hover:border-emerald-500 hover:bg-emerald-50 transition-all">
+        <div class="text-left">
+          <p class="font-bold text-slate-900">3 Cartas</p>
+        </div>
+      </button>
+
+      <button @click="selectGameMode(9)"
+        class="group flex items-center justify-between p-4 rounded-xl border-2 border-slate-200 hover:border-emerald-500 hover:bg-emerald-50 transition-all">
+        <div class="text-left">
+          <p class="font-bold text-slate-900">9 Cartas</p>
+        </div>
+      </button>
+
+      <button @click="openTypeSelector = false" class="mt-2 text-sm text-slate-400 hover:text-slate-600">
+        Cancelar
+      </button>
+    </div>
+  </div>
+</div>
       </div>
     </div>
   </section>
@@ -116,16 +142,20 @@ import { useRouter } from "vue-router";
 import axios from "axios";
 import { Coins } from "lucide-vue-next";
 import { useMatchStore } from "@/stores/match";
+import { useGameStore } from "@/stores/game.js";
 import { useAPIStore } from "@/stores/api.js";
 
 const authStore = useAuthStore();
 const router = useRouter();
 const matchStore = useMatchStore()
+const gameStore =  useGameStore();
 const open = ref(false);
 const errorMessage = ref("");
 const gameCost = 3;
 const apiStore = useAPIStore();
 
+const openTypeSelector = ref(false);
+const pendingIsRanked = ref(false);
 
 async function confirmPayment() {
   try {
@@ -159,15 +189,30 @@ async function confirmPayment() {
 }
 
 function startGame(isRanked) {
+  //logica para começar o jogo na funcao selectGameMode, de forma a permitir escolher o tipo
   matchStore.isRanked = isRanked
-  if (isRanked && authStore.currentUser) {
+  openTypeSelector.value = true;
+  pendingIsRanked.value = isRanked;
+  open.value = true;
+}
+
+function selectGameMode(type: number) {
+  openTypeSelector.value = false;
+  
+  
+  gameStore.type = type; 
+
+  if (pendingIsRanked.value && authStore.currentUser) {
     router.push("/games/multiplayer");
     return;
   }
-  if (!authStore.isLoggedIn || !isRanked) {
+  
+  // Se não for logado ou não for ranked
+  if (!authStore.isLoggedIn || !pendingIsRanked.value) {
     router.push("/games/singleplayer");
     return;
   }
+  
   open.value = true;
 }
 

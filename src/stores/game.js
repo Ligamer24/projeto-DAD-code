@@ -35,6 +35,7 @@ export const useGameStore = defineStore("game", () => {
             const currentTurn = ref(0);
             let gameBeganAt;
             let gameEndedAt;
+            const type = ref(3);
 
             // Estado interno do jogo
             const scores = ref({player1: 0, player2: 0});
@@ -69,7 +70,7 @@ export const useGameStore = defineStore("game", () => {
             // LÓGICA SINGLEPLAYER (LOCAL)
             // ------------------------------------------------------------------------
 
-            const startNewGame = () => {
+            const startNewGame = (selectedType) => {
                 if (isRanked.value) {
                     searching_player.value = true
                     searching_player.value = true
@@ -84,6 +85,7 @@ export const useGameStore = defineStore("game", () => {
 
 
                 gameEnded.value = false
+                type.value = selectedType
                 scores.value = {player1: 0, player2: 0}
                 moves.value = []
                 tableCards.value = []
@@ -91,7 +93,7 @@ export const useGameStore = defineStore("game", () => {
                 currentTurn.value = authStore.currentUser?.id ?? -1
                 gameBeganAt = new Date()
 
-                const gameData = setupNewGame()
+                const gameData = setupNewGame(selectedType)
                 trunfo.value = gameData.trunfo
                 trumpSuit.value = gameData.trumpSuit
                 player1Hand.value = gameData.player1Hand
@@ -587,6 +589,7 @@ export const useGameStore = defineStore("game", () => {
                 moves,
                 undoPrice,
                 botStatus,
+                type,
 
                 // Actions Local
                 startNewGame,
