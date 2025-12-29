@@ -79,7 +79,7 @@ export const useGameStore = defineStore("game", () => {
                     game_began.value = false
                     createMatch({
                         ...authStore.currentUser
-                    });
+                    }, selectedType);
                     return
                 }
 
@@ -443,7 +443,7 @@ export const useGameStore = defineStore("game", () => {
             // ------------------------------------------------------------------------
 
             // Criar Jogo (Lobby)
-            const createMatch = (data = {}) => {
+            const createMatch = (data = {}, selectedType) => {
                 if (!authStore.currentUser) {
                     toast.error('Tens de fazer login para criar um jogo')
                     return
@@ -452,6 +452,7 @@ export const useGameStore = defineStore("game", () => {
                     toast.error('Sem conexão ao servidor.')
                     return
                 }
+                data.type = selectedType
                 // Emite para o servidor criar a sala
                 socket.emit('find-match', data)
             }

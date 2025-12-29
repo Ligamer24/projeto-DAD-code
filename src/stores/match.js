@@ -33,6 +33,7 @@ export const useMatchStore = defineStore('match', () => {
     const player2_id = ref(null)
     const currentUserId = authStore.currentUser?.id ?? -1
     const BOT_ID = authStore.BOT_ID
+    const type = ref(9)
 
     const opponent = ref({})
     const opponent_found = ref(false)
@@ -292,6 +293,7 @@ export const useMatchStore = defineStore('match', () => {
         gamesHistory,
         isRanked,
         opponent,
+        type,
         COIN_BASE_WIN,
         COIN_CAPOTE_MULTIPIER,
         COIN_BANDEIRA_MULTIPIER,

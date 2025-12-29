@@ -201,6 +201,7 @@ function selectGameMode(type: number) {
   
   
   gameStore.type = type; 
+  matchStore.type = type;
 
   if (pendingIsRanked.value && authStore.currentUser) {
     router.push("/games/multiplayer");
