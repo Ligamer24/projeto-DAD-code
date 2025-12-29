@@ -266,6 +266,11 @@ export const useAPIStore = defineStore("api", () => {
         return axios.post(`${API_BASE_URL}/shop/${itemId}/buy`);
     }
 
+    //Este pedido vai ser a usar outra API
+    const purchaseCoinsFromPaymentService = async (paymentData) => {
+        return axios.post(`https://dad-payments-api.vercel.app/api/debit`, paymentData);
+    }
+
     return {
         token,
         setToken,
@@ -300,6 +305,7 @@ export const useAPIStore = defineStore("api", () => {
         requestNotification,
         getShop,
         postShopItem,
-        purchaseItem
+        purchaseItem,
+        purchaseCoinsFromPaymentService,
     };
 });

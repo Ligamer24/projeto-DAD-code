@@ -1,7 +1,8 @@
 <script setup>
 import Button from '@/components/ui/button/Button.vue';
 import { useShopStore } from '@/stores/shop';
-import {inject, onMounted, ref} from "vue";
+import { useAPIStore } from '@/stores/api';
+import {inject, onMounted, ref, computed} from "vue";
 import { useAuthStore } from '@/stores/auth';
 import { toast } from 'vue-sonner';
 import ConfirmationModal from '@/components/ConfirmationModal.vue';
@@ -10,6 +11,7 @@ const authStore = useAuthStore();
 const isAdmin = authStore.isAdmin;
 
 const shopStore = useShopStore();
+const apiStore = useAPIStore();
 const baseURL = inject('baseURL');
 
 const isModalOpen = ref(false);
@@ -47,6 +49,48 @@ function goToAddItem() {
   router.push('/shop/add');
 }
 
+//Add coins script
+
+const mostrarModalAddCoins = ref(false)
+const apiErrorMessage = ref('')
+
+// form of payment
+const payment = ref({
+  type: '',
+  reference: '',
+  value: null
+})
+
+// placeholders dinamicos para cada tipo
+const placeholders = {
+  MBWAY: 'Ex: 915785345',
+  PAYPAL: 'Ex: john.doe@gmail.com',
+  IBAN: 'Ex: PT50123456781234567812349',
+  MB: 'Ex: 45634-123456789',
+  VISA: 'Ex: 4321567812345678'
+}
+
+const currentPlaceholder = computed(() => placeholders[payment.value.type] || 'Selecione o tipo primeiro')
+
+// função para submeter o formulário
+const submitForm = async () => {
+  console.log('Dados a enviar:', payment.value)
+  try{
+    const response = await apiStore.purchaseCoinsFromPaymentService(payment.value)
+  } 
+  catch (error){
+    console.error(error)
+    apiErrorMessage.value = 'Erro ao processar o pedido. Tente novamente.'
+    return
+  }
+  apiErrorMessage.value = ''
+
+  alert('Pedido de moedas enviado!')
+  mostrarModalAddCoins.value = false
+}
+
+
+//
 onMounted(() => {
   shopStore.fetchItems();
   shopStore.getSelectedDeck();
@@ -65,6 +109,68 @@ onMounted(() => {
 
     <div class="flex flex-col items-center lg:items-start text-center lg:text-left w-full max-w-xl mx-auto">
       <h2 class="text-3xl sm:text-4xl lg:text-5xl font-serif tracking-widest text-rose-800 w-full text-center">SHOP</h2>
+    </div>
+    <div class="flex justify-end mt-4 mr-50">
+      <button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-full" @click="mostrarModalAddCoins = true">
+        Add coins to your account
+      </button>
+    </div>
+    <div 
+      v-if="mostrarModalAddCoins" 
+      class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm"
+    >
+      <div class="bg-white p-8 rounded-2xl shadow-2xl max-w-md w-full">
+        <h3 class="text-2xl font-bold mb-6 text-gray-800">Add Coins</h3>
+
+        <form @submit.prevent="submitForm" class="space-y-5">
+          
+          <div>
+            <label class="block text-sm font-semibold text-gray-700 mb-1">Payment Type</label>
+            <select v-model="payment.type" required class="w-full border border-gray-300 rounded-lg p-2.5 focus:ring-2 focus:ring-blue-500 outline-none">
+              <option value="" disabled>Select payment method</option>
+              <option value="MBWAY">MBWAY</option>
+              <option value="PAYPAL">PAYPAL</option>
+              <option value="IBAN">IBAN</option>
+              <option value="MB">MB (Multibanco)</option>
+              <option value="VISA">VISA</option>
+            </select>
+          </div>
+
+          <div>
+            <label class="block text-sm font-semibold text-gray-700 mb-1">Reference</label>
+            <input 
+              v-model="payment.reference" 
+              type="text" 
+              required 
+              :placeholder="currentPlaceholder"
+              class="w-full border border-gray-300 rounded-lg p-2.5 focus:ring-2 focus:ring-blue-500 outline-none"
+            >
+          </div>
+
+          <div>
+            <label class="block text-sm font-semibold text-gray-700 mb-1">Value (1-99)</label>
+            <input 
+              v-model.number="payment.value" 
+              type="number" 
+              min="1" 
+              max="99" 
+              step="1" 
+              required
+              placeholder="Enter amount"
+              class="w-full border border-gray-300 rounded-lg p-2.5 focus:ring-2 focus:ring-blue-500 outline-none"
+            >
+          </div>
+
+          <div class="flex gap-3 pt-4">
+            <button type="button" @click="mostrarModalAddCoins = false" class="flex-1 px-4 py-2.5 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 font-semibold">
+              Cancel
+            </button>
+            <button type="submit" class="flex-1 px-4 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-bold shadow-md">
+              Confirm
+            </button>
+          </div>
+        </form>
+      </div>
     </div>
 
     <div v-if="isAdmin" class="flex justify-center mt-4">
