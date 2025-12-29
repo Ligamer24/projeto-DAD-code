@@ -487,7 +487,7 @@ const playerScore = computed(() => game.myScore)
 
 onMounted(() => {
   if (!auth.anonymous) match.initMatch();
-  game.startNewGame();
+  game.startNewGame(game.type);
 });
 
 function playCard(card) {
@@ -511,7 +511,7 @@ const handleTimeout = () => {
 // Após Match acabar
 const restartFullMatch = () => {
   match.initMatch();
-  game.startNewGame();
+  game.startNewGame(game.type);
 };
 
 // Lógica de Textos e Cores

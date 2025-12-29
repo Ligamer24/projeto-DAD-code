@@ -289,14 +289,16 @@ function updatePagesHeight() {
     gameDiv.value.style.height = available + 'px'
   }
 }
-
+const game = useGameStore();
 onMounted(() => {
   updatePagesHeight()
+  const selectedType = game.type || 9;
+  game.startNewGame(selectedType);
 })
 
 window.addEventListener('resize', updatePagesHeight)
 
-const game = useGameStore();
+
 const router = useRouter();
 const match = useMatchStore();
 const auth = useAuthStore();
@@ -337,7 +339,7 @@ onMounted(() => {
   // Inicia a Match
   if (!auth.anonymous) match.initMatch();
   // Inicialização do jogo
-  game.startNewGame();
+  game.startNewGame(game.type);
 });
 
 function handlePlayCard(card, index) {
@@ -348,7 +350,7 @@ function handlePlayCard(card, index) {
 // Após Match acabar
 const restartFullMatch = () => {
   match.initMatch();
-  game.startNewGame();
+  game.startNewGame(game.type);
 };
 
 // Lógica de Textos e Cores
