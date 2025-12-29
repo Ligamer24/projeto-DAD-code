@@ -460,6 +460,25 @@ export const useGameStore = defineStore("game", () => {
                 console.log(`[Bisca] Matches list updated: ${matches.value.length} matches`)
             }
 
+            const resetState = () => {
+                console.log("Limpar game store!")
+                
+                deck.value = [];
+                player1Hand.value = [];
+                player2Hand.value = [];
+                trunfo.value = null;
+                trumpSuit.value = ""; 
+                tableCards.value = []; 
+                lastRoundCards.value = []; 
+                moves.value = []; 
+                currentTurn.value = 0
+                
+                scores.value = {player1: 0, player2: 0};
+                gameEnded.value = false;
+                multiplayerGame.value = {}
+
+            }
+
             const setMultiplayerGame = (gameState) => {
                 console.log('[GameStore] Recebi update do servidor:', gameState);
                 if (!gameState) return
@@ -589,6 +608,7 @@ export const useGameStore = defineStore("game", () => {
                 botStatus,
 
                 // Actions Local
+                resetState,
                 startNewGame,
                 playCardLocal,
                 playBotTurn,

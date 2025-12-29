@@ -573,6 +573,8 @@ const headerBgClass = computed(() => {
 });
 
 const exitMatch = () => { //TODO: implementar reset da match/game após fim de match
+  match.resetState()
+  game.resetState()
   router.push("/dashboard");
 };
 
@@ -648,7 +650,7 @@ const closeModal = () => {
 }
 
 const confirmLeave = () => {
-  // Eventualmente adicionar lógica extra...
+
   const matchId = match.multiplayerMatch.id
   const gameId = game.multiplayerGame.id
   const userId = currentUserId
@@ -656,7 +658,8 @@ const confirmLeave = () => {
   socketStore.emitForfeitMatch(matchId, gameId, userId)
 
   isOpen.value = false
-  router.push({name: 'dashboard'})
+  match.resetState()
+  game.resetState()
 }
 
 

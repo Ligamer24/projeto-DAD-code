@@ -199,6 +199,22 @@ export const useMatchStore = defineStore('match', () => {
     }
 
     //Multiplayer
+
+    const resetState = () => {
+        console.log('A limpar estado da Match...')
+
+        marks.value = { player1: 0, player2: 0 }
+        gamesHistory.value = []
+        status.value = 'idle'
+        player1_id.value = null
+        player2_id.value = null
+        multiplayerMatch.value = {}
+
+        //Reset de sistema de procura do Rúben
+        searching_player.value = false
+        match_began.value = false
+    }
+
     const setMultiplayerMatch = (serverMatch) => {
         console.log('[MatchStore] Recebi update do servidor:', serverMatch);
         if (!serverMatch) return
@@ -276,14 +292,6 @@ export const useMatchStore = defineStore('match', () => {
         setMultiplayerMatch(finalMatch, currentUserId)
 
         // const amIWinner = finalMatch.winner === currentUserId
-
-        setTimeout(() => {
-            // Limpar estados antigos para não entrarem em conflito no próximo jogo
-            // resetState() 
-            // gameStore.resetState() 
-            
-            // router.push('/dashboard') 
-        }, 10000) 
     })
 
     return {
@@ -304,6 +312,7 @@ export const useMatchStore = defineStore('match', () => {
         match_began,
         multiplayerMatch,
         player1_id,
-        setMultiplayerMatch
+        resetState,
+        setMultiplayerMatch,
     }
 })
