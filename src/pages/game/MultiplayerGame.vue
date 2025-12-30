@@ -453,6 +453,8 @@ onMounted(() => {
 
 window.addEventListener('resize', updatePagesHeight)
 
+//OBS: A match store equipara o player1 como o authUser(não necessário implementar amIPlayer1)
+
 const game = useGameStore();
 const router = useRouter();
 const match = useMatchStore();
@@ -580,27 +582,41 @@ const exitMatch = () => { //TODO: implementar reset da match/game após fim de m
 
 // Lógica de Achievements e Moedas
 const earnedAchievements = computed(() => {
+
+  if (!match || !match.gamesHistory || !auth.currentUser) return []
+
   const list = []
+
+  const myId = auth.currentUser.id
+  const p1Id = match.player1_id
+
+  const amIPlayer1 = myId === p1Id
+  
   match.gamesHistory.forEach(game => {
-    if (game.winner == auth.currentUser.id) {
-      if (game.scores.player1 >= 120) {
-        list.push({icon: Flag, title: 'Bandeira', desc: 'Opponent scored 0', bonus: 6})
-      } else if (game.scores.player1 >= 91) {
-        list.push({icon: Badge, title: 'Capote', desc: 'Opponent scored less than 29', bonus: 4})
-      } else if (game.scores.player1 > 60) {
+    if (game.winner == myId) {
+
+      const myScore = amIPlayer1 ? game.scores.player1 : game.scores.player2
+
+      if (myScore >= 120) {
+        list.push({icon: Flag, title: 'Bandeira', desc: '120 Points!', bonus: 6})
+      } else if (myScore >= 91) {
+        list.push({icon: Badge, title: 'Capote', desc: '>= 91 Points!', bonus: 4})
+      } else if (myScore > 60) {
         list.push({icon: Sparkles, title: 'Victory', desc: 'Simple win', bonus: 3})
       }
 
     }
   })
+
   if (match.status === 'finished' && match.marks.player1 >= 4) {
+    //TODO: Implementar o bonus da win como stake
     list.unshift({icon: Trophy, title: 'Match Winner', desc: 'Defeated the Opponent', bonus: 0})
   }
+
   return list
 })
 
 const calculateTotalCoins = computed(() => {
-  console.log("Somand")
   return earnedAchievements.value.reduce((total, item) => total + item.bonus, 0)
 })
 
