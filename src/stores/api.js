@@ -145,6 +145,15 @@ export const useAPIStore = defineStore("api", () => {
         });
     };
 
+    //TODO mandar deleteAccount pra api
+    const deleteAccount = async (password) => {
+        return axios.delete(`${API_BASE_URL}/users/me`, {
+            data: {
+                password: password
+            }
+        })
+    }
+
     // SELECTED DECK
     const updateSelectedDeck = async (deckId) => {
         return axios.patch(`${API_BASE_URL}/users/me/select-deck`, {
@@ -255,6 +264,7 @@ export const useAPIStore = defineStore("api", () => {
         putUser,
         uploadProfilePhoto,
         changePassword,
+        deleteAccount,
         updateCoinsUser,
         updateSelectedDeck,
         getSelectedDeck,

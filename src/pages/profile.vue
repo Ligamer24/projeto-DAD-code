@@ -10,6 +10,15 @@ import {Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle,} 
 import {Button} from "@/components/ui/button";
 import {Input} from "@/components/ui/input";
 import {Avatar, AvatarFallback, AvatarImage} from "@/components/ui/avatar";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
 import {storeToRefs} from "pinia";
 
 const predefinedAvatars = [
@@ -33,6 +42,12 @@ const pwdErrors = ref([]);
 const pwdSuccess = ref(false);
 
 const {currentUser} = storeToRefs(authStore);
+
+//PasswordConfirmation
+const showDeleteDialog = ref(false);
+const deletePassword = ref("");
+const isDeleting = ref(false);
+//
 
 const formData = ref({
   name: "",
@@ -187,6 +202,51 @@ const requestNotification = () => {
     toast.error('Failed to send request. Please try again later.')
   });
 }
+
+const deleteAccount = () => {
+  toast.promise(apiStore.deleteAccount(), {
+    loading: "Deleting Account",
+    success: () => {
+      router.push("/login");
+      return "Account Sucessfully Deleted ";
+    },
+    error: (data) => `[API] Error Deleting Account - ${data?.response?.data?.message}`,
+  });
+} 
+
+const openDeleteModal = () => {
+  deletePassword.value = "";
+  showDeleteDialog.value = true;
+};
+
+const confirmAccountDeletion = async () => {
+  if (!deletePassword.value) {
+    toast.error("Please enter your password to confirm.");
+    return;
+  }
+
+  isDeleting.value = true;
+
+  try {
+    await apiStore.deleteAccount(deletePassword.value);
+    
+    toast.success("Account deleted successfully.");
+    showDeleteDialog.value = false;
+
+    authStore.currentUser = undefined; 
+
+    router.push("/login");
+    
+  } catch (error) {
+    console.error(error);
+
+    const msg = error.response?.data?.message || "Failed to delete account.";
+    toast.error(msg);
+  } finally {
+    isDeleting.value = false;
+  }
+};
+
 </script>
 
 <template>
@@ -288,6 +348,11 @@ const requestNotification = () => {
             Member since {{ formatShortDate(currentUser?.created_at) }}
           </div>
 
+          <button @click.prevent="openDeleteModal" role="button"
+          class="cursor-pointer mt-4 inline-flex items-center gap-2 px-4 py-2 rounded-md border border-red-200 bg-red-50 text-red-700 hover:bg-red-100 active:bg-red-200 focus:outline-none focus:ring-2 focus:ring-red-500 transition">
+            Delete Account
+          </button>
+
           <button @click.prevent="requestNotification" role="button"
                   class="cursor-pointer mt-4 inline-flex items-center gap-2 px-4 py-2 rounded-md border border-black/30 bg-black/5 text-black/80 hover:bg-black/10 active:bg-black/20 focus:outline-none focus:ring-2 focus:ring-emerald-500 transition">
             Request Notification
@@ -371,6 +436,48 @@ const requestNotification = () => {
         </form>
       </section>
     </div>
+    
+
+    <!-- Dialog pra password confirmation -->
+     <Dialog v-model:open="showDeleteDialog">
+      <DialogContent class="sm:max-w-[425px]">
+        <DialogHeader>
+          <DialogTitle>Delete Account</DialogTitle>
+          <DialogDescription>
+            Are you sure you want to delete your account? This action cannot be undone. 
+            Please enter your password to confirm.
+          </DialogDescription>
+        </DialogHeader>
+        
+        <div class="grid gap-4 py-4">
+          <div class="space-y-2">
+            <Label for="delete-password">Password</Label>
+            <Input
+              id="delete-password"
+              v-model="deletePassword"
+              type="password"
+              placeholder="Type your password"
+              class="w-full"
+              @keyup.enter="confirmAccountDeletion"
+            />
+          </div>
+        </div>
+        
+        <DialogFooter>
+          <Button variant="outline" @click="showDeleteDialog = false">
+            Cancel
+          </Button>
+          <Button 
+            variant="destructive" 
+            @click="confirmAccountDeletion" 
+            :disabled="isDeleting || !deletePassword"
+          >
+            <span v-if="isDeleting">Deleting...</span>
+            <span v-else>Confirm Delete</span>
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   </main>
 </template>
 
