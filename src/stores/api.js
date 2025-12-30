@@ -138,7 +138,7 @@ export const useAPIStore = defineStore("api", () => {
 
     // UPDATE PASSWORD
     const changePassword = async ({ current, next, confirm }) => {
-        return axios.put(`${API_BASE_URL}/profile/password`, {
+        return axios.put(`${API_BASE_URL}/users/me/password`, {
             current_password: current,
             password: next,
             password_confirmation: confirm,

@@ -150,7 +150,7 @@ const saveProfile = async () => {
 const onSubmitPassword = async (e) => {
   e.preventDefault();
   try {
-    await user.changePassword({
+    await apiStore.changePassword({
       current: currentPwd.value,
       next: newPwd.value,
       confirm: confirmPwd.value,
