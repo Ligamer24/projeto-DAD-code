@@ -54,6 +54,15 @@ export const useAPIStore = defineStore("api", () => {
         return axios.put(`${API_BASE_URL}/users/me/coins`, { amountToAdd: coinsAmount });
     };
 
+    const getTransactions = (page) => {
+        return axios.get(`${API_BASE_URL}/coins/transactions/?page=${page}`);
+    }
+
+    //Coins Purchase Transaction
+    const postCoinsPurchaseTransaction = (purchaseObj) => {
+        return axios.post(`${API_BASE_URL}/coins/purchase`, purchaseObj);
+    }
+
 
     // AUTH
     const postLogin = async (credentials) => {
@@ -281,6 +290,8 @@ export const useAPIStore = defineStore("api", () => {
         postMatch,
         getMatches,
         postCoinsTransaction,
+        postCoinsPurchaseTransaction,
+        getTransactions,
         postLogin,
         postLogout,
         getUser,

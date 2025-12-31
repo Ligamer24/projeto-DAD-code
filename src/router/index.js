@@ -12,6 +12,7 @@ import AdminPage from "@/pages/admin/adminPage.vue";
 import TransactionsPage from "@/pages/admin/transactionsPage.vue";
 import GamesPageAdmin from "@/pages/admin/gamesPage.vue";
 import MatchesPageAdmin from "@/pages/admin/matchesPage.vue";
+import TransactionsPageUser from "@/pages/transactionsPage.vue";
 
 const router = createRouter({
     history: createWebHistory(import.meta.env.BASE_URL),
@@ -26,6 +27,7 @@ const router = createRouter({
         {path: "/login", name: "login", component: LoginPage, meta: {requiresGuest: true}},
         {path: "/register", name: "register", component: RegisterPage, meta: {requiresGuest: true}},
         {path: "/MatchDetails/:id", name: "MatchDetails", component: MatchGamePage},
+        {path: "/transactionsUser", name: "transactionsUser", component: TransactionsPageUser, meta: {requiresAuth: true}},
         {
             path: "/admin",
             meta: {admin: true},
