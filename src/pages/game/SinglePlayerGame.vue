@@ -305,6 +305,7 @@ const auth = useAuthStore();
 
 const currentUserId = auth.currentUser?.id ?? -1
 const opponent = computed(() => (match.opponent))
+const isMatch = computed(() => (game.match_id !== null))
 
 const currentTurn = computed(() => (game.currentTurn))
 

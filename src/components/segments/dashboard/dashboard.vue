@@ -42,13 +42,11 @@
                 :class="pendingIsMatch ? 'border-emerald-600 bg-emerald-50 text-emerald-700 ring-2 ring-emerald-600/20' : 'border-slate-200 text-slate-500 hover:border-slate-300'"
                 class="flex flex-col items-center p-3 rounded-xl border-2 transition-all">
                 <span class="font-bold">Match</span>
-                <span class="text-[10px] opacity-70">Series of Games</span>
               </button>
               <button @click="pendingIsMatch = false" 
                 :class="!pendingIsMatch ? 'border-emerald-600 bg-emerald-50 text-emerald-700 ring-2 ring-emerald-600/20' : 'border-slate-200 text-slate-500 hover:border-slate-300'"
                 class="flex flex-col items-center p-3 rounded-xl border-2 transition-all">
-                <span class="font-bold">Single Game</span>
-                <span class="text-[10px] opacity-70">Quick Session</span>
+                <span class="font-bold">Game</span>
               </button>
             </div>
           </div>
@@ -59,12 +57,12 @@
               <button @click="selectedType = 3" 
                 :class="selectedType === 3 ? 'border-slate-900 bg-slate-900 text-white' : 'border-slate-200 text-slate-500 hover:border-slate-300'"
                 class="p-3 rounded-xl border-2 font-bold transition-all">
-                3 Cards
+                Bisca do 3 
               </button>
               <button @click="selectedType = 9" 
                 :class="selectedType === 9 ? 'border-slate-900 bg-slate-900 text-white' : 'border-slate-200 text-slate-500 hover:border-slate-300'"
                 class="p-3 rounded-xl border-2 font-bold transition-all">
-                9 Cards
+                Bisca do 9
               </button>
             </div>
           </div>
@@ -150,6 +148,7 @@ async function confirmStart() {
       router.push("/games/singleplayer");
     } else {
       // TODO: Start Singleplayer Single Game logic
+      router.push("/games/singleplayer");
       console.log("TODO: Start Singleplayer Single Game");
     }
     
