@@ -165,18 +165,20 @@ async function confirmPayment() {
       return;
     }
 
-
-    /* Comentar isto se tiver a dar erro a começar jogo */
-    const startGame = await apiStore.sendStartGame();
-    const user = startGame.data;
-    /* ate aqui */
-
-
-    // const { data: user } = await axios.post("https://redycore.dpdns.org/api/start-game"); // descomentar se tiver a dar erro a começar jogo
-
-    authStore.currentUser = user;
-
-    router.push("/games/singleplayer");
+    //TODO registar coin_transaction em matches e games multiplayer(COST = 2)
+    if (pendingIsRanked.value && authStore.currentUser) {
+      router.push("/games/multiplayer");
+      return;
+    }
+    
+    // Se não for logado ou não for ranked
+    if (!authStore.isLoggedIn || !pendingIsRanked.value) {
+      const startGame = await apiStore.sendStartGame();
+      const user = startGame.data;
+      authStore.currentUser = user;
+      router.push("/games/singleplayer");
+      return;
+    }
 
   } catch (err: any) {
 
@@ -199,20 +201,8 @@ function startGame(isRanked) {
 function selectGameMode(type: number) {
   openTypeSelector.value = false;
   
-  
   gameStore.type = type; 
   matchStore.type = type;
-
-  if (pendingIsRanked.value && authStore.currentUser) {
-    router.push("/games/multiplayer");
-    return;
-  }
-  
-  // Se não for logado ou não for ranked
-  if (!authStore.isLoggedIn || !pendingIsRanked.value) {
-    router.push("/games/singleplayer");
-    return;
-  }
   
   open.value = true;
 }
