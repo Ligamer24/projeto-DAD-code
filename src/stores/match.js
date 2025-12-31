@@ -42,6 +42,7 @@ export const useMatchStore = defineStore('match', () => {
 
     const matchBeganAt = ref(undefined)
     const matchEndedAt = ref(undefined)
+    const showStakeNegotiation = ref(false);
 
     let p1TotalPoints = 0
     let p2TotalPoints = 0
@@ -210,6 +211,7 @@ export const useMatchStore = defineStore('match', () => {
         player1_id.value = null
         player2_id.value = null
         multiplayerMatch.value = {}
+        showStakeNegotiation.value = true;
 
         //Reset de sistema de procura do Rúben
         searching_player.value = false
@@ -294,6 +296,21 @@ export const useMatchStore = defineStore('match', () => {
 
         // const amIWinner = finalMatch.winner === currentUserId
     })
+    socket.on("negotiation-update", ({ match }) => {
+        console.log("[Match] negotiation-update recebido:", match);
+
+        if (!match) return;
+
+        multiplayerMatch.value = {
+            ...match
+        };
+    });
+
+    socket.on("stake-finalized", () => {
+        console.log("[Match] stake-finalized recebido");
+        showStakeNegotiation.value = false;
+    });
+
 
     return {
         marks,
@@ -314,6 +331,7 @@ export const useMatchStore = defineStore('match', () => {
         match_began,
         multiplayerMatch,
         player1_id,
+        showStakeNegotiation,
         resetState,
         setMultiplayerMatch,
     }

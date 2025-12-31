@@ -281,7 +281,8 @@
         against.</p>
     </div>
   </div>
-  <div v-else-if="match.opponent_found && !match.match_began">
+  <div v-else-if="(match.opponent_found && !match.match_began)">
+    <p>AAAAAAAAAAAAAAAAAAAAAAAAA</p>
     <div class="flex flex-col items-center justify-center h-dvh w-full p-4 box-border ">
       <div
           class="bg-white p-8 rounded-2xl shadow-xl border border-slate-100 flex flex-col items-center max-w-sm w-full animate-in fade-in zoom-in duration-500">
@@ -318,6 +319,7 @@
           <div class="flex justify-between text-xs font-bold text-slate-400 uppercase tracking-wider">
             <span>Starting Match</span>
             <span class="animate-pulse">...</span>
+            
           </div>
           <div class="h-2 w-full bg-slate-100 rounded-full overflow-hidden">
             <div class="h-full bg-blue-500 animate-pulse w-full origin-left"></div>
@@ -325,10 +327,19 @@
         </div>
       </div>
     </div>
-
+    
   </div>
+  <div v-else-if="match.showStakeNegotiation" class="mt-6 flex justify-center p-4">
+      <StakeNegotiation
+        :matchInfo="match.multiplayerMatch"
+        :currentUserId="currentUserId"
+        @propose-stake="onUpdateStake"
+        @accept-stake="onConfirmStake"
+      />
+    </div>
   <div v-else class="flex flex-col justify-between p-3 box-border h-dvh w-full" ref="gameDiv">
     <section class="flex flex-row items-center relative z-30">
+      
       <div class="relative">
         <MessagesSquare class="inline-block w-5 h-5 text-white mr-2 cursor-pointer" @click="openEmotes"/>
 
@@ -405,7 +416,7 @@
 </template>
 
 <script setup>
-import {computed, inject, onMounted, ref} from "vue";
+import {computed, inject, onMounted, onUnmounted, ref, watch} from "vue";
 import {useGameStore} from "@/stores/game.js";
 import {useMatchStore} from "@/stores/match";
 import {useAuthStore} from "@/stores/auth";
@@ -433,6 +444,7 @@ import fireworksGif from '@/assets/fireworks.gif'
 import {Avatar, AvatarFallback, AvatarImage} from "@/components/ui/avatar";
 import {useEmotesStore} from "@/stores/emotes.js";
 import { useSocketStore } from "@/stores/socket";
+import StakeNegotiation from "@/components/game/StakeNegotiation.vue";
 
 const gameDiv = ref(null);
 const serverBaseURL = inject("baseURL")
@@ -467,6 +479,33 @@ const isMyTurn = computed(() => game.currentTurn === currentUserId)
 
 const iWon = computed(() => game.winner === currentUserId)
 
+const onUpdateStake = (amount) => {
+  console.log("MultiplayerGame.vue - onUpdateStake:", amount);
+  socketStore.emitProposeStake(match.multiplayerMatch.id, amount, currentUserId);
+};
+
+const onConfirmStake = () => {
+  console.log("MultiplayerGame.vue - onConfirmStake");
+  
+  socketStore.emitAcceptStake(match.multiplayerMatch.id, currentUserId);
+};
+
+const startingMatchDelayMs = ref(3000); // altere aqui o tempo em ms
+let startingMatchTimer = null;
+watch(
+  () => match.opponent_found,
+  (found) => {
+    if (found && !match.match_began) {
+      clearTimeout(startingMatchTimer);
+      startingMatchTimer = setTimeout(() => {
+        match.showStakeNegotiation = true; // sai da tela de "Starting Match"
+      }, startingMatchDelayMs.value);
+    } else {
+      clearTimeout(startingMatchTimer);
+    }
+  }
+);
+
 const playedCardSelf = computed(() => 
     game.tableCards.find((c) => c.playedBy === currentUserId)
 )
@@ -489,6 +528,8 @@ onMounted(() => {
   if (!auth.anonymous) match.initMatch();
   game.startNewGame(game.type);
 });
+
+onUnmounted(() => clearTimeout(startingMatchTimer));
 
 function playCard(card) {
   if (!isMyTurn.value) return;
