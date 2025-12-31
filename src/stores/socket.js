@@ -2,11 +2,13 @@ import { defineStore } from 'pinia'
 import { inject, ref } from 'vue'
 import { useAuthStore } from './auth'
 import { useGameStore } from './game'
+import { useMatchStore } from './match'
 
 export const useSocketStore = defineStore('socket', () => {
   const socket = inject('socket')
   const authStore = useAuthStore()
   const gameStore = useGameStore()
+  const matchStore = useMatchStore()
   const joined = ref(false)
 
   const emitJoin = (user) => {
@@ -50,6 +52,12 @@ export const useSocketStore = defineStore('socket', () => {
     //   console.log("Who the freak")
     //     gameStore.setMultiplayerGame(game)
     // })
+
+    socket.on('negotiation-update', ({ match }) => {
+      console.log('[Socket] negotiation-update', match);
+      matchStore.multiplayerMatch.value = { ...match }
+    });
+
   }
 
   const emitJoinGame = (game) => {
@@ -88,6 +96,26 @@ export const useSocketStore = defineStore('socket', () => {
       })   
   }
 
+  // Dentro das ações do teu useSocketStore
+  const emitProposeStake = (matchId, amount, userId) => {
+    if (!socket || !socket.connected) return;
+    console.log("Emitir proposta de aposta via socket:", amount);
+    socket.emit("propose-stake", {
+      matchId : matchId,
+      userId: userId,
+      amount: amount
+    });
+  }
+
+  const emitAcceptStake = (matchId, userId) => {
+    console.log("Emitir aceitação de aposta via socket");
+    if (!socket || !socket.connected) return;
+    socket.emit("accept-stake", {
+      matchId: matchId,
+      userId: userId
+    });
+  }
+
   // socket.on("round-ended", (data) => {
 
   //   // tableCards.value = data.lastRound.cards
@@ -109,5 +137,7 @@ export const useSocketStore = defineStore('socket', () => {
     emitPlayCard,
     emitPlayerTimeout,
     emitForfeitMatch,
+    emitProposeStake,
+    emitAcceptStake
   }
 })
