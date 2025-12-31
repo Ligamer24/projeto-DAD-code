@@ -35,7 +35,6 @@
         </div>
 
         <div class="p-6 space-y-6">
-          <div>
             <label class="text-sm font-bold text-slate-700 block mb-3">Select Format</label>
             <div class="grid grid-cols-2 gap-3">
               <button @click="pendingIsMatch = true" 
