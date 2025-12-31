@@ -35,7 +35,6 @@
         </div>
 
         <div class="p-6 space-y-6">
-          <div>
             <label class="text-sm font-bold text-slate-700 block mb-3">Select Format</label>
             <div class="grid grid-cols-2 gap-3">
               <button @click="pendingIsMatch = true" 
@@ -49,7 +48,20 @@
                 <span class="font-bold">Game</span>
               </button>
             </div>
-          </div>
+
+            <!-- Warning Box -->
+            <div class="bg-amber-50 border border-amber-100 rounded-lg p-3 flex gap-3 items-start">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"
+                class="w-5 h-5 text-amber-600 shrink-0 mt-0.5">
+                <path fill-rule="evenodd"
+                  d="M2.25 12c0-5.385 4.365-9.75 9.75-9.75s9.75 4.365 9.75 9.75-4.365 9.75-9.75 9.75S2.25 17.385 2.25 12zM12 8.25a.75.75 0 01.75.75v3.75a.75.75 0 01-1.5 0V9a.75.75 0 01.75-.75zm0 8.25a.75.75 0 100-1.5.75.75 0 000 1.5z"
+                  clip-rule="evenodd" />
+              </svg>
+              <p class="text-xs text-amber-800 leading-relaxed">
+                Upon confirmation, <span class="font-bold">2 coins</span> will be immediately deducted from your account
+                balance.
+              </p>
+            </div>
 
           <div>
             <label class="text-sm font-bold text-slate-700 block mb-3">Cards in Hand</label>
@@ -112,6 +124,9 @@ const pendingIsMatch = ref(true);
 const selectedType = ref(3);
 const gameCost = 3;
 
+const ID_GAME_FEE = 5
+const COINS_GAME_FEE = -2
+
 function openConfig(isRanked: boolean) {
   pendingIsRanked.value = isRanked;
   errorMessage.value = "";
@@ -133,6 +148,7 @@ async function confirmStart() {
       }
       
       if (pendingIsMatch.value) {
+        authStore.currentUser = await ((await apiStore.updateCoinsUser(COINS_GAME_FEE)).data)
         router.push("/games/multiplayer");
       } else {
         // TODO: Start Multiplayer Single Game logic
