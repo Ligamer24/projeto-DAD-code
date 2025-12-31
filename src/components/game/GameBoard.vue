@@ -56,7 +56,7 @@
 
       <div class="md:w-28 md:h-40 w-12 h-18 flex items-center justify-center">
         <div v-if="lastOpponentCard" class="w-full h-full opacity-80 hover:opacity-100 transition-opacity">
-          <GameCard :card="lastOpponentCard" />
+          <GameCard :card="lastOpponentCard" :face-down="true" />
         </div>
         <div v-else
           class="w-full h-full flex flex-col items-center justify-center border-2 border-dashed border-gray-300 bg-gray-50/50 rounded-md">
@@ -66,7 +66,7 @@
 
       <div class="md:w-28 md:h-40 w-12 h-18 flex items-center justify-center">
         <div v-if="lastPlayerCard" class="w-full h-full opacity-80 hover:opacity-100 transition-opacity">
-          <GameCard :card="lastPlayerCard" />
+          <GameCard :card="lastPlayerCard" :face-down="true" />
         </div>
         <div v-else
           class="w-full h-full flex flex-col items-center justify-center border-2 border-dashed border-gray-300 bg-gray-50/50 rounded-md">

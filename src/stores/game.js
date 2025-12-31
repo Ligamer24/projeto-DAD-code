@@ -577,7 +577,7 @@ export const useGameStore = defineStore("game", () => {
 
             const sendEmote = (emote) => {
                 if (!socket || !socket.connected) return
-                socket.emit('send-emote', {gameId: multiplayerGame.value.id, emote: emote, userId: currentUserId})
+                socket.emit('send-emote', {matchID: matchStore.multiplayerMatch.id, emote: emote, userId: currentUserId})
             }
 
             const showEmote = ref(null);
