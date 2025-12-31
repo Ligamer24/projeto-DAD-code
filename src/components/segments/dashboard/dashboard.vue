@@ -76,7 +76,7 @@
                   clip-rule="evenodd" />
               </svg>
               <p class="text-xs text-amber-800 leading-relaxed">
-                Upon confirmation, <span class="font-bold">3 coins</span> will be immediately deducted from your account
+                Upon confirmation, <span class="font-bold">2 coins</span> will be immediately deducted from your account
                 balance.
               </p>
             </div>
@@ -157,6 +157,9 @@ const apiStore = useAPIStore();
 const openTypeSelector = ref(false);
 const pendingIsRanked = ref(false);
 
+const ID_GAME_FEE = 5
+const COINS_GAME_FEE = -2
+
 async function confirmPayment() {
   try {
 
@@ -165,8 +168,13 @@ async function confirmPayment() {
       return;
     }
 
-    //TODO registar coin_transaction em matches e games multiplayer(COST = 2)
+    //TODO suportar games fees/ids e matches fees/ids
+    //TODO registar game_id
     if (pendingIsRanked.value && authStore.currentUser) {
+      
+
+      // await apiStore.postCoinsTransaction(coinsObj)
+      authStore.currentUser = await ((await apiStore.updateCoinsUser(COINS_GAME_FEE)).data)
       router.push("/games/multiplayer");
       return;
     }
