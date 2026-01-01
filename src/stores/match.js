@@ -34,6 +34,7 @@ export const useMatchStore = defineStore('match', () => {
     const currentUserId = authStore.currentUser?.id ?? -1
     const BOT_ID = authStore.BOT_ID
     const type = ref(9)
+    const stake = ref(3)
 
     const opponent = ref({})
     const opponent_found = ref(false)
@@ -306,9 +307,10 @@ export const useMatchStore = defineStore('match', () => {
         };
     });
 
-    socket.on("stake-finalized", () => {
-        console.log("[Match] stake-finalized recebido");
+    socket.on("stake-finalized", (accordedStake) => {
+        console.log("[Match] stake-finalized recebido", accordedStake);
         showStakeNegotiation.value = false;
+        stake.value = accordedStake
     });
 
 
@@ -319,6 +321,7 @@ export const useMatchStore = defineStore('match', () => {
         isRanked,
         opponent,
         type,
+        stake,
         COIN_BASE_WIN,
         COIN_CAPOTE_MULTIPIER,
         COIN_BANDEIRA_MULTIPIER,

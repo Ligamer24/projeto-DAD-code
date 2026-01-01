@@ -260,12 +260,12 @@
                 <p class="font-bold text-amber-900 text-sm leading-tight truncate">{{ ach.title }}</p>
                 <p class="text-[10px] text-amber-600 font-medium truncate">{{ ach.desc }}</p>
               </div>
-              <div class="ml-auto flex-shrink-0">
+              <!-- TODO: COINS ACHIEVEMTENS PARA GAME <div class="ml-auto flex-shrink-0">
                 <span
                     class="text-xs font-bold text-amber-500 bg-amber-50 px-2 py-1 rounded-md border border-amber-100">+{{
                     ach.bonus
                   }}</span>
-              </div>
+              </div> -->
             </div>
           </div>
         </div>
@@ -650,7 +650,6 @@ const earnedAchievements = computed(() => {
   })
 
   if (match.status === 'finished' && match.marks.player1 >= 4) {
-    //TODO: Implementar o bonus da win como stake
     list.unshift({icon: Trophy, title: 'Match Winner', desc: 'Defeated the Opponent', bonus: 0})
   }
 
@@ -658,7 +657,10 @@ const earnedAchievements = computed(() => {
 })
 
 const calculateTotalCoins = computed(() => {
-  return earnedAchievements.value.reduce((total, item) => total + item.bonus, 0)
+  //Se for match
+  return match.marks.player1 >= 4 ? match.stake * 2 - 1 : 0
+  //Se for game
+  // return earnedAchievements.value.reduce((total, item) => total + item.bonus, 0)
 })
 
 /////////// Função auxiliar para o gamesHistory //////////
