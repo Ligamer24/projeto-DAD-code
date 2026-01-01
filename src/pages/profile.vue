@@ -49,6 +49,8 @@ const deletePassword = ref("");
 const isDeleting = ref(false);
 //
 
+const isAdmin = currentUser.value.type === 'A'
+
 const formData = ref({
   name: "",
   email: "",
@@ -348,7 +350,7 @@ const confirmAccountDeletion = async () => {
             Member since {{ formatShortDate(currentUser?.created_at) }}
           </div>
 
-          <button @click.prevent="openDeleteModal" role="button"
+          <button v-if="!isAdmin" @click.prevent="openDeleteModal" role="button"
           class="cursor-pointer mt-4 inline-flex items-center gap-2 px-4 py-2 rounded-md border border-red-200 bg-red-50 text-red-700 hover:bg-red-100 active:bg-red-200 focus:outline-none focus:ring-2 focus:ring-red-500 transition">
             Delete Account
           </button>
