@@ -1,15 +1,17 @@
 import HomePage from "@/pages/index.vue";
-import { createRouter, createWebHistory } from "vue-router";
+import {createRouter, createWebHistory} from "vue-router";
 import ProfilePage from "@/pages/profile.vue";
 import LoginPage from "@/pages/login/LoginPage.vue";
 import RegisterPage from "@/pages/login/RegisterPage.vue";
-import { useAuthStore } from "@/stores/auth.js";
+import {useAuthStore} from "@/stores/auth.js";
 import MatchGamePage from '@/pages/dashboard/matchHistory/MatchGamePage.vue';
-import GamePage from '@/pages/game.vue';
 import GamesPage from "@/pages/dashboard/matchHistory/GamesPage.vue";
 import SinglePlayerGame from '@/pages/game/SinglePlayerGame.vue';
 import AddShopItem from '@/pages/shop/AddShopItem.vue';
-import MultiplayerGame from "@/pages/game/MultiplayerGame.vue";
+import AdminPage from "@/pages/admin/adminPage.vue";
+import TransactionsPage from "@/pages/admin/transactionsPage.vue";
+import GamesPageAdmin from "@/pages/admin/gamesPage.vue";
+import MatchesPageAdmin from "@/pages/admin/matchesPage.vue";import MultiplayerGame from "@/pages/game/MultiplayerGame.vue";
 
 
 const router = createRouter({
@@ -26,10 +28,22 @@ const router = createRouter({
     { path: "/register", name: "register", component: RegisterPage, meta: { requiresGuest: true } },
     { path: "/MatchDetails/:id", name: "MatchDetails", component: MatchGamePage },
     {
+        path: "/admin",
+        meta: {admin: true},
+        children: [
+            {path: "users", name: "adminPage", component: AdminPage},
+            {path: "transactions", name: "transactionsPage", component: TransactionsPage},
+            {path: "games", name: "gamesPage", component: GamesPageAdmin},
+            {path: "games/:id", name: "gamesPageUser", component: GamesPageAdmin},
+            {path: "matches", name: "matchesPage", component: MatchesPageAdmin},
+            {path: "matches/:id", name: "matchesPageUser", component: MatchesPageAdmin}
+        ]
+    },
+    {
       path: "/games",
       children: [
         {
-          path: "singleplayer", name: "singleplayer", component: SinglePlayerGame,
+          path: "singleplayer", name: "singleplayer", component: SinglePlayerGame
         },
         {
           path: "multiplayer", name: "multiplayer", component: MultiplayerGame,
@@ -46,29 +60,29 @@ const router = createRouter({
 })
 
 router.beforeEach(async (to, from, next) => {
-  const authStore = useAuthStore();
+    const authStore = useAuthStore();
 
-  // Ensure we try to restore a stored token and user once
-  await authStore.initializeAuth();
+    // Ensure we try to restore a stored token and user once
+    await authStore.initializeAuth();
 
-  if (to.meta.admin && !authStore.isAdmin) {
-    return next({ name: "login" });
-  }
+    if (to.meta.admin && !authStore.isAdmin) {
+        return next({name: "login"});
+    }
 
-  if (to.meta.requiresAuth && !authStore.isLoggedIn && !authStore.anonymous) {
-    return next({ name: "login" });
-  }
+    if (to.meta.requiresAuth && !authStore.isLoggedIn && !authStore.anonymous) {
+        return next({name: "login"});
+    }
 
-  if (to.meta.requiresGuest && (authStore.isLoggedIn)) {
-    return next({ name: "dashboard" });
-  }
+    if (to.meta.requiresGuest && (authStore.isLoggedIn)) {
+        return next({name: "dashboard"});
+    }
 
-  if (!authStore.isLoggedIn && !authStore.anonymous && !to.meta.requiresGuest) {
-    return next({ name: "login" });
-  }
+    if (!authStore.isLoggedIn && !authStore.anonymous && !to.meta.requiresGuest) {
+        return next({name: "login"});
+    }
 
-  if (to.path === "/") return next({ name: "dashboard" });
-  return next();
+    if (to.path === "/") return next({name: "dashboard"});
+    return next();
 });
 
 export default router;

@@ -21,7 +21,6 @@ export const useHistoryStore = defineStore("history", () => {
     const auth = useAuthStore();
     const meId = auth.currentUser?.id;
     if (!meId) return "-";
-    if (g.player2 && g.player2.id === 2) return "BOT";
     if (g.player1 && g.player1.id === meId)
       return g.player2?.nickname || `#${g.player2_user_id}`;
     return g.player1?.nickname || `#${g.player1_user_id}`;
@@ -79,5 +78,23 @@ export const useHistoryStore = defineStore("history", () => {
     }
     return "—";
   }
-  return { formatDate, opponentName, resultLabel, resultClass, formatDuration };
+
+  const myMarks = (g, isGame = false) => {
+    const auth = useAuthStore();
+    const meId = auth.currentUser?.id;
+    if (!meId) return "-";
+
+    const calculateMarks = (points) => {
+      if (points < 90) return "none"
+      else if (points < 119) return "Capote"
+        else return "Bandeira"
+    };
+
+    if (g.player1 && g.player1.id === meId) {
+      return isGame ? calculateMarks(g.player1_points) : g.player1_marks ?? 0;
+    }
+    return isGame ? calculateMarks(g.player2_points) : g.player2_marks ?? 0;
+  }
+
+  return { formatDate, opponentName, resultLabel, resultClass, formatDuration, myMarks };
 });

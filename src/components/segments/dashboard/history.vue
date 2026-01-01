@@ -10,64 +10,76 @@ export default {
 </script>
 
 <template>
-  <section class="snap-start snap-always w-full shrink-0 px-4 mt-6 lg:mt-12">
-    <div class="flex flex-col items-center lg:items-start text-center lg:text-left w-full max-w-xl mx-auto">
-      <h2 class="text-3xl sm:text-4xl lg:text-5xl font-serif tracking-widest text-rose-800 w-full text-center">
+  <section class="snap-start snap-always w-full shrink-0 px-4 mt-6 lg:mt-12 mb-12">
+    <div class="flex flex-col items-center w-full max-w-4xl mx-auto">
+      <h2 class="text-3xl sm:text-4xl lg:text-5xl font-serif tracking-widest text-rose-800 w-full text-center mb-8">
         MATCH HISTORY
       </h2>
 
-      <div class="w-full mt-6">
-        <div class="flex flex-col sm:flex-row sm:items-center gap-2 mb-4 w-full">
-          <div class="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
+      <div class="w-full bg-white/80 backdrop-blur-sm rounded-xl shadow-sm border border-rose-100 p-4 sm:p-6 mb-8">
+        <!-- Tabs -->
+        <div class="flex justify-center mb-6">
+          <div class="bg-slate-100 p-1 rounded-lg inline-flex shadow-inner">
             <button @click="selectMatches"
-              :class="['hover:cursor-pointer px-3 py-1 rounded w-full sm:w-auto', !gamesAvailableSelected ? 'bg-rose-700 text-white' : 'bg-white text-slate-700']">
+              :class="['px-6 py-2 rounded-md text-sm font-medium transition-all duration-200', !gamesAvailableSelected ? 'bg-white text-rose-700 shadow-sm' : 'text-slate-500 hover:text-slate-700 hover:bg-slate-200/50']">
               Matches
             </button>
-<!--            <button @click="selectGames"-->
-<!--              :class="['hover:cursor-pointer px-3 py-1 rounded w-full sm:w-auto', gamesAvailableSelected ? 'bg-rose-700 text-white' : 'bg-white text-slate-700']">-->
-<!--              Individual games-->
-<!--            </button>-->
+            <button @click="selectGames"
+              :class="['px-6 py-2 rounded-md text-sm font-medium transition-all duration-200', gamesAvailableSelected ? 'bg-white text-rose-700 shadow-sm' : 'text-slate-500 hover:text-slate-700 hover:bg-slate-200/50']">
+              Individual Games
+            </button>
           </div>
+        </div>
 
-          <div class="flex flex-col sm:flex-row gap-2 w-full sm:w-auto ml-0 sm:ml-auto">
-            <span>Result: </span>
-            <select class="border-2 border-solid bg-white border-rose-600 rounded w-full sm:w-auto"
+        <!-- Filters Grid -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div class="flex flex-col gap-1">
+            <label class="text-xs font-bold text-slate-400 uppercase tracking-wider ml-1">Result</label>
+            <select class="w-full rounded-lg border-slate-200 bg-slate-50 py-2 px-3 text-sm text-slate-700 focus:border-rose-500 focus:ring-rose-500 transition-colors"
               v-model="selectedResult">
-              <option value="all">All</option>
+              <option value="all">All Results</option>
               <option value="victory">Victory</option>
               <option value="defeat">Defeat</option>
               <option value="draw">Draw</option>
             </select>
+          </div>
 
-            <span>Order: </span>
-            <select class="border-2 border-solid bg-white border-rose-600 rounded w-full sm:w-auto"
+          <div class="flex flex-col gap-1">
+            <label class="text-xs font-bold text-slate-400 uppercase tracking-wider ml-1">Order</label>
+            <select class="w-full rounded-lg border-slate-200 bg-slate-50 py-2 px-3 text-sm text-slate-700 focus:border-rose-500 focus:ring-rose-500 transition-colors"
               v-model="selectedSortOrder">
               <option value="asc">Oldest first</option>
               <option value="desc">Newest first</option>
             </select>
           </div>
-        </div>
 
-        <div class="flex flex-col lg:flex-row lg:items-end gap-4 mb-6 w-full">
-          <div class="flex flex-col sm:flex-row gap-2 flex-1 w-full">
-            <input class="border-2 border-solid bg-white border-rose-600 px-2 py-1 rounded w-full sm:w-auto" type="date"
+          <div class="flex flex-col gap-1">
+            <label class="text-xs font-bold text-slate-400 uppercase tracking-wider ml-1">From</label>
+            <input class="w-full rounded-lg border-slate-200 bg-slate-50 py-2 px-3 text-sm text-slate-700 focus:border-rose-500 focus:ring-rose-500 transition-colors" type="date"
               v-model="selectedFrom" />
-            <input class="border-2 border-solid bg-white border-rose-600 px-2 py-1 rounded w-full sm:w-auto" type="date"
+          </div>
+
+          <div class="flex flex-col gap-1">
+            <label class="text-xs font-bold text-slate-400 uppercase tracking-wider ml-1">To</label>
+            <input class="w-full rounded-lg border-slate-200 bg-slate-50 py-2 px-3 text-sm text-slate-700 focus:border-rose-500 focus:ring-rose-500 transition-colors" type="date"
               v-model="selectedTo" />
           </div>
-
-          <div class="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
-            <button @click="applyDateFilter"
-              class="px-3 py-1 rounded bg-rose-700 text-white hover:bg-rose-800 w-full sm:w-auto cursor-pointer">
-              Filter by date
-            </button>
-            <button @click="clearDateFilter"
-              class="px-3 py-1 rounded bg-gray-300 hover:bg-gray-400 w-full sm:w-auto cursor-pointer">
-              Clear
-            </button>
-          </div>
         </div>
 
+        <!-- Actions -->
+        <div class="flex justify-end gap-3 pt-4 mt-4 border-t border-slate-100">
+            <button @click="clearDateFilter"
+              class="px-4 py-2 rounded-lg text-sm font-medium text-slate-500 hover:text-slate-700 hover:bg-slate-100 transition-colors">
+              Reset Filters
+            </button>
+            <button @click="applyDateFilter"
+              class="px-6 py-2 rounded-lg text-sm font-medium bg-rose-700 text-white hover:bg-rose-800 shadow-md hover:shadow-lg transition-all active:scale-95">
+              Apply Filters
+            </button>
+        </div>
+      </div>
+
+      <div class="w-full">
         <div v-if="!gamesAvailableSelected">
           <MatchList :filter-result="selectedResult" :sortOrder="selectedSortOrder" :from="fromDate" :to="toDate"
             ref="matchListRef" />

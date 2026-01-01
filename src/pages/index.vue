@@ -195,8 +195,7 @@ onMounted(async () => {
         <div v-if="authStore.currentUser" :class="wrapperClass(0)"><shop /></div>
         <div v-else :class="wrapperClass(0)"><anonymous/></div>
         <div :class="wrapperClass(1)"><dashboard /></div>
-        <div v-if="authStore.currentUser" :class="wrapperClass(2)"><leaderboard /></div>
-        <div v-else :class="wrapperClass(2)"><anonymous/></div>
+        <div :class="wrapperClass(2)"><leaderboard /></div>
         <div v-if="authStore.currentUser" :class="wrapperClass(3)"><history /></div>
         <div v-else :class="wrapperClass(3)"><anonymous/></div>
 
