@@ -122,7 +122,7 @@ const errorMessage = ref("");
 const pendingIsRanked = ref(false);
 const pendingIsMatch = ref(true);
 const selectedType = ref(3);
-const gameCost = 3;
+const gameCost = 2;
 
 const ID_GAME_FEE = 5
 const COINS_GAME_FEE = -2
@@ -148,7 +148,6 @@ async function confirmStart() {
       }
       
       if (pendingIsMatch.value) {
-        authStore.currentUser = await ((await apiStore.updateCoinsUser(COINS_GAME_FEE)).data)
         router.push("/games/multiplayer");
       } else {
         // TODO: Start Multiplayer Single Game logic
@@ -156,11 +155,10 @@ async function confirmStart() {
       }
       return;
     }
-
+    
     // 2. Singleplayer Logic
     if (pendingIsMatch.value) {
-      const startGameRes = await apiStore.sendStartGame();
-      authStore.currentUser = startGameRes.data;
+      authStore.currentUser = await ((await apiStore.updateCoinsUser(COINS_GAME_FEE)).data)
       router.push("/games/singleplayer");
     } else {
       // TODO: Start Singleplayer Single Game logic

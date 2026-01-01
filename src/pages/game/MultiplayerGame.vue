@@ -332,7 +332,7 @@
   <div v-else-if="match.showStakeNegotiation" class="mt-6 flex justify-center p-4">
       <StakeNegotiation
         :matchInfo="match.multiplayerMatch"
-        :currentUserId="currentUserId"
+        :currentUser="auth.currentUser"
         @propose-stake="onUpdateStake"
         @accept-stake="onConfirmStake"
       />

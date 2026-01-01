@@ -105,13 +105,14 @@
 <script setup>
 import { ref, computed, watch } from 'vue'
 import { Coins, CheckCircle2, Clock } from 'lucide-vue-next'
+import { toast } from 'vue-sonner'
 
 /* =====================
    PROPS & EMITS
 ===================== */
 const props = defineProps({
   matchInfo: { type: Object, required: true },
-  currentUserId: { type: [String, Number], required: true }
+  currentUser: { type: Object, required: true }
 })
 
 const emit = defineEmits(['propose-stake', 'accept-stake'])
@@ -124,7 +125,7 @@ const localStake = ref(3)
 /* =====================
    IDENTIDADE
 ===================== */
-const amIPlayer1 = computed(() => props.matchInfo.player1_id === props.currentUserId)
+const amIPlayer1 = computed(() => props.matchInfo.player1_id === props.currentUser.id)
 
 const myStake = computed(() =>
   amIPlayer1.value ? props.matchInfo.player1Stake : props.matchInfo.player2Stake
@@ -159,10 +160,21 @@ watch(
    ACTIONS
 ===================== */
 const proposeStake = () => {
+  if (props.currentUser.coins_balance < localStake.value)
+  {
+    toast.message("You don't have enough coins!")
+    return
+  }
   emit('propose-stake', localStake.value)
 }
 
 const acceptStake = () => {
+  if (props.currentUser.coins_balance < opponentStake.value)
+  {
+    toast.message("You don't have enough coins!")
+    return
+  }
+
   emit('accept-stake')
 }
 </script>
