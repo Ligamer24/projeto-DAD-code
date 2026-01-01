@@ -50,7 +50,7 @@
             </div>
 
             <!-- Warning Box -->
-            <div class="bg-amber-50 border border-amber-100 rounded-lg p-3 flex gap-3 items-start">
+            <div v-if="pendingIsRanked && !pendingIsMatch" class="bg-amber-50 border border-amber-100 rounded-lg p-3 flex gap-3 items-start">
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"
                 class="w-5 h-5 text-amber-600 shrink-0 mt-0.5">
                 <path fill-rule="evenodd"
@@ -79,7 +79,7 @@
             </div>
           </div>
 
-          <div v-if="pendingIsRanked" class="bg-amber-50 rounded-xl p-4 border border-amber-100">
+          <div v-if="pendingIsRanked && !pendingIsMatch" class="bg-amber-50 rounded-xl p-4 border border-amber-100">
             <div class="flex items-center justify-between">
               <div class="flex items-center gap-2">
                 <Coins class="size-5 text-amber-600"/>
