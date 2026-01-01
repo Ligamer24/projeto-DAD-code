@@ -118,7 +118,7 @@
           <p class="text-white/90 font-medium mt-1">{{ headerSubtitle }}</p>
         </div>
 
-        <div v-if="auth.currentUser" class="p-6 bg-gray-50 border-b border-gray-200">
+        <div v-if="auth.currentUser && match.player1_id" class="p-6 bg-gray-50 border-b border-gray-200">
           <div class="flex justify-between items-center px-4">
             <div class="flex flex-col items-center">
               <span class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-1">You</span>
@@ -213,7 +213,7 @@
       </div>
 
         <div class="p-6 space-y-3 bg-white">
-          <button v-if="match.status === 'finished'" @click="exitMatch"
+          <button v-if="match.status === 'finished' || (!match.player1_id && game.gameEnded)" @click="exitMatch"
                   class="w-full py-3 rounded-xl font-bold text-gray-500 bg-white hover:bg-gray-50 border-2 border-transparent hover:border-gray-200 transition-all flex items-center justify-center gap-2">
             <DoorOpen class="w-5 h-5"/>
             Exit to Lobby
@@ -273,7 +273,7 @@
     </div>
   </div>
 
-  <div v-else-if="match.searching_player">
+  <div v-else-if="match.searching_player || game.searching_player">
     <div class="flex flex-col items-center justify-center h-dvh w-full p-4 box-border">
       <div class="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-blue-500 mb-6"></div>
       <h2 class="text-2xl font-bold text-gray-700 mb-2">Searching for an opponent...</h2>
@@ -281,7 +281,7 @@
         against.</p>
     </div>
   </div>
-  <div v-else-if="(match.opponent_found && !match.match_began)">
+  <div v-else-if="((match.opponent_found && !match.match_began) || (game.opponent_found && !game.game_began))">
     <p>AAAAAAAAAAAAAAAAAAAAAAAAA</p>
     <div class="flex flex-col items-center justify-center h-dvh w-full p-4 box-border ">
       <div
@@ -542,7 +542,7 @@ function playCard(card) {
 const handleTimeout = () => {
   if (!isMyTurn.value) return;
   
-    const matchId = match.multiplayerMatch.id
+    const matchId = match.multiplayerMatch?.id ?? null
     const gameId = game.multiplayerGame.id
     const userId = currentUserId
   

@@ -153,7 +153,7 @@ async function confirmStart() {
       } else {
         // TODO: Start Multiplayer Single Game logic
         gameStore.context = 'mp-game';
-        //router.push("/games/multiplayer");
+        router.push("/games/multiplayer");
         console.log("TODO: Start Multiplayer Single Game");
       }
       return;

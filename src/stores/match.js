@@ -59,6 +59,7 @@ export const useMatchStore = defineStore('match', () => {
 
     // Iniciar uma partida do zero
     const initMatch = async () => {
+        if (gameStore.context.split("-")[1] === 'game') return
         console.log('Init match')
         
         player1_id.value = authStore.currentUser.id
