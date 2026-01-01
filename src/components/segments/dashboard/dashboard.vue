@@ -150,11 +150,11 @@ async function confirmStart() {
       if (pendingIsMatch.value) {
         gameStore.context = 'mp-match';
         router.push("/games/multiplayer");
+        console.log("You choosed Multiplayer Match of", selectedType.value, "cards.");
       } else {
-        // TODO: Start Multiplayer Single Game logic
         gameStore.context = 'mp-game';
         router.push("/games/multiplayer");
-        console.log("TODO: Start Multiplayer Single Game");
+        console.log("You choosed Multiplayer Game of", selectedType.value, "cards.");
       }
       return;
     }
@@ -164,11 +164,12 @@ async function confirmStart() {
       authStore.currentUser = await ((await apiStore.updateCoinsUser(COINS_GAME_FEE)).data)
       gameStore.context = 'sp-match';
       router.push("/games/singleplayer");
+      console.log("You choosed Singleplayer Match of", selectedType.value, "cards.");
     } else {
       // TODO: Start Singleplayer Single Game logic
       gameStore.context = 'sp-game';
       router.push("/games/singleplayer");
-      console.log("TODO: Start Singleplayer Single Game");
+      console.log("You choosed Singleplayer Game of", selectedType.value, "cards.");
     }
     
     showModal.value = false;
