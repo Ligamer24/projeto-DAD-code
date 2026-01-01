@@ -275,6 +275,7 @@ export const useMatchStore = defineStore('match', () => {
 
         searching_player.value = false
         opponent_found.value = true
+        gameStore.searching_player = false
         // opponent.value = game.player1Data.id === currentUserId ? game.player2Data : game.player1Data
         gameStore.setMultiplayerGame(game)
 
