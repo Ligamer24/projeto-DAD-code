@@ -7,7 +7,7 @@ import {toast} from "vue-sonner";
 import {useEmotesStore} from "@/stores/emotes.js";
 import { getCardStrength, setupNewGame } from "@/utils/gameLogic";
 
-const SKIP_SLEEPS = false
+const SKIP_SLEEPS = true
 
 const UNDO_ACTION_PRICE_BASE = 3
 
@@ -50,7 +50,13 @@ export const useGameStore = defineStore("game", () => {
             const matches = ref([]); // Lista de jogos no lobby
             const multiplayerGame = ref({}); // Estado do jogo multiplayer atual
 
-            const isRanked = computed(() => matchStore.isRanked)
+
+            const isRanked = ref(false);
+
+            // 4. Game vs Match
+
+            const context = ref(null); //<'sp-game' | 'sp-match' | 'mp-game' | 'mp-match'>
+            
 
             // ------------------------------------------------------------------------
             // VARS PARA SOCKETS
@@ -71,15 +77,21 @@ export const useGameStore = defineStore("game", () => {
             // ------------------------------------------------------------------------
 
             const startNewGame = (selectedType) => {
+                isRanked.value = context.value.slice(0,2) === 'mp' ? true : false
                 if (isRanked.value) {
                     searching_player.value = true
                     searching_player.value = true
                     opponent.value = {}
                     opponent_found.value = false
                     game_began.value = false
-                    createMatch({
+                    if (context.value === 'mp-match'){
+                        createMatch({
                         ...authStore.currentUser
-                    }, selectedType);
+                        }, selectedType);
+                    }else{
+                        //TODO
+                    }
+                    
                     return
                 }
 
@@ -486,7 +498,7 @@ export const useGameStore = defineStore("game", () => {
                 console.log('[GameStore] Recebi update do servidor:', gameState);
                 if (!gameState) return
                 multiplayerGame.value = gameState;
-
+                //matchId.value = gameState.matchID || null;
                 const amIPlayer1 = gameState.player1 === currentUserId;
 
                 if (amIPlayer1) {
@@ -597,6 +609,8 @@ export const useGameStore = defineStore("game", () => {
 
             return {
                 // State Local
+                context,
+                isRanked,
                 deck,
                 player1Hand,
                 player2Hand,

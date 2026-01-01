@@ -118,7 +118,7 @@
                     <span class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-1">You</span>
                     <span class="text-5xl font-black transition-all" :class="match.marks.player1 > match.marks.player2 ? 'text-green-600 scale-110' : 'text-gray-700'">{{ match.marks.player1 }}</span>
                 </div>
-                <div class="flex flex-col items-center px-4">
+                <div v-if="game.context === 'sp-match'" class="flex flex-col items-center px-4">
                     <span class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-1">GOAL</span>
                     <span class="text-xl font-black text-gray-300">4</span>
                 </div>
@@ -166,7 +166,7 @@
          </div>
 
          <div class="p-6 space-y-3 bg-white">
-            <button v-if="match.status === 'ongoing' || !auth.currentUser" @click="game.startNewGame()" class="w-full py-4 rounded-xl font-black text-white shadow-lg transform transition-all hover:scale-[1.02] active:scale-95 flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 ring-4 ring-blue-100">
+            <button v-if="(match.status === 'ongoing' || !auth.currentUser) && game.context === 'sp-match'" @click="game.startNewGame()" class="w-full py-4 rounded-xl font-black text-white shadow-lg transform transition-all hover:scale-[1.02] active:scale-95 flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 ring-4 ring-blue-100">
               <Hand class="w-5 h-5" /> {{auth.currentUser ? 'Deal Next Hand' : 'Play again'}}
             </button>
             <button v-if="match.status === 'finished'" @click="restartFullMatch" class="w-full py-4 rounded-xl font-black text-white shadow-lg transform transition-all hover:scale-[1.02] active:scale-95 flex items-center justify-center gap-2" :class="match.marks.player1 >= 4 ? 'bg-green-600 hover:bg-green-700 ring-4 ring-green-100' : 'bg-gray-800 hover:bg-gray-900 ring-4 ring-gray-200'">

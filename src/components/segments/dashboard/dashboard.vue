@@ -148,9 +148,12 @@ async function confirmStart() {
       }
       
       if (pendingIsMatch.value) {
+        gameStore.context = 'mp-match';
         router.push("/games/multiplayer");
       } else {
         // TODO: Start Multiplayer Single Game logic
+        gameStore.context = 'mp-game';
+        //router.push("/games/multiplayer");
         console.log("TODO: Start Multiplayer Single Game");
       }
       return;
@@ -159,9 +162,11 @@ async function confirmStart() {
     // 2. Singleplayer Logic
     if (pendingIsMatch.value) {
       authStore.currentUser = await ((await apiStore.updateCoinsUser(COINS_GAME_FEE)).data)
+      gameStore.context = 'sp-match';
       router.push("/games/singleplayer");
     } else {
       // TODO: Start Singleplayer Single Game logic
+      gameStore.context = 'sp-game';
       router.push("/games/singleplayer");
       console.log("TODO: Start Singleplayer Single Game");
     }
