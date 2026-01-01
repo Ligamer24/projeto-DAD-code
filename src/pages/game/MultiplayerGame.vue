@@ -281,7 +281,9 @@
         against.</p>
     </div>
   </div>
-  <div v-else-if="((game.opponent_found && !game.game_began) || (match.opponent_found && !match.match_began))">
+  <div v-else-if="(game.context === 'mp-game' && game.opponent_found && !game.game_began)
+    ||
+    (game.context === 'mp-match' && match.opponent_found && !match.match_began)">
     <p>AAAAAAAAAAAAAAAAAAAAAAAAA</p>
     <div class="flex flex-col items-center justify-center h-dvh w-full p-4 box-border ">
       <div
@@ -329,7 +331,7 @@
     </div>
     
   </div>
-  <div v-else-if="match.showStakeNegotiation && game.context === 'mp-match'" class="mt-6 flex justify-center p-4">
+  <div v-else-if="game.context === 'mp-match' && match.showStakeNegotiation" class="mt-6 flex justify-center p-4">
       <StakeNegotiation
         :matchInfo="match.multiplayerMatch"
         :currentUser="auth.currentUser"
