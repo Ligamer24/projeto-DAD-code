@@ -713,14 +713,20 @@ const closeModal = () => {
 const confirmLeave = () => {
 
   const matchId = match.multiplayerMatch.id
+  console.log("Match IDddddddddddddddddddddddddddd:", matchId);
   const gameId = game.multiplayerGame.id
   const userId = currentUserId
   console.log("Forfeit emitted:", matchId, userId);
   socketStore.emitForfeitMatch(matchId, gameId, userId)
 
   isOpen.value = false
-  match.resetState()
+  if (game.context.split('-')[1] === 'match') {
+    console.log("Resetting match state on forfeit...");
+    match.resetState()
+  }
+  console.log("Resetting game state on forfeit...");
   game.resetState()
+  router.push("/dashboard");
 }
 
 
