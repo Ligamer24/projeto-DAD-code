@@ -615,7 +615,7 @@ const headerBgClass = computed(() => {
   return "bg-slate-800"; // Cor neutra enquanto jogam
 });
 
-const exitMatch = () => { //TODO: implementar reset da match/game após fim de match
+const exitMatch = () => {
   match.resetState()
   game.resetState()
   router.push("/dashboard");

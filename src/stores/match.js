@@ -12,6 +12,7 @@ const COIN_CAPOTE_MULTIPIER = 4
 const COIN_BANDEIRA_MULTIPIER = 6
 
 const ID_COIN_MATCH_PAYOUT = 6
+const ID_COIN_MATCH_STAKE = 4
 
 const SKIP_SLEEPS = false
 
@@ -163,18 +164,18 @@ export const useMatchStore = defineStore('match', () => {
             await apiStore.postGame(gameObj)
         }
 
-        await saveCoinsUpdate(matchPostResult.id, coinsWonByPlayer)
+        await saveCoinsUpdate(matchPostResult.id, coinsWonByPlayer, ID_COIN_MATCH_PAYOUT)
 
     }
 
-    const saveCoinsUpdate = async (matchId, coinsWonByPlayer) => {
+    const saveCoinsUpdate = async (matchId, coinsWonByPlayer, coinTransactionType) => {
 
         // Atualizar as coins do jogador
         const coinsObj = {
             transaction_datetime: new Date(),
             user_id: authStore.currentUser.id,
             match_id: matchId,
-            coin_transaction_type_id: ID_COIN_MATCH_PAYOUT,
+            coin_transaction_type_id: coinTransactionType,
             coins: coinsWonByPlayer,
         }
         authStore.currentUser.coins += coinsWonByPlayer
@@ -290,12 +291,15 @@ export const useMatchStore = defineStore('match', () => {
         // toast.info("A ronda terminou! Pontuação atualizada.")
     })
 
-    socket.on("match-ended", (finalMatch) => {
+    socket.on("match-ended", async (finalMatch) => {
         console.log("[Match] FIM DA PARTIDA:", finalMatch)
 
         setMultiplayerMatch(finalMatch, currentUserId)
 
-        // const amIWinner = finalMatch.winner === currentUserId
+        const amIWinner = finalMatch.winner === currentUserId
+        if (amIWinner) {
+            saveCoinsUpdate(finalMatch.savedMatchId, finalMatch.stake * 2 - 1, ID_COIN_MATCH_PAYOUT)
+        }
     })
     socket.on("negotiation-update", ({ match }) => {
         console.log("[Match] negotiation-update recebido:", match);
@@ -311,6 +315,7 @@ export const useMatchStore = defineStore('match', () => {
         console.log("[Match] stake-finalized recebido", accordedStake);
         showStakeNegotiation.value = false;
         stake.value = accordedStake
+        saveCoinsUpdate(null, -accordedStake, ID_COIN_MATCH_STAKE)
     });
 
 
