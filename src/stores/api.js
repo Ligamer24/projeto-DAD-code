@@ -65,6 +65,11 @@ export const useAPIStore = defineStore("api", () => {
 
 
     // AUTH
+    const postRegister = async (credentials) => {
+        const response = await axios.post(`${API_BASE_URL}/register`, credentials);
+        return response.data
+    };
+
     const postLogin = async (credentials) => {
         const response = await axios.post(`${API_BASE_URL}/login`, credentials);
         const newToken = response.data.token;
@@ -178,12 +183,21 @@ export const useAPIStore = defineStore("api", () => {
 
     // UPDATE PASSWORD
     const changePassword = async ({ current, next, confirm }) => {
-        return axios.put(`${API_BASE_URL}/profile/password`, {
+        return axios.put(`${API_BASE_URL}/users/me/password`, {
             current_password: current,
             password: next,
             password_confirmation: confirm,
         });
     };
+
+    //TODO mandar deleteAccount pra api
+    const deleteAccount = async (password) => {
+        return axios.delete(`${API_BASE_URL}/users/me`, {
+            data: {
+                password: password
+            }
+        })
+    }
 
     // SELECTED DECK
     const updateSelectedDeck = async (deckId) => {
@@ -290,6 +304,7 @@ export const useAPIStore = defineStore("api", () => {
         postMatch,
         getMatches,
         postCoinsTransaction,
+        postRegister,
         postCoinsPurchaseTransaction,
         getTransactions,
         postLogin,
@@ -308,6 +323,7 @@ export const useAPIStore = defineStore("api", () => {
         putUser,
         uploadProfilePhoto,
         changePassword,
+        deleteAccount,
         updateCoinsUser,
         updateSelectedDeck,
         getSelectedDeck,

@@ -12,6 +12,7 @@ import AdminPage from "@/pages/admin/adminPage.vue";
 import TransactionsPage from "@/pages/admin/transactionsPage.vue";
 import GamesPageAdmin from "@/pages/admin/gamesPage.vue";
 import MatchesPageAdmin from "@/pages/admin/matchesPage.vue";
+import MultiplayerGame from "@/pages/game/MultiplayerGame.vue";
 import TransactionsPageUser from "@/pages/transactionsPage.vue";
 
 const router = createRouter({
@@ -45,7 +46,10 @@ const router = createRouter({
             children: [
                 {
                     path: "singleplayer", name: "singleplayer", component: SinglePlayerGame
-                }
+                },
+                {
+                    path: "multiplayer", name: "multiplayer", component: MultiplayerGame,
+                },
             ]
         },
         {path: "/GamesPage/:id", name: "GamesPage", component: GamesPage},
