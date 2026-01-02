@@ -252,6 +252,23 @@ export const useMatchStore = defineStore('match', () => {
         }
     }
 
+    socket.on('watch-started', (data) => {
+        console.log('[Bisca] Watch started:', data)
+        const game = data.game
+        const match = data.match
+
+        setMultiplayerMatch(match);
+
+        searching_player.value = false
+        opponent_found.value = true
+        gameStore.searching_player = false
+        gameStore.setMultiplayerGame(game)
+
+        setTimeout(() => {
+            match_began.value = true
+        }, SKIP_SLEEPS ? 0 : 5000);
+    });
+
     socket.on('match-started', (data) => {
         console.log('[Bisca] Match created:', data)
         const game = data.game

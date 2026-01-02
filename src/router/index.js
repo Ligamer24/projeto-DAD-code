@@ -10,6 +10,7 @@ import GamesPage from "@/pages/dashboard/matchHistory/GamesPage.vue";
 import SinglePlayerGame from '@/pages/game/SinglePlayerGame.vue';
 import AddShopItem from '@/pages/shop/AddShopItem.vue';
 import MultiplayerGame from "@/pages/game/MultiplayerGame.vue";
+import WatchGame from "@/pages/game/Watch.vue";
 
 
 const router = createRouter({
@@ -36,6 +37,7 @@ const router = createRouter({
         },
       ]
     },
+    {path: "/watch/:id", name: "Watch", component: WatchGame},
     { path: "/GamesPage/:id", name: "GamesPage", component: GamesPage },
     // {
     //     path: "/dashboard",

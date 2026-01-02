@@ -348,11 +348,28 @@
   <div v-else class="flex flex-col justify-between p-3 box-border h-dvh w-full" ref="gameDiv">
     <section class="flex flex-row items-center relative z-30">
       
-      <div class="relative">
-        <MessagesSquare class="inline-block w-5 h-5 text-white mr-2 cursor-pointer" @click="openEmotes"/>
+      <div class="relative flex flex-col gap-2 mr-4">
+        <button
+            @click="shareLink"
+            class="group flex items-center justify-center w-10 h-10 bg-black/20 backdrop-blur-sm border border-white/10 rounded-xl
+                   hover:bg-blue-500 hover:border-blue-400 text-white shadow-lg transition-all duration-200"
+            title="Share Match Link"
+        >
+          <Share2 class="w-5 h-5 group-hover:scale-110 transition-transform" />
+        </button>
 
-        <div v-if="emotesOpen" class="absolute top-full left-0 mt-3 bg-white p-3 rounded-2xl rounded-tl-none shadow-2xl border border-slate-100 w-max z-50 animate-in fade-in zoom-in-95 duration-200 origin-top-left">
-          <div class="absolute -top-2 left-0.5 w-4 h-4 bg-white border-t border-l border-slate-100 transform rotate-45"></div>
+        <button
+            @click="openEmotes"
+            class="group flex items-center justify-center w-10 h-10 bg-black/20 backdrop-blur-sm border border-white/10 rounded-xl
+                   hover:bg-amber-500 hover:border-amber-400 text-white shadow-lg transition-all duration-200"
+            :class="{ 'bg-amber-500 border-amber-400': emotesOpen }"
+            title="Emotes"
+        >
+          <MessagesSquare class="w-5 h-5 group-hover:scale-110 transition-transform" />
+        </button>
+
+        <div v-if="emotesOpen" class="absolute top-12 left-14 bg-white p-3 rounded-2xl rounded-tl-none shadow-2xl border border-slate-100 w-max z-50 animate-in fade-in zoom-in-95 duration-200 origin-top-left">
+          <div class="absolute top-3 -left-2 w-4 h-4 bg-white border-b border-l border-slate-100 transform rotate-45"></div>
           <div class="grid grid-cols-4 gap-3">
             <div v-for="emote in emotes" :key="emote.id" class="flex justify-center">
               <img
@@ -363,6 +380,10 @@
               />
             </div>
           </div>
+        </div>
+
+        <div v-if="shared" class="absolute top-0 left-14 bg-slate-900 text-white text-xs font-bold rounded-lg px-3 py-2 shadow-xl animate-in fade-in slide-in-from-left-2 whitespace-nowrap z-50">
+          Link copied!
         </div>
       </div>
 
@@ -449,7 +470,8 @@ import {
   ThumbsDown,
   ThumbsUp,
   Trophy,
-  X
+  X,
+    Share2
 } from 'lucide-vue-next'
 import fireworksGif from '@/assets/fireworks.gif'
 import {Avatar, AvatarFallback, AvatarImage} from "@/components/ui/avatar";
@@ -778,6 +800,18 @@ const emotesOpen = ref(false)
 
 const openEmotes = () => {
   emotesOpen.value = !emotesOpen.value
+}
+/////////// Share things //////////////
+
+const shared = ref(false)
+const shareLink = () => {
+  const m_id = match.multiplayerMatch.id
+  const shareURL = `${window.location.origin}/watch/${m_id}`
+  navigator.clipboard.writeText(shareURL)
+  shared.value = true
+  setTimeout(() => {
+    shared.value = false
+  }, 2000);
 }
 
 /////////// Admin Force Result Buttons //////////////
