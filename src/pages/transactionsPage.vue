@@ -1,6 +1,16 @@
 <template>
-    <adminBar />
-    
+    <div class="flex justify-end mt-4 mr-50 ">
+        <router-link to="/"
+            class="inline-flex items-center text-sm font-medium text-gray-500 hover:text-blue-600 transition-colors duration-200 group">
+            <svg xmlns="http://www.w3.org/2000/svg"
+                class="h-5 w-5 mr-1 transform group-hover:-translate-x-1 transition-transform" fill="none"
+                viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 17l-5-5m0 0l5-5m-5 5h12" />
+            </svg>
+            Back to Main Menu
+        </router-link>
+    </div>
+
     <div
         class="mt-5 max-w-7xl mx-auto bg-white/90 backdrop-blur-sm rounded-3xl shadow-xl border border-white/20 overflow-hidden">
         <div class="flex items-center justify-between px-8 py-6 border-b border-gray-100">
@@ -118,7 +128,7 @@ const currentPage = ref(1);
 
 const fetchTransactions = async (page = 1) => {
     try {
-        const response = await api.getTransactionsAdmin(page);
+        const response = await api.getTransactions(page);
         transactions.value = response.data.data;
         currentPage.value = response.data.current_page;
         totalPages.value = response.data.last_page;
