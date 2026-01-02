@@ -545,7 +545,6 @@ export const useGameStore = defineStore("game", () => {
                     else if (myScore < 91)  amIPlayer1 ? gameMarks.value.player1 += 1 : gameMarks.value.player2 += 1
                     else if (myScore < 120 ) amIPlayer1 ? gameMarks.value.player1 += 2 : gameMarks.value.player2 += 2
                     else amIPlayer1 ? gameMarks.value.player1 += 4 : gameMarks.value.player2 += 4
-
                 }
             }
             

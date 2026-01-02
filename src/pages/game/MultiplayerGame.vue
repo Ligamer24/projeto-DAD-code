@@ -552,15 +552,9 @@ const handleTimeout = () => {
   socketStore.emitPlayerTimeout(matchId, gameId, userId);
 };
 
-// Após Match acabar
-const restartFullMatch = () => {
-  match.initMatch();
-  game.startNewGame(game.type);
-};
-
 // Lógica de Textos e Cores
 const headerTitle = computed(() => {
-  // 1. Se a PARTIDA acabou
+
   if (match.status === "finished") {
     return match.marks.player1 >= 4 ? "VICTORY!" : "DEFEAT!";
   }
@@ -570,7 +564,6 @@ const headerTitle = computed(() => {
     return "Round Draw!";
   }
 
-  // 3. Enquanto o jogo decorre
   return "Match in Progress";
 });
 

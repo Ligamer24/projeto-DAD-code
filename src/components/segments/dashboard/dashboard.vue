@@ -166,7 +166,6 @@ async function confirmStart() {
       router.push("/games/singleplayer");
       console.log("You choosed Singleplayer Match of", selectedType.value, "cards.");
     } else {
-      // TODO: Start Singleplayer Single Game logic
       gameStore.context = 'sp-game';
       router.push("/games/singleplayer");
       console.log("You choosed Singleplayer Game of", selectedType.value, "cards.");
