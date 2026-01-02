@@ -11,6 +11,13 @@ const SKIP_SLEEPS = false
 
 const UNDO_ACTION_PRICE_BASE = 3
 
+const COIN_BASE_WIN = 3
+const COIN_CAPOTE_MULTIPIER = 4
+const COIN_BANDEIRA_MULTIPIER = 6
+
+const ID_COIN_GAME_PAYOUT = 5
+const ID_COIN_GAME_FEE = 3
+
 export const useGameStore = defineStore("game", () => {
             // 1. Dependências
             const authStore = useAuthStore();
@@ -543,9 +550,18 @@ export const useGameStore = defineStore("game", () => {
                 gameEnded.value = gameState.gameEnded;
                 if (gameEnded.value) {
                     if (myScore < 61) amIPlayer1 ? gameMarks.value.player1 += 0 : gameMarks.value.player2 += 1
-                    else if (myScore < 91)  amIPlayer1 ? gameMarks.value.player1 += 1 : gameMarks.value.player2 += 1
-                    else if (myScore < 120 ) amIPlayer1 ? gameMarks.value.player1 += 2 : gameMarks.value.player2 += 2
-                    else amIPlayer1 ? gameMarks.value.player1 += 4 : gameMarks.value.player2 += 4
+                    else if (myScore < 91) {
+                        amIPlayer1 ? gameMarks.value.player1 += 1 : gameMarks.value.player2 += 1
+                        saveCoinsUpdate(null, 3, ID_COIN_GAME_PAYOUT)
+                    }  
+                    else if (myScore < 120 ){
+                        amIPlayer1 ? gameMarks.value.player1 += 2 : gameMarks.value.player2 += 2
+                        saveCoinsUpdate(null, 4, ID_COIN_GAME_PAYOUT)
+                    } 
+                    else {
+                        amIPlayer1 ? gameMarks.value.player1 += 4 : gameMarks.value.player2 += 4
+                        saveCoinsUpdate(null, 6, ID_COIN_GAME_PAYOUT)
+                    }
                 }
             }
             
@@ -572,6 +588,9 @@ export const useGameStore = defineStore("game", () => {
                 searching_player.value = false
                 // console.log(opponent.value);
                 setMultiplayerGame(game);
+
+                saveCoinsUpdate(null, -2, ID_COIN_GAME_FEE)
+
                 setTimeout(() => {
                     game_began.value = true
                 }, SKIP_SLEEPS ? 0 : 5000);
@@ -591,6 +610,23 @@ export const useGameStore = defineStore("game", () => {
                 // toast.success("Nova ronda começou! É a vez de: " + 
                 //     (newGame.currentTurn === authStore.user.id ? "TI" : "OPONENTE"))
             })
+
+            const saveCoinsUpdate = async (gameId, coinsWonByPlayer, coinTransactionType) => {
+
+                // Atualizar as coins do jogador
+                const coinsObj = {
+                    transaction_datetime: new Date(),
+                    user_id: authStore.currentUser.id,
+                    game_id: gameId,
+                    coin_transaction_type_id: coinTransactionType,
+                    coins: coinsWonByPlayer,
+                }
+                authStore.currentUser.coins += coinsWonByPlayer
+                const user = await apiStore.updateCoinsUser(coinsWonByPlayer)
+                apiStore.postCoinsTransaction(coinsObj)
+
+                authStore.currentUser = user.data
+            }
 
 
             // ------------------------------------------------------------------------
