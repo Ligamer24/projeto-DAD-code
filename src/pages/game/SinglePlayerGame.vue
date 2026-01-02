@@ -98,7 +98,7 @@
     class="fixed inset-0 z-50 flex items-start md:items-center justify-center bg-black/70 backdrop-blur-sm p-4 sm:p-6 overflow-y-auto"
   >
   <div
-      v-if="(game.gameEnded || match.status === 'finished') && earnedAchievements.length > 0"
+      v-if="(game.context === 'sp-match' && match.status === 'finished') && match.winner === currentUserId"
       class="absolute inset-0 z-0 pointer-events-none opacity-50"
       :style="{ backgroundImage: `url(${fireworksGif})`, backgroundSize: 'contain' }"
     ></div>
@@ -142,7 +142,7 @@
           <span :class="game.scores.player2 > 60 ? 'text-red-600 font-bold' : ''">Bot {{ game.scores.player2 }}</span>
         </div>
 
-         <div v-if="!auth.anonymous && game.isRanked" class="mt-6 px-6"> <h3 class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-3">Match History</h3>
+         <div v-if="!auth.anonymous && game.context.split('-')[1] === 'match'" class="mt-6 px-6"> <h3 class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-3">Match History</h3>
             <div class="space-y-3 max-h-48 overflow-y-auto pr-1 custom-scrollbar">
                 <div v-for="game in match.gamesHistory" :key="game.roundNumber" class="bg-gray-50 border border-gray-100 rounded-lg p-3 relative overflow-hidden shadow-sm">
                     <div class="absolute left-0 top-0 bottom-0 w-1.5" :class="game.winner ? (game.winner === currentUserId ? 'bg-green-500' : 'bg-red-500') : 'bg-gray-500'"></div>
