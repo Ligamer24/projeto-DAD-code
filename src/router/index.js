@@ -11,48 +11,52 @@ import AddShopItem from '@/pages/shop/AddShopItem.vue';
 import AdminPage from "@/pages/admin/adminPage.vue";
 import TransactionsPage from "@/pages/admin/transactionsPage.vue";
 import GamesPageAdmin from "@/pages/admin/gamesPage.vue";
-import MatchesPageAdmin from "@/pages/admin/matchesPage.vue";
+import MatchesPageAdmin from "@/pages/admin/matchesPage.vue";import MultiplayerGame from "@/pages/game/MultiplayerGame.vue";
+
 
 const router = createRouter({
-    history: createWebHistory(import.meta.env.BASE_URL),
-    routes: [
-        {path: '/', name: 'home', component: HomePage},
-        {path: '/shop', name: 'shop', component: HomePage},
-        {path: '/shop/add', name: 'shop-add', component: AddShopItem, meta: {admin: true}},
-        {path: '/dashboard', name: 'dashboard', component: HomePage},
-        {path: '/leaderboard', name: 'leaderboard', component: HomePage},
-        {path: '/history', name: 'history', component: HomePage},
-        {path: '/profile', name: 'profile', component: ProfilePage, meta: {requiresAuth: true}},
-        {path: "/login", name: "login", component: LoginPage, meta: {requiresGuest: true}},
-        {path: "/register", name: "register", component: RegisterPage, meta: {requiresGuest: true}},
-        {path: "/MatchDetails/:id", name: "MatchDetails", component: MatchGamePage},
+  history: createWebHistory(import.meta.env.BASE_URL),
+  routes: [
+    { path: '/', name: 'home', component: HomePage },
+    { path: '/shop', name: 'shop', component: HomePage },
+    { path: '/shop/add', name: 'shop-add', component: AddShopItem, meta: { admin: true } },
+    { path: '/dashboard', name: 'dashboard', component: HomePage },
+    { path: '/leaderboard', name: 'leaderboard', component: HomePage },
+    { path: '/history', name: 'history', component: HomePage },
+    { path: '/profile', name: 'profile', component: ProfilePage, meta: { requiresAuth: true } },
+    { path: "/login", name: "login", component: LoginPage, meta: { requiresGuest: true } },
+    { path: "/register", name: "register", component: RegisterPage, meta: { requiresGuest: true } },
+    { path: "/MatchDetails/:id", name: "MatchDetails", component: MatchGamePage },
+    {
+        path: "/admin",
+        meta: {admin: true},
+        children: [
+            {path: "users", name: "adminPage", component: AdminPage},
+            {path: "transactions", name: "transactionsPage", component: TransactionsPage},
+            {path: "games", name: "gamesPage", component: GamesPageAdmin},
+            {path: "games/:id", name: "gamesPageUser", component: GamesPageAdmin},
+            {path: "matches", name: "matchesPage", component: MatchesPageAdmin},
+            {path: "matches/:id", name: "matchesPageUser", component: MatchesPageAdmin}
+        ]
+    },
+    {
+      path: "/games",
+      children: [
         {
-            path: "/admin",
-            meta: {admin: true},
-            children: [
-                {path: "users", name: "adminPage", component: AdminPage},
-                {path: "transactions", name: "transactionsPage", component: TransactionsPage},
-                {path: "games", name: "gamesPage", component: GamesPageAdmin},
-                {path: "games/:id", name: "gamesPageUser", component: GamesPageAdmin},
-                {path: "matches", name: "matchesPage", component: MatchesPageAdmin},
-                {path: "matches/:id", name: "matchesPageUser", component: MatchesPageAdmin}
-            ]
+          path: "singleplayer", name: "singleplayer", component: SinglePlayerGame
         },
         {
-            path: "/games",
-            children: [
-                {
-                    path: "singleplayer", name: "singleplayer", component: SinglePlayerGame
-                }
-            ]
+          path: "multiplayer", name: "multiplayer", component: MultiplayerGame,
         },
-        {path: "/GamesPage/:id", name: "GamesPage", component: GamesPage},
-        // {
-        //     path: "/dashboard",
-        //     name: "dashboard",
-        //     component: DashboardPage
-        // },
-    ],
+      ]
+    },
+    { path: "/GamesPage/:id", name: "GamesPage", component: GamesPage },
+    // {
+    //     path: "/dashboard",
+    //     name: "dashboard",
+    //     component: DashboardPage
+    // },
+  ],
 })
 
 router.beforeEach(async (to, from, next) => {
