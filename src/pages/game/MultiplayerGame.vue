@@ -260,12 +260,12 @@
                 <p class="font-bold text-amber-900 text-sm leading-tight truncate">{{ ach.title }}</p>
                 <p class="text-[10px] text-amber-600 font-medium truncate">{{ ach.desc }}</p>
               </div>
-              <!-- TODO: COINS ACHIEVEMTENS PARA GAME <div class="ml-auto flex-shrink-0">
+              <div v-if="game.context === 'mp-game'" class="ml-auto flex-shrink-0">
                 <span
                     class="text-xs font-bold text-amber-500 bg-amber-50 px-2 py-1 rounded-md border border-amber-100">+{{
                     ach.bonus
                   }}</span>
-              </div> -->
+              </div>
             </div>
           </div>
         </div>
@@ -629,12 +629,36 @@ const earnedAchievements = computed(() => {
   const p1Id = match.player1_id
 
   const amIPlayer1 = myId === p1Id
-  
-  match.gamesHistory.forEach(game => {
-    if (game.winner == myId) {
+  const context = game.context
 
-      const myScore = amIPlayer1 ? game.scores.player1 : game.scores.player2
+  const ctx = context.split("-")[1]
 
+  if (ctx === 'match')
+  {
+    match.gamesHistory.forEach(game => {
+      if (game.winner == myId) {
+
+        const myScore = amIPlayer1 ? game.scores.player1 : game.scores.player2
+
+        if (myScore >= 120) {
+          list.push({icon: Flag, title: 'Bandeira', desc: '120 Points!', bonus: 6})
+        } else if (myScore >= 91) {
+          list.push({icon: Badge, title: 'Capote', desc: '>= 91 Points!', bonus: 4})
+        } else if (myScore > 60) {
+          list.push({icon: Sparkles, title: 'Victory', desc: 'Simple win', bonus: 3})
+        }
+
+      }
+    })
+
+    if (match.status === 'finished' && match.marks.player1 >= 4) {
+      list.unshift({icon: Trophy, title: 'Match Winner', desc: 'Defeated the Opponent', bonus: 0})
+    }
+  }
+  else if (ctx === 'game')
+  {
+
+      const myScore = game.myScore
       if (myScore >= 120) {
         list.push({icon: Flag, title: 'Bandeira', desc: '120 Points!', bonus: 6})
       } else if (myScore >= 91) {
@@ -642,22 +666,21 @@ const earnedAchievements = computed(() => {
       } else if (myScore > 60) {
         list.push({icon: Sparkles, title: 'Victory', desc: 'Simple win', bonus: 3})
       }
-
-    }
-  })
-
-  if (match.status === 'finished' && match.marks.player1 >= 4) {
-    list.unshift({icon: Trophy, title: 'Match Winner', desc: 'Defeated the Opponent', bonus: 0})
+   
   }
 
   return list
 })
 
 const calculateTotalCoins = computed(() => {
-  //Se for match
-  return match.marks.player1 >= 4 ? match.stake * 2 - 1 : 0
-  //Se for game
-  // return earnedAchievements.value.reduce((total, item) => total + item.bonus, 0)
+  return ( 
+   //Se for match
+   game.context.split("-")[1] === 'match' ? (match.marks.player1 >= 4 ? match.stake * 2 - 1 : 0)
+   :
+   //Se for game
+   earnedAchievements.value.reduce((total, item) => total + item.bonus, 0)
+  )
+
 })
 
 /////////// Função auxiliar para o gamesHistory //////////
