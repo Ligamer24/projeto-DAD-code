@@ -98,7 +98,7 @@
     class="fixed inset-0 z-50 flex items-start md:items-center justify-center bg-black/70 backdrop-blur-sm p-4 sm:p-6 overflow-y-auto"
   >
   <div
-      v-if="(game.gameEnded || match.status === 'finished') && earnedAchievements.length > 0"
+      v-if="(game.context === 'sp-match' && match.status === 'finished') && match.winner === currentUserId"
       class="absolute inset-0 z-0 pointer-events-none opacity-50"
       :style="{ backgroundImage: `url(${fireworksGif})`, backgroundSize: 'contain' }"
     ></div>
