@@ -109,6 +109,7 @@
           </div>
         </div>
         <span class="text-[10px] uppercase font-bold text-slate-500 tracking-wider text-center">{{ opponent?.nickname ?? opponent?.name}}</span>
+        <span class="text-[30px] uppercase font-bold text-slate-500 tracking-wider">{{ opponentMarks }}</span>
       </div>
 
       <!-- VS Separator -->
@@ -116,6 +117,7 @@
 
       <!-- PLAYER (ME) -->
       <div class="flex flex-col items-center gap-1">
+        <span class="text-[30px] uppercase font-bold text-slate-500 tracking-wider">{{ playerMarks }}</span>
         <span class="text-[10px] uppercase font-bold text-slate-500 tracking-wider">You</span>
 
         <div class="relative">
@@ -179,6 +181,8 @@ defineProps({
   currentTurn: Number,
   player: Object,
   opponent: Object,
+  playerMarks: Number,
+  opponentMarks: Number,
   undoPrice: Number,
   isRanked: Boolean,
   botStatus: String,
