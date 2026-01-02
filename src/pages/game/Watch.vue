@@ -130,8 +130,8 @@
       :last-player-card="lastRoundPlayerCard"
       :last-opponent-card="lastRoundOpponentCard"
       
-      :player="{name: 'Player 1'}"
-      :opponent="{name: 'Player 2'}"
+      :player="game.multiplayerGame.player1Data ?? {name: 'Player 1', id: game.multiplayerGame.player1}"
+      :opponent="game.multiplayerGame.player2Data ?? {name: 'Player 2', id: game.multiplayerGame.player2}"
 
       :player-marks="game.context === 'mp-match' ? match.marks.player1 : game.gameMarks.player1"
       :opponent-marks="game.context === 'mp-match' ? match.marks.player2 : game.gameMarks.player2"
