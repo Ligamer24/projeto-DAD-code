@@ -1,17 +1,18 @@
 import HomePage from "@/pages/index.vue";
-import {createRouter, createWebHistory} from "vue-router";
+import { createRouter, createWebHistory } from "vue-router";
 import ProfilePage from "@/pages/profile.vue";
 import LoginPage from "@/pages/login/LoginPage.vue";
 import RegisterPage from "@/pages/login/RegisterPage.vue";
-import {useAuthStore} from "@/stores/auth.js";
+import { useAuthStore } from "@/stores/auth.js";
 import MatchGamePage from '@/pages/dashboard/matchHistory/MatchGamePage.vue';
 import GamesPage from "@/pages/dashboard/matchHistory/GamesPage.vue";
 import SinglePlayerGame from '@/pages/game/SinglePlayerGame.vue';
 import AddShopItem from '@/pages/shop/AddShopItem.vue';
-import AdminPage from "@/pages/admin/adminPage.vue";
+import UsersPage from "@/pages/admin/usersPage.vue";
 import TransactionsPage from "@/pages/admin/transactionsPage.vue";
 import GamesPageAdmin from "@/pages/admin/gamesPage.vue";
 import MatchesPageAdmin from "@/pages/admin/matchesPage.vue";
+import adminDash from "@/pages/admin/dashboard.vue";
 import MultiplayerGame from "@/pages/game/MultiplayerGame.vue";
 import TransactionsPageUser from "@/pages/transactionsPage.vue";
 
@@ -21,6 +22,7 @@ const router = createRouter({
         {path: '/', name: 'home', component: HomePage},
         {path: '/shop', name: 'shop', component: HomePage},
         {path: '/shop/add', name: 'shop-add', component: AddShopItem, meta: {admin: true}},
+        { path: '/home', name: 'home', component: HomePage },
         {path: '/dashboard', name: 'dashboard', component: HomePage},
         {path: '/leaderboard', name: 'leaderboard', component: HomePage},
         {path: '/history', name: 'history', component: HomePage},
@@ -33,7 +35,8 @@ const router = createRouter({
             path: "/admin",
             meta: {admin: true},
             children: [
-                {path: "users", name: "adminPage", component: AdminPage},
+                { path: "dashboard", name: "adminDashboard", component: adminDash },
+                {path: "users", name: "adminPage", component: UsersPage},
                 {path: "transactions", name: "transactionsPage", component: TransactionsPage},
                 {path: "games", name: "gamesPage", component: GamesPageAdmin},
                 {path: "games/:id", name: "gamesPageUser", component: GamesPageAdmin},
@@ -68,22 +71,22 @@ router.beforeEach(async (to, from, next) => {
     await authStore.initializeAuth();
 
     if (to.meta.admin && !authStore.isAdmin) {
-        return next({name: "login"});
+        return next({ name: "login" });
     }
 
     if (to.meta.requiresAuth && !authStore.isLoggedIn && !authStore.anonymous) {
-        return next({name: "login"});
+        return next({ name: "login" });
     }
 
     if (to.meta.requiresGuest && (authStore.isLoggedIn)) {
-        return next({name: "dashboard"});
+        return next({ name: "home" });
     }
 
     if (!authStore.isLoggedIn && !authStore.anonymous && !to.meta.requiresGuest) {
-        return next({name: "login"});
+        return next({ name: "login" });
     }
 
-    if (to.path === "/") return next({name: "dashboard"});
+    if (to.path === "/") return next({ name: "home" });
     return next();
 });
 

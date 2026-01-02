@@ -1,29 +1,36 @@
+<script setup>
+const navLinks = [
+  { name: 'Dashboard', path: '/admin/dashboard' },
+  { name: 'Users', path: '/admin/users' },
+  { name: 'Transactions', path: '/admin/transactions' },
+  { name: 'Games', path: '/admin/games' },
+  { name: 'Matches', path: '/admin/matches' },
+];
+</script>
+
 <template>
-    <div
-        class="mt-5 max-w-7xl mx-auto bg-white rounded-3xl shadow-md border border-gray-200 overflow-hidden px-6 py-4 flex items-center justify-start gap-6">
-<RouterLink to="/admin/users" v-slot="{ href, isActive, navigate }">
-  <a :href="href" @click="navigate"
-     :class="['text-white font-semibold py-2 px-6 rounded-lg shadow-md transition-all', isActive ? 'bg-indigo-400 cursor-not-allowed' : 'bg-indigo-600 hover:bg-indigo-700']">
-    Users
-  </a>
-</RouterLink>
-<RouterLink to="/admin/transactions" v-slot="{ href, isActive, navigate }">
-  <a :href="href" @click="navigate"
-     :class="['text-white font-semibold py-2 px-6 rounded-lg shadow-md transition-all', isActive ? 'bg-indigo-400 cursor-not-allowed' : 'bg-indigo-600 hover:bg-indigo-700']">
-    See all transactions
-  </a>
-</RouterLink>
-<RouterLink to="/admin/games" v-slot="{ href, isActive, navigate }">
-  <a :href="href" @click="navigate"
-     :class="['text-white font-semibold py-2 px-6 rounded-lg shadow-md transition-all', isActive ? 'bg-indigo-400 cursor-not-allowed' : 'bg-indigo-600 hover:bg-indigo-700']">
-    See all games
-  </a>
-</RouterLink>
-<RouterLink to="/admin/matches" v-slot="{ href, isActive, navigate }">
-  <a :href="href" @click="navigate"
-     :class="['text-white font-semibold py-2 px-6 rounded-lg shadow-md transition-all', isActive ? 'bg-indigo-400 cursor-not-allowed' : 'bg-indigo-600 hover:bg-indigo-700']">
-    See all matches
-  </a>
-</RouterLink>
-    </div>
+  <div class="w-full px-4 pt-8">
+    <nav class="max-w-fit mx-auto bg-white/80 backdrop-blur-md border border-gray-200/50 p-1.5 rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] flex items-center gap-1.5">
+      <RouterLink
+        v-for="link in navLinks"
+        :key="link.path"
+        :to="link.path"
+        custom
+        v-slot="{ href, isActive, navigate }"
+      >
+        <a
+          :href="href"
+          @click="navigate"
+          :class="[
+            'px-5 py-2.5 text-sm font-medium rounded-xl transition-all duration-300 ease-in-out',
+            isActive
+              ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-200 scale-[1.02]'
+              : 'text-gray-500 hover:text-gray-900 hover:bg-gray-50'
+          ]"
+        >
+          {{ link.name }}
+        </a>
+      </RouterLink>
+    </nav>
+  </div>
 </template>

@@ -1,6 +1,6 @@
-import {defineStore} from "pinia";
+import { defineStore } from "pinia";
 import axios from "axios";
-import {inject} from "vue";
+import { inject } from "vue";
 
 export const useDashStore = defineStore("dash", () => {
     const API_BASE_URL = inject("apiBaseURL");
@@ -9,7 +9,7 @@ export const useDashStore = defineStore("dash", () => {
     };
 
     const getLeaderboard = async (page = 1) => {
-        const {data} = await axios.get(`${API_BASE_URL}/leaderboard?page=${page}`)
+        const { data } = await axios.get(`${API_BASE_URL}/leaderboard?page=${page}`)
         return data
     }
 
@@ -27,11 +27,11 @@ export const useDashStore = defineStore("dash", () => {
 
     const getPersonalScore = async () => {
         // returns: { matches, wins, win_rate, capote, bandeira }
-        const {data} = await axios.get(`${API_BASE_URL}/users/me/score`)
+        const { data } = await axios.get(`${API_BASE_URL}/users/me/score`)
         return data
     }
 
-    const getGames = ({page = 1, result, sortOrder, from, to}) => {
+    const getGames = ({ page = 1, result, sortOrder, from, to }) => {
         return axios.get(`${API_BASE_URL}/games`, {
             params: {
                 page,
@@ -45,7 +45,7 @@ export const useDashStore = defineStore("dash", () => {
     const getGamesByMatch = (match_id) => {
         return axios.get(`${API_BASE_URL}/games?match_id=${match_id}`);
     };
-    const getMatches = ({page = 1, result, sortOrder, from, to}) => {
+    const getMatches = ({ page = 1, result, sortOrder, from, to }) => {
         return axios.get(`${API_BASE_URL}/matches`, {
             params: {
                 page,
@@ -66,6 +66,10 @@ export const useDashStore = defineStore("dash", () => {
         });
     };
 
+    const getStatistics = () => {
+        return axios.get(`${API_BASE_URL}/statistics`);
+    };
+
     return {
         getDash,
         getHistory,
@@ -75,6 +79,7 @@ export const useDashStore = defineStore("dash", () => {
         getPersonalScore,
         getMatches,
         getGamesByMatch,
-        getPositionByUserId
+        getPositionByUserId,
+        getStatistics
     };
 })

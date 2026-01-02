@@ -401,7 +401,7 @@ const headerBgClass = computed(() => {
 });
 
 const exitGame = () => {
-  router.push("/dashboard");
+  router.push("/home");
 };
 
 // Lógica de Achievements e Moedas
@@ -446,7 +446,7 @@ const confirmLeave = () => {
   // matchStore.forfeitMatch()... por exemplo
 
   isOpen.value = false
-  router.push({name: 'dashboard'})
+  router.push({name: 'home'})
 }
 
 
