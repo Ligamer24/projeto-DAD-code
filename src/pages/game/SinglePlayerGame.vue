@@ -166,7 +166,7 @@
          </div>
 
          <div class="p-6 space-y-3 bg-white">
-            <button v-if="(match.status === 'ongoing' || !auth.currentUser) && game.context === 'sp-match'" @click="game.startNewGame()" class="w-full py-4 rounded-xl font-black text-white shadow-lg transform transition-all hover:scale-[1.02] active:scale-95 flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 ring-4 ring-blue-100">
+            <button v-if="(match.status === 'ongoing' || !auth.currentUser) && game.context === 'sp-match'" @click="game.startNewGame(match.type)" class="w-full py-4 rounded-xl font-black text-white shadow-lg transform transition-all hover:scale-[1.02] active:scale-95 flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 ring-4 ring-blue-100">
               <Hand class="w-5 h-5" /> {{auth.currentUser ? 'Deal Next Hand' : 'Play again'}}
             </button>
             <button v-if="match.status === 'finished'" @click="restartFullMatch" class="w-full py-4 rounded-xl font-black text-white shadow-lg transform transition-all hover:scale-[1.02] active:scale-95 flex items-center justify-center gap-2" :class="match.marks.player1 >= 4 ? 'bg-green-600 hover:bg-green-700 ring-4 ring-green-100' : 'bg-gray-800 hover:bg-gray-900 ring-4 ring-gray-200'">
@@ -235,7 +235,10 @@
       <GameBoard :trunfo="game.trunfo" :deck-count="game.deck.length" :player-played-card="playedCardSelf"
         :opponent-played-card="playedCardOpponent" :opponent-score="opponentScore" :player-score="playerScore"
         :last-opponent-card="lastRoundOpponentCard" :last-player-card="lastRoundPlayerCard" :currentTurn="currentTurn"
-        :player="auth.currentUser" :opponent="opponent" @undo="handleUndo" :undo-price="undoPrice" :is-ranked="match.isRanked"
+        :player="auth.currentUser" :opponent="opponent" 
+        :player-marks="game.context === 'sp-match' ? match.marks.player1 : game.gameMarks.player1"
+        :opponent-marks="game.context === 'sp-match' ? match.marks.player2 : game.gameMarks.player2" 
+        @undo="handleUndo" :undo-price="undoPrice" :is-ranked="match.isRanked"
         :bot-status="game.botStatus" />
     </section>
 

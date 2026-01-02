@@ -395,6 +395,9 @@
       :player="auth.currentUser"
       :opponent="match.player1_id ? match.opponent : game.opponent"
 
+      :player-marks="game.context === 'mp-match' ? match.marks.player1 : game.gameMarks.player1"
+      :opponent-marks="game.context === 'mp-match' ? match.marks.player2 : game.gameMarks.player2"
+
       :is-ranked="match.isRanked"
       :showEmote="game.showEmote"
 
