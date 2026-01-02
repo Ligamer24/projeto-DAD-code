@@ -50,7 +50,7 @@
             >Confirm Password</span
           >
           <input
-            v-model="confirmPassword"
+            v-model="passwordConfirm"
             type="password"
             required
             placeholder="••••••••"
@@ -89,17 +89,24 @@
 
 <script setup>
 import { ref } from "vue";
+import { toast } from "vue-sonner";
 import biscaLogo from "@/assets/bisca_logo.png";
 import { RouterLink } from "vue-router";
+import { useRouter } from "vue-router";
+import { useAuthStore } from "@/stores/auth";
 
 const name = ref("");
 const email = ref("");
 const password = ref("");
-const confirmPassword = ref("");
+const passwordConfirm = ref("");
 const loading = ref(false);
 
+const authStore = useAuthStore()
+const router = useRouter();
+
+
 function register() {
-  if (password.value !== confirmPassword.value) {
+  if (password.value !== passwordConfirm.value) {
     alert("Passwords do not match!");
     return;
   }
@@ -107,7 +114,20 @@ function register() {
   loading.value = true;
   setTimeout(() => {
     loading.value = false;
-    alert(`Account created for ${name.value} (${email.value})`);
+    const formData = ref({
+        name: name.value,
+        email: email.value,
+        password: password.value,
+        password_confirmation: passwordConfirm.value
+    })
+    toast.promise(authStore.register(formData.value), {
+        loading: 'Calling API',
+        success: (data) => {
+            router.push('/login')
+            return `Register Sucessfull - ${data?.name}`
+        },
+        error: (data) => `[API] Error creating an account - ${data?.response?.data?.message}`,
+    })
   }, 800);
 }
 </script>

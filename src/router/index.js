@@ -13,32 +13,34 @@ import TransactionsPage from "@/pages/admin/transactionsPage.vue";
 import GamesPageAdmin from "@/pages/admin/gamesPage.vue";
 import MatchesPageAdmin from "@/pages/admin/matchesPage.vue";
 import adminDash from "@/pages/admin/dashboard.vue";
+import MultiplayerGame from "@/pages/game/MultiplayerGame.vue";
+
 
 const router = createRouter({
     history: createWebHistory(import.meta.env.BASE_URL),
     routes: [
-        { path: '/', name: 'home', component: HomePage },
-        { path: '/shop', name: 'shop', component: HomePage },
-        { path: '/shop/add', name: 'shop-add', component: AddShopItem, meta: { admin: true } },
+        {path: '/', name: 'home', component: HomePage},
+        {path: '/shop', name: 'shop', component: HomePage},
+        {path: '/shop/add', name: 'shop-add', component: AddShopItem, meta: {admin: true}},
         { path: '/home', name: 'home', component: HomePage },
-        { path: '/dashboard', name: 'dashboard', component: HomePage },
-        { path: '/leaderboard', name: 'leaderboard', component: HomePage },
-        { path: '/history', name: 'history', component: HomePage },
-        { path: '/profile', name: 'profile', component: ProfilePage, meta: { requiresAuth: true } },
-        { path: "/login", name: "login", component: LoginPage, meta: { requiresGuest: true } },
-        { path: "/register", name: "register", component: RegisterPage, meta: { requiresGuest: true } },
-        { path: "/MatchDetails/:id", name: "MatchDetails", component: MatchGamePage },
+        {path: '/dashboard', name: 'dashboard', component: HomePage},
+        {path: '/leaderboard', name: 'leaderboard', component: HomePage},
+        {path: '/history', name: 'history', component: HomePage},
+        {path: '/profile', name: 'profile', component: ProfilePage, meta: {requiresAuth: true}},
+        {path: "/login", name: "login", component: LoginPage, meta: {requiresGuest: true}},
+        {path: "/register", name: "register", component: RegisterPage, meta: {requiresGuest: true}},
+        {path: "/MatchDetails/:id", name: "MatchDetails", component: MatchGamePage},
         {
             path: "/admin",
-            meta: { admin: true },
+            meta: {admin: true},
             children: [
                 { path: "dashboard", name: "adminDashboard", component: adminDash },
-                { path: "users", name: "adminPage", component: UsersPage },
-                { path: "transactions", name: "transactionsPage", component: TransactionsPage },
-                { path: "games", name: "gamesPage", component: GamesPageAdmin },
-                { path: "games/:id", name: "gamesPageUser", component: GamesPageAdmin },
-                { path: "matches", name: "matchesPage", component: MatchesPageAdmin },
-                { path: "matches/:id", name: "matchesPageUser", component: MatchesPageAdmin }
+                {path: "users", name: "adminPage", component: UsersPage},
+                {path: "transactions", name: "transactionsPage", component: TransactionsPage},
+                {path: "games", name: "gamesPage", component: GamesPageAdmin},
+                {path: "games/:id", name: "gamesPageUser", component: GamesPageAdmin},
+                {path: "matches", name: "matchesPage", component: MatchesPageAdmin},
+                {path: "matches/:id", name: "matchesPageUser", component: MatchesPageAdmin}
             ]
         },
         {
@@ -46,10 +48,13 @@ const router = createRouter({
             children: [
                 {
                     path: "singleplayer", name: "singleplayer", component: SinglePlayerGame
-                }
+                },
+                {
+                    path: "multiplayer", name: "multiplayer", component: MultiplayerGame,
+                },
             ]
         },
-        { path: "/GamesPage/:id", name: "GamesPage", component: GamesPage },
+        {path: "/GamesPage/:id", name: "GamesPage", component: GamesPage},
         // {
         //     path: "/dashboard",
         //     name: "dashboard",

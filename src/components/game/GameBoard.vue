@@ -91,6 +91,14 @@
               {{ opponent?.name?.charAt(0).toUpperCase() }}
             </AvatarFallback>
           </Avatar>
+
+          <!-- Emote Bubble for Opponent -->
+          <div v-if="showEmote && showEmote.user_id === opponent?.id"
+               class="absolute top-0 right-full mr-3 bg-white p-2 rounded-2xl rounded-tr-none shadow-xl border border-slate-100 z-50 animate-in fade-in zoom-in duration-300 w-max flex justify-center">
+            <img :src="`/assets/emotes/${showEmote.image}`" :alt="showEmote.name" class="w-20 h-20" />
+            <div class="absolute top-3 -right-1.5 w-3 h-3 bg-white border-t border-r border-slate-100 transform rotate-45"></div>
+          </div>
+
           <span v-if="currentTurn == opponent?.id" class="absolute -top-1 -right-1 flex h-3 w-3">
             <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
             <span class="relative inline-flex rounded-full h-3 w-3 bg-red-500"></span>
@@ -100,7 +108,7 @@
               {{ botStatus }}
           </div>
         </div>
-        <span class="text-[10px] uppercase font-bold text-slate-500 tracking-wider">Bot</span>
+        <span class="text-[10px] uppercase font-bold text-slate-500 tracking-wider text-center">{{ opponent?.nickname ?? opponent?.name}}</span>
       </div>
 
       <!-- VS Separator -->
@@ -119,6 +127,14 @@
               {{ player?.name?.charAt(0).toUpperCase() ?? 'A' }}
             </AvatarFallback>
           </Avatar>
+
+          <!-- Emote Bubble for Player -->
+          <div v-if="showEmote && showEmote.user_id === player?.id"
+               class="absolute bottom-0 right-full mr-3 bg-white p-2 rounded-2xl rounded-br-none shadow-xl border border-slate-100 z-50 animate-in fade-in zoom-in duration-300 w-max flex justify-center">
+            <img :src="`/assets/emotes/${showEmote.image}`" :alt="showEmote.name" class="w-20 h-20" />
+            <div class="absolute bottom-3 -right-1.5 w-3 h-3 bg-white border-t border-r border-slate-100 transform rotate-45"></div>
+          </div>
+
           <span v-if="currentTurn === (player?.id ?? -1)" class="absolute -top-1 -right-1 flex h-3 w-3 z-10">
             <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
             <span class="relative inline-flex rounded-full h-3 w-3 bg-red-500"></span>
@@ -127,28 +143,13 @@
       </div>
     </div>
     <!-- Área do Botão Undo -->
-    <div class="flex flex-col items-center justify-center min-w-[60px]">
+    <div v-if="allowUndo" class="flex flex-col items-center justify-center min-w-[60px]">
       <button @click="$emit('undo')" :disabled="!playerPlayedCard || opponentPlayedCard"
-        class="group flex flex-col items-center justify-center gap-1 p-3 rounded-full border-2 shadow-sm transition-all duration-200 
-               
-               /* (Normal) */
-               bg-amber-100 text-amber-700 border-amber-200 
-               hover:bg-amber-200 hover:border-amber-300 hover:shadow-md hover:-translate-y-0.5 active:scale-95
-               
-               /* (Desativado) */
-               disabled:opacity-50 disabled:cursor-not-allowed disabled:bg-slate-100 disabled:border-slate-200 disabled:text-slate-400 disabled:shadow-none disabled:transform-none"
-        title="Undo Action">
-        <!-- Ícone Undo -->
-        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
-          stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"
-          class="transition-transform duration-300 group-hover:rotate-[-45deg] group-disabled:rotate-0">
-          <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" />
-          <path d="M3 3v5h5" />
-        </svg>
-        <div v-if="isRanked"
-          class="flex items-center gap-1 text-xs font-extrabold bg-amber-900/10 px-2 py-0.5 rounded-full text-amber-900 mt-1">
-          {{ undoPrice }}
-          <Coins />
+        class="group flex flex-col items-center justify-center gap-1 p-3 rounded-full border-2 shadow-sm transition-all duration-200 bg-amber-50 border-amber-200 text-amber-700 hover:bg-amber-100 hover:-translate-y-1 disabled:opacity-50 disabled:hover:translate-y-0 disabled:cursor-not-allowed"
+        title="Undo">
+        <RotateCcw class="w-5 h-5 transition-transform group-hover:-rotate-90" />
+        <div v-if="undoPrice > 0" class="flex items-center gap-1 text-[10px] font-bold bg-amber-200/50 px-1.5 rounded-full">
+          {{ undoPrice }} <Coins class="w-3 h-3" />
         </div>
       </button>
     </div>
@@ -180,6 +181,9 @@ defineProps({
   undoPrice: Number,
   isRanked: Boolean,
   botStatus: String,
+  allowUndo: { type: Boolean, default: false },
+  undoPrice: { type: Number, default: 0 },
+  showEmote: Object,
 })
 
 defineEmits(['undo'])
