@@ -508,6 +508,7 @@ export const useGameStore = defineStore("game", () => {
                 currentTurn.value = 0
                 
                 scores.value = {player1: 0, player2: 0};
+                gameMarks.value = {player1: 0, player2: 0};
                 gameEnded.value = false;
                 multiplayerGame.value = {}
 

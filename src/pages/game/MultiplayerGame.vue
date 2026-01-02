@@ -118,13 +118,13 @@
           <p class="text-white/90 font-medium mt-1">{{ headerSubtitle }}</p>
         </div>
 
-        <div v-if="auth.currentUser && match.player1_id" class="p-6 bg-gray-50 border-b border-gray-200">
+        <div v-if="auth.currentUser" class="p-6 bg-gray-50 border-b border-gray-200">
           <div class="flex justify-between items-center px-4">
             <div class="flex flex-col items-center">
               <span class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-1">You</span>
               <span class="text-5xl font-black transition-all"
                     :class="match.marks.player1 > match.marks.player2 ? 'text-green-600 scale-110' : 'text-gray-700'">{{
-                  match.marks.player1
+                  game.context === "mp-match" ? match.marks.player1 : game.gameMarks.player1
                 }}</span>
             </div>
             <div class="flex flex-col items-center px-4">
@@ -135,7 +135,7 @@
               <span class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-1">Opponent</span>
               <span class="text-5xl font-black transition-all"
                     :class="match.marks.player2 > match.marks.player1 ? 'text-red-600 scale-110' : 'text-gray-700'">{{
-                  match.marks.player2
+                  game.context === "mp-match" ? match.marks.player2 : game.gameMarks.player2
                 }}</span>
             </div>
           </div>
