@@ -368,6 +368,117 @@
           <MessagesSquare class="w-5 h-5 group-hover:scale-110 transition-transform" />
         </button>
 
+        <div class="relative">
+          <button
+              @click="openChat"
+              class="group flex items-center justify-center w-10 h-10 bg-black/20 backdrop-blur-sm border border-white/10 rounded-xl
+                     hover:bg-amber-500 hover:border-amber-400 text-white shadow-lg transition-all duration-200"
+              :class="{ 'bg-amber-500 border-amber-400': isChatOpen }"
+              title="Chat"
+          >
+            <MessageCircle class="w-5 h-5 group-hover:scale-110 transition-transform" />
+            <span
+              v-if="unreadCount"
+              class="absolute -top-1 -right-1 w-3 h-3
+                    bg-red-500 rounded-full
+                    ring-2 ring-white dark:ring-slate-900
+                    animate-pulse">
+            </span>
+          </button>
+
+          <!-- Chat -->
+          <div v-if="isChatOpen" class="absolute top-2 left-14 z-50 w-72 animate-fade-in">
+            <div
+                class="relative backdrop-blur-xl bg-white/90 dark:bg-slate-800/90
+           rounded-2xl shadow-2xl border border-slate-200/60 dark:border-slate-700/60
+           overflow-hidden">
+
+              <!-- pointer -->
+              <div
+                  class="absolute top-4 -left-2 w-4 h-4
+             bg-white/90 dark:bg-slate-800/90
+             border-b border-l border-slate-200/60 dark:border-slate-700/60
+             rotate-45">
+              </div>
+
+              <!-- Header -->
+              <div
+                  class="px-4 py-2.5
+             bg-gradient-to-r from-blue-500 to-indigo-500
+             text-white flex justify-between items-center">
+                <span class="font-semibold text-sm tracking-wide">Game Chat</span>
+
+                <button
+                    @click="isChatOpen = false"
+                    class="opacity-80 hover:opacity-100 transition">
+                  <X :size="16" />
+                </button>
+              </div>
+
+              <!-- Messages -->
+              <div
+                  ref="messagesContainer"
+                  class="max-h-72 overflow-y-auto px-3 py-2 space-y-2 text-sm
+             scrollbar-thin scrollbar-thumb-slate-300 dark:scrollbar-thumb-slate-600">
+
+                <div v-if="game.chatMessages.length === 0"
+                     class="text-center text-slate-400 text-xs py-6">
+                  No messages yet — break the ice ❄️
+                </div>
+
+                <div
+                    v-for="(msg, index) in game.chatMessages"
+                    :key="index"
+                    class="flex flex-col gap-0.5"
+                    :class="msg.userId === currentUserId ? 'items-end' : 'items-start'">
+
+        <span class="text-[10px] text-slate-400 px-1">
+          {{ msg.userId === currentUserId ? 'You' : msg.userName }}
+        </span>
+
+                  <div
+                      class="px-3 py-2 rounded-2xl max-w-[85%] break-words
+                 shadow-sm leading-snug"
+                      :class="msg.userId === currentUserId
+            ? 'bg-blue-600 text-white rounded-br-md'
+            : 'bg-slate-100 text-slate-800 dark:bg-slate-700 dark:text-gray-200 rounded-bl-md'">
+
+                    {{ msg.text }}
+                  </div>
+                </div>
+              </div>
+
+              <!-- Input -->
+              <div
+                  class="p-2.5 bg-white/70 dark:bg-slate-900/70
+             border-t border-slate-200/60 dark:border-slate-700/60
+             flex gap-2 items-center">
+
+                <input
+                    v-model="chatInput"
+                    @keyup.enter="sendMessage"
+                    type="text"
+                    placeholder="Type a message…"
+                    class="flex-1 text-sm bg-white dark:bg-slate-800
+         border border-slate-300 dark:border-slate-600
+         rounded-full px-4 py-2
+         focus:outline-none focus:ring-2 focus:ring-blue-500
+         placeholder:text-slate-400" />
+
+                <button
+                    @click="sendMessage"
+                    class="h-9 w-9 flex items-center justify-center
+               rounded-full bg-blue-600 text-white
+               hover:bg-blue-700 active:scale-95 transition">
+                  <Send :size="16" />
+                </button>
+              </div>
+
+            </div>
+          </div>
+
+        </div>
+
         <div v-if="emotesOpen" class="absolute top-12 left-14 bg-white p-3 rounded-2xl rounded-tl-none shadow-2xl border border-slate-100 w-max z-50 animate-in fade-in zoom-in-95 duration-200 origin-top-left">
           <div class="absolute top-3 -left-2 w-4 h-4 bg-white border-b border-l border-slate-100 transform rotate-45"></div>
           <div class="grid grid-cols-4 gap-3">
@@ -448,7 +559,7 @@
 </template>
 
 <script setup>
-import {computed, inject, onMounted, onUnmounted, ref, watch} from "vue";
+import {computed, inject, onMounted, onUnmounted, ref, watch, nextTick} from "vue";
 import {useGameStore} from "@/stores/game.js";
 import {useMatchStore} from "@/stores/match";
 import {useAuthStore} from "@/stores/auth";
@@ -465,13 +576,15 @@ import {
   Hand,
   Handshake,
   MessagesSquare,
+  MessageCircle,
   RotateCcw,
   Sparkles,
   ThumbsDown,
   ThumbsUp,
   Trophy,
   X,
-    Share2
+  Share2,
+  Send
 } from 'lucide-vue-next'
 import fireworksGif from '@/assets/fireworks.gif'
 import {Avatar, AvatarFallback, AvatarImage} from "@/components/ui/avatar";
@@ -510,9 +623,40 @@ const currentUserId = auth.currentUser?.id
 
 const isOpen = ref('')
 
+const isChatOpen = ref(false);
+const chatInput = ref("")
+const messagesContainer = ref(null)
+
 const isMyTurn = computed(() => game.currentTurn === currentUserId)
 
 const iWon = computed(() => game.winner === currentUserId)
+
+const scrollChatToBottom = () => {
+  nextTick(() => {
+    if (messagesContainer.value) {
+      messagesContainer.value.scrollTop = messagesContainer.value.scrollHeight;
+    }
+  });
+};
+
+const unreadCount = ref(true);
+
+const openChat = () => {
+  isChatOpen.value = !isChatOpen.value;
+  if (isChatOpen.value) {
+    unreadCount.value = false;
+    scrollChatToBottom();
+  }
+};
+
+watch(() => game.chatMessages.length, (len, oldLen) => {
+  const last = game.chatMessages[game.chatMessages.length - 1];
+  if (isChatOpen.value) {
+    scrollChatToBottom();
+  } else if (last && last.userId !== currentUserId && len > (oldLen ?? 0)) {
+    unreadCount.value = true;
+  }
+});
 
 const onUpdateStake = (amount) => {
   console.log("MultiplayerGame.vue - onUpdateStake:", amount);
@@ -757,6 +901,11 @@ const closeModal = () => {
   isOpen.value = false
 }
 
+const sendMessage = () => {
+  if ( !chatInput.value.trim()) return;
+  game.sendChatMessage(chatInput.value)
+  chatInput.value = ''
+}
 const confirmLeave = () => {
 
   const matchId = match.multiplayerMatch.id

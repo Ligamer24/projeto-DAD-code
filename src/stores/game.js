@@ -61,6 +61,8 @@ export const useGameStore = defineStore("game", () => {
 
             const isRanked = ref(false);
 
+            const chatMessages = ref([]);
+
             // 4. Game vs Match
 
             const context = ref(null); //<'sp-game' | 'sp-match' | 'mp-game' | 'mp-match'>
@@ -518,7 +520,8 @@ export const useGameStore = defineStore("game", () => {
                 gameMarks.value = {player1: 0, player2: 0};
                 gameEnded.value = false;
                 multiplayerGame.value = {}
-
+                chatMessages.value = [];
+                moves.value = [];
             }
 
             const setMultiplayerGame = (gameState) => {
@@ -546,6 +549,7 @@ export const useGameStore = defineStore("game", () => {
                 tableCards.value = gameState.tableCards || [];
                 lastRoundCards.value = gameState.lastRoundCards || [];
                 currentTurn.value = gameState.currentTurn;
+                moves.value = gameState.custom;
                 
                 gameEnded.value = gameState.gameEnded;
                 if (gameEnded.value) {
@@ -682,9 +686,28 @@ export const useGameStore = defineStore("game", () => {
                     showEmote.value = null
                 }, 1500);
             }
+
+            const sendChatMessage = (text) => {
+                if (!text || !text.trim()) return;
+                if (!socket || !socket.connected) return;
+                const payload = {
+                    matchID: matchStore.multiplayerMatch?.id ?? null,
+                    gameID: multiplayerGame.value?.id ?? null,
+                    text: text.trim(),
+                    userId: currentUserId,
+                    userName: authStore.currentUser?.nickname || authStore.currentUser?.name || 'Player',
+                    timestamp: new Date().toISOString()
+                };
+
+                socket.emit('send-chat-message', payload);
+            }
             socket.on('receive-emote', (data) => {
                 playEmote(data);
             });
+
+            socket.on('receive-chat-message', (message) => {
+                    chatMessages.value.push(message);
+            })
 
             return {
                 // State Local
@@ -745,6 +768,9 @@ export const useGameStore = defineStore("game", () => {
 
                 sendEmote,
                 showEmote,
+
+                chatMessages,
+                sendChatMessage,
             };
         }
     )
