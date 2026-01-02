@@ -600,6 +600,14 @@ export const useGameStore = defineStore("game", () => {
                 console.log('[Socket] Game Change recebido', data);
                 setMultiplayerGame(data.game);
                 lastRoundCards.value = data.roundResult?.cards ?? []
+                if (data.roundResult?.cards)
+                {
+                    if (data.roundResult.winner === currentUserId) {
+                        toast.success(`You won the round! (+${data.roundResult.points} pts)`)
+                    } else {
+                        toast.info(`Opponent won the round. (+${data.roundResult.points} pts)`);
+                    }
+                }
             })
 
             socket.on("new-game-started", (newGame) => {
@@ -607,8 +615,7 @@ export const useGameStore = defineStore("game", () => {
 
                 setMultiplayerGame(newGame)
                 
-                // toast.success("Nova ronda começou! É a vez de: " + 
-                //     (newGame.currentTurn === authStore.user.id ? "TI" : "OPONENTE"))
+                toast.success("New Round")
             })
 
             const saveCoinsUpdate = async (gameId, coinsWonByPlayer, coinTransactionType) => {

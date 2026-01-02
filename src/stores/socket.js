@@ -48,11 +48,6 @@ export const useSocketStore = defineStore('socket', () => {
       gameStore.setGames(games) // Import and instantiate the game store
     })
 
-    // socket.on('game-change', (game) => {
-    //   console.log("Who the freak")
-    //     gameStore.setMultiplayerGame(game)
-    // })
-
     socket.on('negotiation-update', ({ match }) => {
       console.log('[Socket] negotiation-update', match);
       matchStore.multiplayerMatch.value = { ...match }
