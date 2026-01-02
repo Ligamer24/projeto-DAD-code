@@ -1,5 +1,5 @@
 import {defineStore} from "pinia";
-import {computed, inject, ref} from "vue";
+import {computed, inject, ref, toRaw} from "vue";
 import {useAuthStore} from "./auth";
 import {useAPIStore} from "./api";
 import {useMatchStore} from "./match";
@@ -57,7 +57,7 @@ export const useGameStore = defineStore("game", () => {
             // 3. Estado Multiplayer
             const matches = ref([]); // Lista de jogos no lobby
             const multiplayerGame = ref({}); // Estado do jogo multiplayer atual
-
+            const processingRound = ref(false);
 
             const isRanked = ref(false);
 
@@ -596,12 +596,21 @@ export const useGameStore = defineStore("game", () => {
                 }, SKIP_SLEEPS ? 0 : 5000);
             });
 
-            socket.on('game-change', (data) => {
+            socket.on('game-change', async (data) => {
                 console.log('[Socket] Game Change recebido', data);
                 setMultiplayerGame(data.game);
                 lastRoundCards.value = data.roundResult?.cards ?? []
                 if (data.roundResult?.cards)
                 {
+                    processingRound.value = true;
+                    tableCards.value = data.roundResult.cards;
+                    await new Promise(resolve => setTimeout(resolve, SKIP_SLEEPS ? 0 : 1500));
+
+                    if (toRaw(tableCards.value) === data.roundResult.cards) {
+                        tableCards.value = [];
+                    }
+                    processingRound.value = false;
+
                     if (data.roundResult.winner === currentUserId) {
                         toast.success(`You won the round! (+${data.roundResult.points} pts)`)
                     } else {
@@ -652,6 +661,7 @@ export const useGameStore = defineStore("game", () => {
 
             // Exemplo: Saber se é a minha vez (assumindo que o servidor manda 'currentTurnPlayerId')
             const isMyTurn = computed(() => {
+                if (processingRound.value) return false;
                 if (!multiplayerGame.value || !authStore.currentUser) return false
                 return multiplayerGame.value.currentTurnPlayerId === currentUserId
             })
@@ -712,6 +722,7 @@ export const useGameStore = defineStore("game", () => {
                 // State Multiplayer
                 matches,
                 multiplayerGame,
+                processingRound,
                 myHand,
                 opponentHand,
                 myScore,
