@@ -12,7 +12,7 @@
       <polyline points="16 17 21 12 16 7"></polyline>
       <line x1="21" y1="12" x2="9" y2="12"></line>
     </svg>
-    <span>Quit Match</span>
+    <span>Quit</span>
   </button>
 
   <div v-if="auth.currentUser?.type === 'A'" class="absolute top-24 right-4">
@@ -70,13 +70,20 @@
         </svg>
       </div>
 
-      <h3 class="text-lg font-bold text-slate-900 mb-2" id="modal-title">
-        Forfeit the Match?
-      </h3>
-      <p class="text-sm text-slate-500 mb-6">
-        If you leave now, you will lose all the progress from this match and it will count as a <span
-          class="font-bold text-rose-600">defeat</span>.
-      </p>
+      <div v-if="match.multiplayerMatch.id || game.multiplayerGame.id">
+        <h3 class="text-lg font-bold text-slate-900 mb-2" id="modal-title">
+          Forfeit the Match?
+        </h3>
+        <p class="text-sm text-slate-500 mb-6">
+          If you leave now, you will lose all the progress from this match and it will count as a <span
+            class="font-bold text-rose-600">defeat</span>.
+        </p>
+      </div>
+      <div v-else>
+        <h3 class="text-lg font-bold text-slate-900 mb-2" id="modal-title">
+          Exit Queue?
+        </h3>
+      </div>
 
       <!-- Botões de Ação -->
       <div class="flex flex-col-reverse sm:flex-row gap-3 justify-center">
@@ -731,8 +738,23 @@ const closeModal = () => {
 const confirmLeave = () => {
 
   const matchId = match.multiplayerMatch.id
-  console.log("Match IDddddddddddddddddddddddddddd:", matchId);
   const gameId = game.multiplayerGame.id
+  
+  if (!matchId && !gameId)
+  {
+    socketStore.emitRemoveUserSearchingGame()
+    isOpen.value = false
+    if (game.context.split('-')[1] === 'match') {
+      console.log("Resetting match state on forfeit...");
+      match.resetState()
+    }
+    console.log("Resetting game state on forfeit...");
+    game.resetState()
+    router.push("/dashboard");
+    return
+  }
+
+  console.log("Match IDddddddddddddddddddddddddddd:", matchId);
   const userId = currentUserId
   console.log("Forfeit emitted:", matchId, userId);
   socketStore.emitForfeitMatch(matchId, gameId, userId)
@@ -740,10 +762,10 @@ const confirmLeave = () => {
   isOpen.value = false
   if (game.context.split('-')[1] === 'match') {
     console.log("Resetting match state on forfeit...");
-    match.resetState()
+    setTimeout(() => {match.resetState()}, 5000) 
   }
   console.log("Resetting game state on forfeit...");
-  game.resetState()
+  setTimeout(() => {game.resetState()}, 5000) 
   router.push("/dashboard");
 }
 

@@ -65,7 +65,9 @@ export const useSocketStore = defineStore('socket', () => {
     socket.emit('join-game', game.id, authStore.currentUser.id)
   }
 
-  
+  const emitRemoveUserSearchingGame = () => {
+    socket.emit('leave')
+  }
 
   const emitPlayCard = (matchId, gameId, card, userId) => {
     if (!socket || !socket.connected) return
@@ -76,6 +78,7 @@ export const useSocketStore = defineStore('socket', () => {
       userId: userId
   })
   }
+
   const emitPlayerTimeout = (matchId, gameId, userId) => {
     if (!socket || !socket.connected) return
       console.log('Emitting player-timeout via socket')
@@ -134,6 +137,7 @@ export const useSocketStore = defineStore('socket', () => {
     emitGetGames,
     handleGameEvents,
     emitJoinGame,
+    emitRemoveUserSearchingGame,
     emitPlayCard,
     emitPlayerTimeout,
     emitForfeitMatch,
