@@ -284,7 +284,6 @@
   <div v-else-if="(game.context === 'mp-game' && game.opponent_found && !game.game_began)
     ||
     (game.context === 'mp-match' && match.opponent_found && !match.match_began)">
-    <p>AAAAAAAAAAAAAAAAAAAAAAAAA</p>
     <div class="flex flex-col items-center justify-center h-dvh w-full p-4 box-border ">
       <div
           class="bg-white p-8 rounded-2xl shadow-xl border border-slate-100 flex flex-col items-center max-w-sm w-full animate-in fade-in zoom-in duration-500">
@@ -298,17 +297,17 @@
           <div
               class="absolute inset-0 bg-blue-500 rounded-full blur opacity-20 group-hover:opacity-30 transition-opacity"></div>
           <Avatar class="size-24 lg:size-32 border-4 border-white shadow-lg relative">
-            <AvatarImage v-if="match.opponent.photo_avatar_filename"
-                         :src="`${serverBaseURL}/storage/photos_avatars/${match.opponent.photo_avatar_filename}`"
-                         :alt="match.opponent.name"/>
+            <AvatarImage v-if="game.context === 'mp-match' ? match.opponent.photo_avatar_filename : game.opponent.photo_avatar_filename"
+                         :src="`${serverBaseURL}/storage/photos_avatars/${game.context === 'mp-match' ? match.opponent.photo_avatar_filename : game.opponent.photo_avatar_filename}`"
+                         :alt="game.context === 'mp-match' ? match.opponent.name : game.opponent.name"/>
             <AvatarFallback class="text-4xl">
-              {{ match.opponent.name?.charAt(0).toUpperCase() }}
+              {{ game.context === 'mp-match' ? match.opponent.name?.charAt(0).toUpperCase() : match.opponent.name?.charAt(0).toUpperCase() }}
             </AvatarFallback>
           </Avatar>
           <div
               class="absolute -bottom-3 left-1/2 -translate-x-1/2 bg-amber-400 text-white text-xs font-bold px-3 py-1 rounded-full border-2 border-white shadow-sm flex items-center gap-1 min-w-max">
             <Trophy class="w-3 h-3"/>
-            <span>{{ match.opponent.rating ?? '---'}}</span>
+            <span>{{ (game.context === 'mp-match' ? match.opponent.rating : game.opponent.rating) ?? '---'}}</span>
           </div>
         </div>
 
@@ -319,7 +318,7 @@
 
         <div class="w-full space-y-2">
           <div class="flex justify-between text-xs font-bold text-slate-400 uppercase tracking-wider">
-            <span>Starting Match</span>
+            <span>Starting {{ game.context === 'mp-match' ? 'Match' : 'Game' }}</span>
             <span class="animate-pulse">...</span>
             
           </div>
@@ -394,7 +393,7 @@
       :last-opponent-card="lastRoundOpponentCard"
       
       :player="auth.currentUser"
-      :opponent="match.opponent"
+      :opponent="match.player1_id ? match.opponent : game.opponent"
 
       :is-ranked="match.isRanked"
       :showEmote="game.showEmote"
