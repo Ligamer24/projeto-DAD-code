@@ -600,7 +600,6 @@ export const useGameStore = defineStore("game", () => {
                 opponentHand,
                 myScore,
                 opponentScore,
-                multiplayerGame,
 
                 // Actions Multiplayer
                 createMatch,
