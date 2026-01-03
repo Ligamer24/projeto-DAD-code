@@ -352,7 +352,7 @@
         <button
             @click="shareLink"
             class="group flex items-center justify-center w-10 h-10 bg-black/20 backdrop-blur-sm border border-white/10 rounded-xl
-                   hover:bg-blue-500 hover:border-blue-400 text-white shadow-lg transition-all duration-200"
+                   hover:bg-blue-500 hover:border-blue-400 text-white shadow-lg transition-all duration-200 cursor-pointer"
             title="Share Match Link"
         >
           <Share2 class="w-5 h-5 group-hover:scale-110 transition-transform" />
@@ -361,7 +361,7 @@
         <button
             @click="openEmotes"
             class="group flex items-center justify-center w-10 h-10 bg-black/20 backdrop-blur-sm border border-white/10 rounded-xl
-                   hover:bg-amber-500 hover:border-amber-400 text-white shadow-lg transition-all duration-200"
+                   hover:bg-amber-500 hover:border-amber-400 text-white shadow-lg transition-all duration-200 cursor-pointer"
             :class="{ 'bg-amber-500 border-amber-400': emotesOpen }"
             title="Emotes"
         >
@@ -372,7 +372,7 @@
           <button
               @click="openChat"
               class="group flex items-center justify-center w-10 h-10 bg-black/20 backdrop-blur-sm border border-white/10 rounded-xl
-                     hover:bg-amber-500 hover:border-amber-400 text-white shadow-lg transition-all duration-200"
+                     hover:bg-amber-500 hover:border-amber-400 text-white shadow-lg transition-all duration-200 cursor-pointer"
               :class="{ 'bg-amber-500 border-amber-400': isChatOpen }"
               title="Chat"
           >
@@ -410,7 +410,7 @@
 
                 <button
                     @click="isChatOpen = false"
-                    class="opacity-80 hover:opacity-100 transition">
+                    class="opacity-80 hover:opacity-100 transition cursor-pointer">
                   <X :size="16" />
                 </button>
               </div>
@@ -461,14 +461,14 @@
                     placeholder="Type a message…"
                     class="flex-1 text-sm bg-white dark:bg-slate-800
          border border-slate-300 dark:border-slate-600
-         rounded-full px-4 py-2
+         rounded-full px-4 py-2 text-white
          focus:outline-none focus:ring-2 focus:ring-blue-500
          placeholder:text-slate-400" />
 
                 <button
                     @click="sendMessage"
                     class="h-9 w-9 flex items-center justify-center
-               rounded-full bg-blue-600 text-white
+               rounded-full bg-blue-600 text-white cursor-pointer
                hover:bg-blue-700 active:scale-95 transition">
                   <Send :size="16" />
                 </button>
@@ -788,7 +788,7 @@ const headerBgClass = computed(() => {
 const exitMatch = () => {
   match.resetState()
   game.resetState()
-  router.push("/dashboard");
+  router.push("/home");
 };
 
 // Lógica de Achievements e Moedas
@@ -921,7 +921,7 @@ const confirmLeave = () => {
     }
     console.log("Resetting game state on forfeit...");
     game.resetState()
-    router.push("/dashboard");
+    router.push("/home");
     return
   }
 
@@ -937,7 +937,7 @@ const confirmLeave = () => {
   }
   console.log("Resetting game state on forfeit...");
   setTimeout(() => {game.resetState()}, 5000) 
-  router.push("/dashboard");
+  router.push("/home");
 }
 
 

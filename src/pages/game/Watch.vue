@@ -258,7 +258,7 @@ const headerBgClass = computed(() => {
 const exitMatch = () => {
   match.resetState()
   game.resetState()
-  router.push("/dashboard");
+  router.push("/home");
 };
 
 const earnedAchievements = computed(() => []) // Spectators don't earn achievements

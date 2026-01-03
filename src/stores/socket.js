@@ -60,7 +60,9 @@ export const useSocketStore = defineStore('socket', () => {
     socket.emit('join-game', game.id, authStore.currentUser.id)
   }
 
-
+  const emitRemoveUserSearchingGame = () => {
+    socket.emit('leave')
+  }
 
   const emitPlayCard = (matchId, gameId, card, userId) => {
     if (!socket || !socket.connected) return
@@ -140,6 +142,7 @@ export const useSocketStore = defineStore('socket', () => {
     emitForfeitMatch,
     emitProposeStake,
     emitAcceptStake,
-    emitWatchMatch
+    emitWatchMatch,
+    emitRemoveUserSearchingGame,
   }
 })
