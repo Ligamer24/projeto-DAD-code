@@ -51,9 +51,11 @@
 								<div class="font-semibold">
 									{{ playerName(game, "player1") }}
 								</div>
-								<div class="text-3xl font-bold text-green-600">
+								<div class="text-3xl font-bold"
+									:class="game?.winner_user_id === game?.player1_user_id ? 'text-green-600' : 'text-red-600'">
 									{{ game?.player1_points ?? "-" }}
 								</div>
+								
 								<div class="text-sm text-green-600 font-medium mt-1"
 									v-if="game && game.winner_user_id === game.player1_user_id">
 									WINNER
@@ -67,10 +69,12 @@
 								<div class="font-semibold">
 									{{ playerName(game, "player2") }}
 								</div>
-								<div class="text-3xl font-bold text-red-600">
+								<div class="text-3xl font-bold"
+									:class="game?.winner_user_id === game?.player2_user_id ? 'text-green-600' : 'text-red-600'">
 									{{ game?.player2_points ?? "-" }}
 								</div>
-								<div class="text-sm text-red-600 font-medium mt-1"
+
+								<div class="text-sm text-green-600 font-medium mt-1"
 									v-if="game && game.winner_user_id === game.player2_user_id">
 									WINNER
 								</div>
@@ -134,7 +138,7 @@
 										class="text-xs text-slate-500 uppercase bg-slate-50 border-b border-slate-200">
 										<tr>
 											<th colspan="4" class="px-6 py-4 font-bold tracking-wider">
-												Trump Suit ({{ game.custom.trump }})
+												Trump Suit ({{ game.custom?.trump }})
 											</th>
 										</tr>
 									</thead>
@@ -145,10 +149,20 @@
 												Ronda
 											</th>
 											<th scope="col" class="px-6 py-4 font-bold tracking-wider">
-												{{ auth.currentUser.nickname ?? auth.currentUser.name }}
+												{{playerName(
+											game,
+											game?.player1_user_id === auth.currentUser.id
+												? "player1"
+												: "player2"
+										) ?? "—"}}
 											</th>
 											<th scope="col" class="px-6 py-4 font-bold tracking-wider">
-												Bot
+												{{playerName(
+											game,
+											game?.player2_user_id === auth.currentUser.id
+												? "player1"
+												: "player2"
+										) ?? "—"}}
 											</th>
 											<th scope="col" class="px-6 py-4 font-bold tracking-wider">
 												Total
@@ -156,79 +170,64 @@
 										</tr>
 									</thead>
 									<tbody class="divide-y divide-slate-100">
-										<!-- ITERA SOBRE A LISTA COMPUTADA (tricksWithScores) EM VEZ DE game.custom -->
 										<tr v-for="(trick, i) in tricksWithScores" :key="i"
 											class="hover:bg-slate-50 transition-colors duration-200">
 
-											<!-- Ronda -->
 											<td class="px-6 py-4 font-medium text-slate-900">
 												#{{ i + 1 }}
 											</td>
 
-											<!-- Carta Player 1 (User) -->
 											<td class="px-6 py-4"
 												:class="{ 'bg-emerald-600/10': trick.isUserWinner, 'bg-red-500/10': !trick.isUserWinner }">
 												<div class="flex flex-col justify-center">
 
-													<span
-														:class="trick[0].player === game.player1_user_id ? 'bg-blue-600 text-white shadow-sm border-blue-700' : 'invisible'"
+													<span :class="trick.cards[0].playedBy === auth.currentUser.id ? 'bg-blue-600 text-white shadow-sm border-blue-700' : 'invisible'"
 														class="text-[10px] font-bold px-2 py-0.5 rounded-full border border-transparent leading-none uppercase tracking-wide">
 														1º
 													</span>
-													<img :src="getImageByCardName(trick, game.player1_user_id)"
+													
+													<img :src="getImageByCardName(trick, auth.currentUser.id)"
 														class="h-16 object-contain drop-shadow-md transform hover:scale-110 transition-transform duration-200"
-														alt="Carta Jogador 1" />
+														alt="Minha Carta" />
 												</div>
 											</td>
 
-											<!-- Carta Player 2 (Bot) -->
 											<td class="px-6 py-4"
 												:class="{ 'bg-emerald-600/10': !trick.isUserWinner, 'bg-red-500/10': trick.isUserWinner }">
 												<div class="flex flex-col justify-center">
 
-													<span
-														:class="trick[0].player === game.player2_user_id ? 'bg-blue-600 text-white shadow-sm border-blue-700' : 'invisible'"
+													<span :class="trick.cards[0].playedBy === opponentId ? 'bg-blue-600 text-white shadow-sm border-blue-700' : 'invisible'"
 														class="text-[10px] font-bold px-2 py-0.5 rounded-full border border-transparent leading-none uppercase tracking-wide">
 														1º
 													</span>
 
-													<img :src="getImageByCardName(trick, game.player2_user_id)"
+													<img :src="getImageByCardName(trick, opponentId)"
 														class="h-16 object-contain drop-shadow-md transform hover:scale-110 transition-transform duration-200"
-														alt="Carta Jogador 2" />
+														alt="Carta Oponente" />
 												</div>
 											</td>
 
-											<!-- Total Pontos -->
 											<td class="px-6 py-4 font-mono text-base">
-												<div
-													class="flex items-center justify-center gap-2 bg-slate-100 py-1 px-3 rounded-full w-fit mx-auto">
+												<div class="flex items-center justify-center gap-2 bg-slate-100 py-1 px-3 rounded-full w-fit mx-auto">
 
-													<!-- PONTOS USER -->
-													<span
-														class="font-bold transition-colors duration-300 flex items-center"
+													<span class="font-bold transition-colors duration-300 flex items-center"
 														:class="{ 'text-emerald-600 scale-110': trick.isUserWinner, 'text-slate-500': !trick.isUserWinner }">
 
-														<!-- Mini Card +Pontos (Só aparece se ganhou) -->
 														<span v-if="trick.isUserWinner"
 															class="mr-1.5 inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold bg-emerald-100 text-emerald-700 border border-emerald-200 shadow-sm leading-none">
 															+{{ trick.pointsInTrick }}
 														</span>
 
-														<!-- Total Acumulado -->
-														{{ trick.currentP1Total }}
+														{{ amIPlayer1 ? trick.currentP1Total : trick.currentP2Total }}
 													</span>
 
 													<span class="text-slate-400 text-xs">vs</span>
 
-													<!-- PONTOS BOT -->
-													<span
-														class="font-bold transition-colors duration-300 flex items-center"
+													<span class="font-bold transition-colors duration-300 flex items-center"
 														:class="{ 'text-emerald-600 scale-110': !trick.isUserWinner, 'text-slate-500': trick.isUserWinner }">
 
-														<!-- Total Acumulado -->
-														{{ trick.currentP2Total }}
+														{{ amIPlayer1 ? trick.currentP2Total : trick.currentP1Total }}
 
-														<!-- Mini Card +Pontos (Só aparece se ganhou) -->
 														<span v-if="!trick.isUserWinner"
 															class="ml-1.5 inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold bg-emerald-100 text-emerald-700 border border-emerald-200 shadow-sm leading-none">
 															+{{ trick.pointsInTrick }}
@@ -264,6 +263,7 @@ import { ref, onMounted, computed } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { useDashStore } from "@/stores/dash";
 import { useAuthStore } from "@/stores/auth";
+import { Heart, Diamond, Club, Spade } from 'lucide-vue-next';
 
 const route = useRoute();
 const router = useRouter();
@@ -336,25 +336,29 @@ function marksByPoints(points) {
 }
 
 function getImageByCardName(trick, playerId) {
-	const cardName = trick[0].player === playerId ? trick[0].card : trick[1].card;
+	const cardName = trick.cards[0].playedBy === playerId 
+    ? trick.cards[0].card 
+    : trick.cards[1].card;
 	return `/src/assets/cards/default/${cardName}.png`;
 }
 
 const tricksWithScores = computed(() => {
-	if (!game.value?.custom || game.value?.custom.tricks.length < 3) return [];
+	if (!game.value?.custom) return [];
 
-	let p1Acc = 0; // Acumulador do User (Ana)
+	let p1Acc = 0; // Acumulador do User
 	let p2Acc = 0; // Acumulador do Bot
 
 	return game.value.custom.tricks.map(trick => {
-		const pointsInTrick = trick[0].value + trick[1].value;
-		const isUserWinner = trick[2].trickWinner === auth.currentUser.id;
+		const pointsInTrick = trick.points;
+		const isUserWinner = trick.winner === auth.currentUser.id;
+
+		const amIPlayer1 = game.value.player1_user_id === auth.currentUser.id
 
 		// Soma ao acumulador correto
 		if (isUserWinner) {
-			p1Acc += pointsInTrick;
+			amIPlayer1 ? p1Acc += pointsInTrick : p2Acc += pointsInTrick;
 		} else {
-			p2Acc += pointsInTrick;
+			amIPlayer1 ? p2Acc += pointsInTrick : p1Acc += pointsInTrick;
 		}
 
 		// Retorna o objeto trick original + os totais naquele momento
@@ -367,6 +371,35 @@ const tricksWithScores = computed(() => {
 		};
 	});
 });
+
+	const opponentId = computed(() => {
+		if (!game.value) return null;
+		return game.value.player1_user_id === auth.currentUser.id 
+			? game.value.player2_user_id 
+			: game.value.player1_user_id;
+	});
+
+	// Cria um computed para saber se "Eu" sou o Player 1 (para exibir os pontos totais corretos)
+	const amIPlayer1 = computed(() => {
+		return game.value?.player1_user_id === auth.currentUser.id;
+	});
+
+	// Função para obter a configuração do naipe
+	const getSuitConfig = (suitName) => {
+		if (!suitName) return null;
+		
+		// Converter para minúsculas para garantir que "Spades" e "spades" funcionam
+		const suit = suitName.toLowerCase();
+
+		const config = {
+			hearts:   { icon: Heart,   color: 'text-red-600',   label: 'Copas' },
+			diamonds: { icon: Diamond, color: 'text-red-600',   label: 'Ouros' },
+			spades:   { icon: Spade,   color: 'text-slate-900', label: 'Espadas' },
+			clubs:    { icon: Club,    color: 'text-slate-900', label: 'Paus' }
+		};
+
+		return config[suit] || { icon: null, color: 'text-gray-500', label: suitName };
+	};
 </script>
 <style scoped>
 .winner-text {
