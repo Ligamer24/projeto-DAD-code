@@ -54,8 +54,22 @@ export const useAPIStore = defineStore("api", () => {
         return axios.put(`${API_BASE_URL}/users/me/coins`, { amountToAdd: coinsAmount });
     };
 
+    const getTransactions = (page) => {
+        return axios.get(`${API_BASE_URL}/coins/transactions/?page=${page}`);
+    }
+
+    //Coins Purchase Transaction
+    const postCoinsPurchaseTransaction = (purchaseObj) => {
+        return axios.post(`${API_BASE_URL}/coins/purchase`, purchaseObj);
+    }
+
 
     // AUTH
+    const postRegister = async (credentials) => {
+        const response = await axios.post(`${API_BASE_URL}/register`, credentials);
+        return response.data
+    };
+
     const postLogin = async (credentials) => {
         const response = await axios.post(`${API_BASE_URL}/login`, credentials);
         const newToken = response.data.token;
@@ -76,6 +90,7 @@ export const useAPIStore = defineStore("api", () => {
         return response.data.data;
     }
 
+
     const getAuthUser = () => {
         return axios.get(`${API_BASE_URL}/users/me`);
     };
@@ -91,6 +106,41 @@ export const useAPIStore = defineStore("api", () => {
         });
     };
 
+    //Admins
+
+    const getUsersAdmin = (page) => {
+        return axios.get(`${API_BASE_URL}/admin/users?page=${page}`);
+    }
+
+    const blockUser = (id) => {
+        return axios.patch(`${API_BASE_URL}/admin/users/${id}/block`);
+    }
+
+    const createAdmin = (adminForm) => {
+        return axios.post(`${API_BASE_URL}/admin/create-admin`, adminForm);
+    }
+
+    const deleteUser = (id) => {
+        return axios.delete(`${API_BASE_URL}/admin/users/${id}`);
+    }
+
+    const getTransactionsAdmin = (page) => {
+        return axios.get(`${API_BASE_URL}/admin/transactions?page=${page}`);
+    }
+
+    const getGamesAdmin = (page, user = undefined) => {
+        if (user) {
+            return axios.get(`${API_BASE_URL}/admin/games?user_id=${user}&page=${page}`);
+        }
+        return axios.get(`${API_BASE_URL}/admin/games?page=${page}`);
+    }
+
+    const getMatchesAdmin = (page, user = undefined) => {
+        if (user) {
+            return axios.get(`${API_BASE_URL}/admin/matches?user_id=${user}&page=${page}`);
+        }
+        return axios.get(`${API_BASE_URL}/admin/matches?page=${page}`);
+    }
 
     // Files
     const uploadProfilePhoto = async (file) => {
@@ -133,12 +183,21 @@ export const useAPIStore = defineStore("api", () => {
 
     // UPDATE PASSWORD
     const changePassword = async ({ current, next, confirm }) => {
-        return axios.put(`${API_BASE_URL}/profile/password`, {
+        return axios.put(`${API_BASE_URL}/users/me/password`, {
             current_password: current,
             password: next,
             password_confirmation: confirm,
         });
     };
+
+    //TODO mandar deleteAccount pra api
+    const deleteAccount = async (password) => {
+        return axios.delete(`${API_BASE_URL}/users/me`, {
+            data: {
+                password: password
+            }
+        })
+    }
 
     // SELECTED DECK
     const updateSelectedDeck = async (deckId) => {
@@ -230,6 +289,11 @@ export const useAPIStore = defineStore("api", () => {
         return axios.post(`${API_BASE_URL}/shop/${itemId}/buy`);
     }
 
+    //Este pedido vai ser a usar outra API
+    const purchaseCoinsFromPaymentService = async (paymentData) => {
+        return axios.post(`https://dad-payments-api.vercel.app/api/debit`, paymentData);
+    }
+
     return {
         token,
         setToken,
@@ -240,15 +304,26 @@ export const useAPIStore = defineStore("api", () => {
         postMatch,
         getMatches,
         postCoinsTransaction,
+        postRegister,
+        postCoinsPurchaseTransaction,
+        getTransactions,
         postLogin,
         postLogout,
         getUser,
+        getUsersAdmin,
+        blockUser,
+        createAdmin,
+        deleteUser,
+        getTransactionsAdmin,
+        getGamesAdmin,
+        getMatchesAdmin,
         getAuthUser,
         updateAvatar,
         patchUserPhoto,
         putUser,
         uploadProfilePhoto,
         changePassword,
+        deleteAccount,
         updateCoinsUser,
         updateSelectedDeck,
         getSelectedDeck,
@@ -257,6 +332,7 @@ export const useAPIStore = defineStore("api", () => {
         requestNotification,
         getShop,
         postShopItem,
-        purchaseItem
+        purchaseItem,
+        purchaseCoinsFromPaymentService,
     };
 });

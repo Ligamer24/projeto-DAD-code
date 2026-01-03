@@ -1,9 +1,10 @@
 <script setup>
-import {BarChart2, Gamepad2, RotateCcw, ShoppingCart} from 'lucide-vue-next'
+import {BarChart2, Gamepad2, RotateCcw, ShoppingCart, Activity as DashboardIcon} from 'lucide-vue-next'
 import {onBeforeUnmount, onMounted, ref, watch} from 'vue'
 import History from "@/components/segments/dashboard/history.vue";
 import Leaderboard from "@/components/segments/dashboard/leaderboard.vue";
-import Dashboard from "@/components/segments/dashboard/dashboard.vue";
+import Home from "@/components/segments/dashboard/dashboard.vue";
+import Dashboard from "@/components/segments/dashboard/dashboard_page.vue";
 import Shop from "@/components/segments/dashboard/shop.vue";
 import {useRoute, useRouter} from 'vue-router'
 import {useAPIStore} from "@/stores/api";
@@ -23,8 +24,8 @@ const scrollablePages = new Set([0, 2, 3])
 const authStore = useAuthStore()
 const route = useRoute()
 const router = useRouter()
-const indexToRoute = ['shop', 'dashboard', 'leaderboard', 'history']
-const routeToIndex = {shop: 0, dashboard: 1, leaderboard: 2, history: 3}
+const indexToRoute = ['shop', 'home', 'leaderboard', 'history', 'dashboard']
+const routeToIndex = {shop: 0, home: 1, leaderboard: 2, history: 3, dashboard: 4}
 
 function updateIsMobile() {
   if (typeof window !== 'undefined') isMobile.value = window.innerWidth < 1024
@@ -141,9 +142,10 @@ function handleNavClick(idx) {
 
 const navItems = [
   {icon: ShoppingCart, label: 'Shop', idx: 0, aria: 'Store / Shop'},
-  {icon: Gamepad2, label: 'Dashboard', idx: 1, aria: 'Dashboard'},
+  {icon: Gamepad2, label: 'home', idx: 1, aria: 'Home'},
   {icon: BarChart2, label: 'Leaderboard', idx: 2, aria: 'Leaderboard'},
   {icon: RotateCcw, label: 'History', idx: 3, aria: 'Match History'},
+  {icon: DashboardIcon, label: 'Dashboard', idx: 4, aria: 'Dashboard'},
 ]
 
 function wrapperClass(idx) {
@@ -194,11 +196,11 @@ onMounted(async () => {
       >
         <div v-if="authStore.currentUser" :class="wrapperClass(0)"><shop /></div>
         <div v-else :class="wrapperClass(0)"><anonymous/></div>
-        <div :class="wrapperClass(1)"><dashboard /></div>
-        <div v-if="authStore.currentUser" :class="wrapperClass(2)"><leaderboard /></div>
-        <div v-else :class="wrapperClass(2)"><anonymous/></div>
+        <div :class="wrapperClass(1)"><home /></div>
+        <div :class="wrapperClass(2)"><leaderboard /></div>
         <div v-if="authStore.currentUser" :class="wrapperClass(3)"><history /></div>
         <div v-else :class="wrapperClass(3)"><anonymous/></div>
+        <div :class="wrapperClass(4)"><dashboard /></div>
 
       </div>
     </main>

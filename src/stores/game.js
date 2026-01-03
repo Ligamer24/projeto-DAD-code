@@ -66,7 +66,7 @@ export const useGameStore = defineStore("game", () => {
             // 4. Game vs Match
 
             const context = ref(null); //<'sp-game' | 'sp-match' | 'mp-game' | 'mp-match'>
-            
+
 
             // ------------------------------------------------------------------------
             // VARS PARA SOCKETS
@@ -103,7 +103,7 @@ export const useGameStore = defineStore("game", () => {
                         ...authStore.currentUser
                         }, selectedType);
                     }
-                    
+
                     return
                 }
 
@@ -505,17 +505,17 @@ export const useGameStore = defineStore("game", () => {
 
             const resetState = () => {
                 console.log("Limpar game store!")
-                
+
                 deck.value = [];
                 player1Hand.value = [];
                 player2Hand.value = [];
                 trunfo.value = null;
-                trumpSuit.value = ""; 
-                tableCards.value = []; 
-                lastRoundCards.value = []; 
-                moves.value = []; 
+                trumpSuit.value = "";
+                tableCards.value = [];
+                lastRoundCards.value = [];
+                moves.value = [];
                 currentTurn.value = 0
-                
+
                 scores.value = {player1: 0, player2: 0};
                 gameMarks.value = {player1: 0, player2: 0};
                 gameEnded.value = false;
@@ -550,18 +550,18 @@ export const useGameStore = defineStore("game", () => {
                 lastRoundCards.value = gameState.lastRoundCards || [];
                 currentTurn.value = gameState.currentTurn;
                 moves.value = gameState.custom;
-                
+
                 gameEnded.value = gameState.gameEnded;
                 if (gameEnded.value) {
                     if (myScore < 61) amIPlayer1 ? gameMarks.value.player1 += 0 : gameMarks.value.player2 += 1
                     else if (myScore < 91) {
                         amIPlayer1 ? gameMarks.value.player1 += 1 : gameMarks.value.player2 += 1
                         saveCoinsUpdate(null, 3, ID_COIN_GAME_PAYOUT)
-                    }  
+                    }
                     else if (myScore < 120 ){
                         amIPlayer1 ? gameMarks.value.player1 += 2 : gameMarks.value.player2 += 2
                         saveCoinsUpdate(null, 4, ID_COIN_GAME_PAYOUT)
-                    } 
+                    }
                     else {
                         amIPlayer1 ? gameMarks.value.player1 += 4 : gameMarks.value.player2 += 4
                         saveCoinsUpdate(null, 6, ID_COIN_GAME_PAYOUT)
@@ -627,7 +627,7 @@ export const useGameStore = defineStore("game", () => {
                 console.log("[Game] A iniciar nova ronda:", newGame.id)
 
                 setMultiplayerGame(newGame)
-                
+
                 toast.success("New Round")
             })
 
