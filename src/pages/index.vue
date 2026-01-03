@@ -19,13 +19,13 @@ const pagesRef = ref(null)
 const headerRef = ref(null)
 const navRef = ref(null)
 const isMobile = ref(true)
-const scrollablePages = new Set([0, 2, 3])
+const scrollablePages = new Set([0, 3, 4])
 
 const authStore = useAuthStore()
 const route = useRoute()
 const router = useRouter()
-const indexToRoute = ['shop', 'home', 'leaderboard', 'history', 'dashboard']
-const routeToIndex = {shop: 0, home: 1, leaderboard: 2, history: 3, dashboard: 4}
+const indexToRoute = ['shop', 'leaderboard', 'home', 'history', 'dashboard']
+const routeToIndex = {shop: 0, leaderboard: 1, home: 2, history: 3, dashboard: 4}
 
 function updateIsMobile() {
   if (typeof window !== 'undefined') isMobile.value = window.innerWidth < 1024
@@ -142,8 +142,8 @@ function handleNavClick(idx) {
 
 const navItems = [
   {icon: ShoppingCart, label: 'Shop', idx: 0, aria: 'Store / Shop'},
-  {icon: Gamepad2, label: 'home', idx: 1, aria: 'Home'},
-  {icon: BarChart2, label: 'Leaderboard', idx: 2, aria: 'Leaderboard'},
+  {icon: BarChart2, label: 'Leaderboard', idx: 1, aria: 'Leaderboard'},
+  {icon: Gamepad2, label: 'home', idx: 2, aria: 'Home'},
   {icon: RotateCcw, label: 'History', idx: 3, aria: 'Match History'},
   {icon: DashboardIcon, label: 'Dashboard', idx: 4, aria: 'Dashboard'},
 ]
@@ -196,8 +196,8 @@ onMounted(async () => {
       >
         <div v-if="authStore.currentUser" :class="wrapperClass(0)"><shop /></div>
         <div v-else :class="wrapperClass(0)"><anonymous/></div>
-        <div :class="wrapperClass(1)"><home /></div>
-        <div :class="wrapperClass(2)"><leaderboard /></div>
+        <div :class="wrapperClass(1)"><leaderboard /></div>
+        <div :class="wrapperClass(2)"><home /></div>
         <div v-if="authStore.currentUser" :class="wrapperClass(3)"><history /></div>
         <div v-else :class="wrapperClass(3)"><anonymous/></div>
         <div :class="wrapperClass(4)"><dashboard /></div>
