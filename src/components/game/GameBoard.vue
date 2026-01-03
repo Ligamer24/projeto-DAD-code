@@ -56,7 +56,7 @@
 
       <div class="md:w-28 md:h-40 w-12 h-18 flex items-center justify-center">
         <div v-if="lastOpponentCard" class="w-full h-full opacity-80 hover:opacity-100 transition-opacity">
-          <GameCard :card="lastOpponentCard" />
+          <GameCard :card="lastOpponentCard" :face-down="true" />
         </div>
         <div v-else
           class="w-full h-full flex flex-col items-center justify-center border-2 border-dashed border-gray-300 bg-gray-50/50 rounded-md">
@@ -66,7 +66,7 @@
 
       <div class="md:w-28 md:h-40 w-12 h-18 flex items-center justify-center">
         <div v-if="lastPlayerCard" class="w-full h-full opacity-80 hover:opacity-100 transition-opacity">
-          <GameCard :card="lastPlayerCard" />
+          <GameCard :card="lastPlayerCard" :face-down="true" />
         </div>
         <div v-else
           class="w-full h-full flex flex-col items-center justify-center border-2 border-dashed border-gray-300 bg-gray-50/50 rounded-md">
@@ -109,6 +109,7 @@
           </div>
         </div>
         <span class="text-[10px] uppercase font-bold text-slate-500 tracking-wider text-center">{{ opponent?.nickname ?? opponent?.name}}</span>
+        <span class="text-[30px] uppercase font-bold text-slate-500 tracking-wider">{{ opponentMarks }}</span>
       </div>
 
       <!-- VS Separator -->
@@ -116,6 +117,7 @@
 
       <!-- PLAYER (ME) -->
       <div class="flex flex-col items-center gap-1">
+        <span class="text-[30px] uppercase font-bold text-slate-500 tracking-wider">{{ playerMarks }}</span>
         <span class="text-[10px] uppercase font-bold text-slate-500 tracking-wider">You</span>
 
         <div class="relative">
@@ -158,6 +160,7 @@
 
 <script setup>
 import GameCard from './GameCard.vue'
+import { RotateCcw } from 'lucide-vue-next';
 import { ref, inject, computed } from "vue";
 import { useShopStore } from "@/stores/shop.js";
 import { Avatar, AvatarImage, AvatarFallback } from "../ui/avatar";
@@ -178,6 +181,8 @@ defineProps({
   currentTurn: Number,
   player: Object,
   opponent: Object,
+  playerMarks: Number,
+  opponentMarks: Number,
   undoPrice: Number,
   isRanked: Boolean,
   botStatus: String,

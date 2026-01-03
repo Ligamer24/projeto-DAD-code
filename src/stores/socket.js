@@ -2,11 +2,13 @@ import { defineStore } from 'pinia'
 import { inject, ref } from 'vue'
 import { useAuthStore } from './auth'
 import { useGameStore } from './game'
+import { useMatchStore } from './match'
 
 export const useSocketStore = defineStore('socket', () => {
   const socket = inject('socket')
   const authStore = useAuthStore()
   const gameStore = useGameStore()
+  const matchStore = useMatchStore()
   const joined = ref(false)
 
   const emitJoin = (user) => {
@@ -46,10 +48,11 @@ export const useSocketStore = defineStore('socket', () => {
       gameStore.setGames(games) // Import and instantiate the game store
     })
 
-    // socket.on('game-change', (game) => {
-    //   console.log("Who the freak")
-    //     gameStore.setMultiplayerGame(game)
-    // })
+    socket.on('negotiation-update', ({ match }) => {
+      console.log('[Socket] negotiation-update', match);
+      matchStore.multiplayerMatch.value = { ...match }
+    });
+
   }
 
   const emitJoinGame = (game) => {
@@ -57,23 +60,75 @@ export const useSocketStore = defineStore('socket', () => {
     socket.emit('join-game', game.id, authStore.currentUser.id)
   }
 
-  
-
-  const emitPlayCard = (gameId, card, userId) => {
-    if (!socket || !socket.connected) return
-    socket.emit('play-card', gameId, card, userId)
+  const emitRemoveUserSearchingGame = () => {
+    socket.emit('leave')
   }
 
-  socket.on("round-ended", (data) => {
-
-    tableCards.value = data.lastRound.cards
-
-    toast.info(`Trick Winner: ${data.lastRound.winner}`)
-
-    setTimeout(() => {
-        updateLocalGameState(data.game); 
-    }, 2000)
+  const emitPlayCard = (matchId, gameId, card, userId) => {
+    if (!socket || !socket.connected) return
+      socket.emit('play-card', {
+      matchID: matchId, 
+      gameID: gameId, 
+      card: card,
+      userId: userId
   })
+  }
+  const emitPlayerTimeout = (matchId, gameId, userId) => {
+    if (!socket || !socket.connected) return
+      console.log('Emitting player-timeout via socket')
+      socket.emit('player-timeout', { 
+        matchId : matchId, 
+        gameId : gameId, 
+        userId : userId 
+      })   
+  }
+  
+  const emitForfeitMatch = (matchId, gameId, userId) => {
+    if (!socket || !socket.connected) return
+      console.log('Emitting forfeit-match via socket')
+      socket.emit('forfeit-match', { 
+        matchId : matchId,
+        gameId : gameId,
+        userId : userId 
+      })   
+  }
+
+  // Dentro das ações do teu useSocketStore
+  const emitProposeStake = (matchId, amount, userId) => {
+    if (!socket || !socket.connected) return;
+    console.log("Emitir proposta de aposta via socket:", amount);
+    socket.emit("propose-stake", {
+      matchId : matchId,
+      userId: userId,
+      amount: amount
+    });
+  }
+
+  const emitAcceptStake = (matchId, userId) => {
+    console.log("Emitir aceitação de aposta via socket");
+    if (!socket || !socket.connected) return;
+    socket.emit("accept-stake", {
+      matchId: matchId,
+      userId: userId
+    });
+  }
+
+  const emitWatchMatch = (matchId) => {
+    if (!socket || !socket.connected) return
+    console.log(`[Socket] Watching Match ${matchId}`)
+    socket.emit('watch-match', { matchId })
+  }
+
+  // socket.on("round-ended", (data) => {
+
+  //   // tableCards.value = data.lastRound.cards
+  //   console.log(data)
+  //   toast.info(`Trick Winner: ${data.lastRound.winner}`)
+
+  //   setTimeout(() => {
+  //       updateLocalGameState(data.game); 
+  //   }, 2000)
+  // })
   
   return {
     emitJoin,
@@ -83,5 +138,11 @@ export const useSocketStore = defineStore('socket', () => {
     handleGameEvents,
     emitJoinGame,
     emitPlayCard,
+    emitPlayerTimeout,
+    emitForfeitMatch,
+    emitProposeStake,
+    emitAcceptStake,
+    emitWatchMatch,
+    emitRemoveUserSearchingGame,
   }
 })

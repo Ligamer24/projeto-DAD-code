@@ -1,8 +1,9 @@
 import { defineStore } from 'pinia'
-import { ref } from 'vue'
+import { ref, inject } from 'vue'
 import { toast } from 'vue-sonner'
 import { useAPIStore } from './api'
 import { useAuthStore } from './auth'
+import { useGameStore } from './game'
 
 const BISCA_TYPE = '9'
 
@@ -11,29 +12,46 @@ const COIN_CAPOTE_MULTIPIER = 4
 const COIN_BANDEIRA_MULTIPIER = 6
 
 const ID_COIN_MATCH_PAYOUT = 6
+const ID_COIN_MATCH_STAKE = 4
+
+const SKIP_SLEEPS = false
 
 export const useMatchStore = defineStore('match', () => {
 
     const apiStore = useAPIStore()
     const authStore = useAuthStore()
+    const gameStore = useGameStore()
+    const socket = inject('socket')
     if (authStore.anonymous) return
     // Estado (Placar da Partida 0-4)
     const marks = ref({ player1: 0, player2: 0 })
     const status = ref('idle') // 'idle', 'ongoing', 'finished'
     const gamesHistory = ref([])
     const isRanked = ref(false)
-    const player1_id = ref(authStore.currentUser.id)
-    
+    const searching_player = ref(false)
+
+    const player1_id = ref(null)
+    const player2_id = ref(null)
+    const currentUserId = authStore.currentUser?.id ?? -1
     const BOT_ID = authStore.BOT_ID
+    const type = ref(9)
+    const stake = ref(3)
+
     const opponent = ref({})
+    const opponent_found = ref(false)
+
+    const match_began = ref(false)
 
     const matchBeganAt = ref(undefined)
     const matchEndedAt = ref(undefined)
+    const showStakeNegotiation = ref(false);
 
     let p1TotalPoints = 0
     let p2TotalPoints = 0
 
     let p1TotalAchievements = { capote: 0, bandeira: 0 }
+
+    const multiplayerMatch = ref({})
 
     const calculateStake = () => {
         return (p1TotalAchievements.capote * COIN_CAPOTE_MULTIPIER + p1TotalAchievements.bandeira * COIN_BANDEIRA_MULTIPIER) + COIN_BASE_WIN
@@ -41,13 +59,19 @@ export const useMatchStore = defineStore('match', () => {
 
     // Iniciar uma partida do zero
     const initMatch = async () => {
-        console.log('MAtch nit')
+        if (gameStore.context.split("-")[1] === 'game') return
+        console.log('Init match')
+        
         player1_id.value = authStore.currentUser.id
-        opponent.value = await apiStore.getUser(BOT_ID)
+        player2_id.value = BOT_ID 
+        
         marks.value = { player1: 0, player2: 0 }
         status.value = 'ongoing'
         gamesHistory.value = []
         matchBeganAt.value = new Date()
+
+        //multiplayer
+        searching_player.value = true
     }
 
     // Adicionar pontos de vitória (1, 2 ou 4)
@@ -55,9 +79,6 @@ export const useMatchStore = defineStore('match', () => {
         let p1Marks = 0
         let p2Marks = 0
         let p1CoinsWon = 0
-
-
-
 
         if (winnerId === 1) {
             marks.value.player1 += marksArgument
@@ -144,18 +165,18 @@ export const useMatchStore = defineStore('match', () => {
             await apiStore.postGame(gameObj)
         }
 
-        await saveCoinsUpdate(matchPostResult.id, coinsWonByPlayer)
+        await saveCoinsUpdate(matchPostResult.id, coinsWonByPlayer, ID_COIN_MATCH_PAYOUT)
 
     }
 
-    const saveCoinsUpdate = async (matchId, coinsWonByPlayer) => {
+    const saveCoinsUpdate = async (matchId, coinsWonByPlayer, coinTransactionType) => {
 
         // Atualizar as coins do jogador
         const coinsObj = {
             transaction_datetime: new Date(),
             user_id: authStore.currentUser.id,
             match_id: matchId,
-            coin_transaction_type_id: ID_COIN_MATCH_PAYOUT,
+            coin_transaction_type_id: coinTransactionType,
             coins: coinsWonByPlayer,
         }
         authStore.currentUser.coins += coinsWonByPlayer
@@ -182,6 +203,139 @@ export const useMatchStore = defineStore('match', () => {
         }
     }
 
+    //Multiplayer
+
+    const resetState = () => {
+        console.log('A limpar estado da Match...')
+
+        marks.value = { player1: 0, player2: 0 }
+        gamesHistory.value = []
+        status.value = 'idle'
+        player1_id.value = null
+        player2_id.value = null
+        multiplayerMatch.value = {}
+        showStakeNegotiation.value = true;
+
+        //Reset de sistema de procura do Rúben
+        searching_player.value = false
+        match_began.value = false
+    }
+
+    const setMultiplayerMatch = (serverMatch) => {
+        console.log('[MatchStore] Recebi update do servidor:', serverMatch);
+        if (!serverMatch) return
+        player1_id.value = serverMatch.player1_id || serverMatch.player1
+        player2_id.value = serverMatch.player2_id || serverMatch.player2
+
+        multiplayerMatch.value = serverMatch
+
+        const amIPlayer1 = player1_id.value === currentUserId;
+
+        opponent.value = amIPlayer1 ? serverMatch.player2Data : serverMatch.player1Data;
+
+        if (amIPlayer1) {
+            marks.value = { 
+                player1: serverMatch.marks.player1, 
+                player2: serverMatch.marks.player2 
+            };
+        } else {
+            marks.value = { 
+                player1: serverMatch.marks.player2,
+                player2: serverMatch.marks.player1
+            };
+        }
+        status.value = serverMatch.status // 'ongoing', 'finished'
+        matchBeganAt.value = serverMatch.created_at
+        
+        if (serverMatch.gamesHistory) {
+            gamesHistory.value = serverMatch.gamesHistory
+        }
+    }
+
+    socket.on('watch-started', (data) => {
+        console.log('[Bisca] Watch started:', data)
+        const game = data.game
+        const match = data.match
+
+        setMultiplayerMatch(match);
+
+        searching_player.value = false
+        opponent_found.value = true
+        gameStore.searching_player = false
+        gameStore.setMultiplayerGame(game)
+
+        setTimeout(() => {
+            match_began.value = true
+        }, SKIP_SLEEPS ? 0 : 5000);
+    });
+
+    socket.on('match-started', (data) => {
+        console.log('[Bisca] Match created:', data)
+        const game = data.game
+        const match = data.match
+        try {
+            if (!window.matchFoundAudio) {
+                window.matchFoundAudio = new Audio('/assets/Match_Found.mp3');
+                window.matchFoundAudio.volume = 0.7;
+                window.matchFoundAudio.preload = 'auto';
+            }
+            window.matchFoundAudio.currentTime = 0;
+            const playPromise = window.matchFoundAudio.play();
+            if (playPromise !== undefined) {
+                playPromise.catch((err) => console.warn('Audio play blocked:', err));
+            }
+        } catch (err) {
+            console.warn('Error playing match found audio:', err);
+        }
+
+        setMultiplayerMatch(match);
+
+        searching_player.value = false
+        opponent_found.value = true
+        gameStore.searching_player = false
+        // opponent.value = game.player1Data.id === currentUserId ? game.player2Data : game.player1Data
+        gameStore.setMultiplayerGame(game)
+
+        setTimeout(() => {
+            match_began.value = true
+        }, SKIP_SLEEPS ? 0 : 5000);
+    });
+
+    socket.on("match-update", (updatedMatch) => {
+        console.log("[Match] Atualização da match:", updatedMatch)
+
+        setMultiplayerMatch(updatedMatch)
+
+        // Feedback visual para o utilizador
+        // toast.info("A ronda terminou! Pontuação atualizada.")
+    })
+
+    socket.on("match-ended", async (finalMatch) => {
+        console.log("[Match] FIM DA PARTIDA:", finalMatch)
+
+        setMultiplayerMatch(finalMatch, currentUserId)
+
+        const amIWinner = finalMatch.winner === currentUserId
+        if (amIWinner) {
+            saveCoinsUpdate(finalMatch.savedMatchId, finalMatch.stake * 2 - 1, ID_COIN_MATCH_PAYOUT)
+        }
+    })
+    socket.on("negotiation-update", ({ match }) => {
+        console.log("[Match] negotiation-update recebido:", match);
+
+        if (!match) return;
+
+        multiplayerMatch.value = {
+            ...match
+        };
+    });
+
+    socket.on("stake-finalized", (accordedStake) => {
+        console.log("[Match] stake-finalized recebido", accordedStake);
+        showStakeNegotiation.value = false;
+        stake.value = accordedStake
+        saveCoinsUpdate(null, -accordedStake, ID_COIN_MATCH_STAKE)
+    });
 
 
     return {
@@ -190,10 +344,22 @@ export const useMatchStore = defineStore('match', () => {
         gamesHistory,
         isRanked,
         opponent,
+        type,
+        stake,
         COIN_BASE_WIN,
         COIN_CAPOTE_MULTIPIER,
         COIN_BANDEIRA_MULTIPIER,
         initMatch,
-        addScore
+        addScore,
+
+        //Mutliplayer
+        searching_player,
+        opponent_found,
+        match_began,
+        multiplayerMatch,
+        player1_id,
+        showStakeNegotiation,
+        resetState,
+        setMultiplayerMatch,
     }
 })

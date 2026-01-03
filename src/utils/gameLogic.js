@@ -12,7 +12,7 @@ const createShuffledDeck = () => {
     return deck;
 }
 
-const distributeCards = (deckSource) => {
+const distributeCards = (deckSource,type) => {
 
     let deck = [...deckSource]
 
@@ -22,10 +22,10 @@ const distributeCards = (deckSource) => {
     
     deck = deck.slice(1);
     
-    const player1Hand = deck.slice(0, 9);
-    const player2Hand = deck.slice(9, 18);
+    const player1Hand = deck.slice(0, type);
+    const player2Hand = deck.slice(type, type*2);
     
-    const remainingDeck = deck.slice(18);
+    const remainingDeck = deck.slice(type*2);
 
     return {
         trunfo,
@@ -36,10 +36,10 @@ const distributeCards = (deckSource) => {
     }
 }
 
-export const setupNewGame = () => {
+export const setupNewGame = (type) => {
 
     const fullDeck = createShuffledDeck()
-    const gameData = distributeCards(fullDeck)
+    const gameData = distributeCards(fullDeck, type)
 
     return gameData;
 }

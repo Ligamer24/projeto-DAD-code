@@ -4,71 +4,53 @@
       <div class="flex flex-col items-center lg:items-start text-center lg:text-left select-none">
         <img src="@/assets/logo.png" alt="Bisca Royal logo" />
       </div>
+
       <div class="flex flex-col items-center gap-5 w-full">
-        <button v-if="authStore.currentUser" @click="startGame(true)"
-          class="cursor-pointer w-64 sm:w-72 lg:w-80 rounded-md border-2 border-black bg-gradient-to-b 
-                 from-gray-200 to-gray-400 px-6 py-3 lg:py-4 text-xl lg:text-2xl font-extrabold text-black 
-                 shadow-[4px_4px_0_0_rgba(0,0,0,0.6)] active:translate-y-0.5 active:shadow-[2px_2px_0_0_rgba(0,0,0,0.6)]">
-          Multiplayer
+        <button @click="openConfig(true)"
+          class="cursor-pointer w-64 sm:w-72 lg:w-80 rounded-xl border-b-4 border-black bg-emerald-500 px-6 py-4 text-xl lg:text-2xl font-black text-white shadow-lg hover:bg-emerald-400 active:border-b-0 active:translate-y-1 transition-all">
+          PLAY MULTIPLAYER
         </button>
-        <button @click="startGame(false)"
-          class="cursor-pointer w-64 sm:w-72 lg:w-80 rounded-md border-2 border-black bg-gradient-to-b 
-                 from-gray-200 to-gray-400 px-6 py-3 lg:py-4 text-xl lg:text-2xl font-extrabold text-black 
-                 shadow-[4px_4px_0_0_rgba(0,0,0,0.6)] active:translate-y-0.5 active:shadow-[2px_2px_0_0_rgba(0,0,0,0.6)]">
-          Singleplayer
+        
+        <button @click="openConfig(false)"
+          class="cursor-pointer w-64 sm:w-72 lg:w-80 rounded-xl border-b-4 border-black bg-gray-200 px-6 py-4 text-xl lg:text-2xl font-black text-black shadow-lg hover:bg-white active:border-b-0 active:translate-y-1 transition-all">
+          SINGLEPLAYER
         </button>
       </div>
-      <div v-if="open"
-        class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm transition-all">
+    </div>
 
-        <!-- Modal Container -->
-        <div
-          class="bg-white rounded-2xl shadow-2xl w-full max-w-sm overflow-hidden border border-slate-100 transform transition-all">
-
-          <!-- Header / Entry Fee -->
-          <div class="bg-slate-50 p-6 text-center border-b border-slate-100">
-            <h3 class="text-sm uppercase tracking-wider text-slate-500 font-semibold mb-2">Entry Fee</h3>
-            <div class="flex items-center justify-center gap-2 text-slate-900">
-              <span class="text-4xl font-black">3</span>
-              <Coins class="size-5 lg:size-6 text-yellow-600"/>
-            </div>
+    <div v-if="showModal" 
+      class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-md transition-opacity">
+      
+      <div class="bg-white rounded-3xl shadow-2xl w-full max-w-md overflow-hidden border border-slate-100 transform transition-all">
+        <div class="bg-slate-50 p-6 border-b border-slate-100 flex justify-between items-center">
+          <div>
+            <h3 class="text-xl font-black text-slate-900">Game Setup</h3>
+            <p class="text-xs text-slate-500 font-medium uppercase tracking-wider">
+              {{ pendingIsRanked ? 'Multiplayer Ranked' : 'Singleplayer Practice' }}
+            </p>
           </div>
+          <button @click="showModal = false" class="text-slate-400 hover:text-slate-600 transition-colors">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
+          </button>
+        </div>
 
-          <div class="p-6 space-y-6">
-
-            <!-- Rewards Section -->
-            <div>
-              <h4 class="text-sm font-bold text-slate-900 mb-3 flex items-center gap-2">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"
-                  class="w-4 h-4 text-emerald-500">
-                  <path fill-rule="evenodd"
-                    d="M5.166 2.621v.858c-1.035.148-2.059.33-3.071.543a.75.75 0 00-.584.859 6.753 6.753 0 006.138 5.6 6.73 6.73 0 002.743 1.346A6.707 6.707 0 019.279 15H8.54c-1.036 0-1.875.84-1.875 1.875V19.5h-.75a2.25 2.25 0 00-2.25 2.25c0 .414.336.75.75.75h15a.75.75 0 00.75-.75 2.25 2.25 0 00-2.25-2.25h-.75v-2.625c0-1.036-.84-1.875-1.875-1.875h-.739a6.706 6.706 0 01-1.112-3.173 6.73 6.73 0 002.743-1.347 6.753 6.753 0 006.139-5.6.75.75 0 00-.585-.858 47.077 47.077 0 00-3.07-.543V2.62a.75.75 0 00-.658-.744 49.22 49.22 0 00-6.093-.377c-2.063 0-4.096.128-6.093.377a.75.75 0 00-.657.744zm0 2.629c0 1.196.312 2.32.857 3.294A5.266 5.266 0 013.16 5.337a45.6 45.6 0 012.006-.343v.256zm13.5 0v-.256c.674.1 1.343.214 2.006.343a5.265 5.265 0 01-2.863 3.207 6.72 6.72 0 00.857-3.294z"
-                    clip-rule="evenodd" />
-                </svg>
-                Potential Rewards
-              </h4>
-
-              <ul class="space-y-3">
-                <li class="flex items-center justify-between text-sm">
-                  <span class="text-slate-600">Standard Win</span>
-                  <span class="font-bold text-slate-900 flex items-center gap-1">{{matchStore.COIN_BASE_WIN}} <span
-                      class="text-amber-500 text-xs"><Coins class="size-5 lg:size-6 text-yellow-600"/></span></span>
-                </li>
-                <li class="flex items-center justify-between text-sm">
-                  <span class="text-slate-600">Win with Capote</span>
-                  <span class="font-bold flex items-center gap-1">{{matchStore.COIN_CAPOTE_MULTIPIER}} <span
-                      class="text-amber-500 text-xs"><Coins class="size-5 lg:size-6 text-yellow-600"/></span></span>
-                </li>
-                <li class="flex items-center justify-between text-sm">
-                  <span class="text-slate-600">Win with Bandeira</span>
-                  <span class="font-bold flex items-center gap-1">{{matchStore.COIN_BANDEIRA_MULTIPIER}} <span
-                      class="text-amber-500 text-xs"><Coins class="size-5 lg:size-6 text-yellow-600"/></span></span>
-                </li>
-              </ul>
+        <div class="p-6 space-y-6">
+            <label class="text-sm font-bold text-slate-700 block mb-3">Select Format</label>
+            <div class="grid grid-cols-2 gap-3">
+              <button @click="pendingIsMatch = true" 
+                :class="pendingIsMatch ? 'border-emerald-600 bg-emerald-50 text-emerald-700 ring-2 ring-emerald-600/20' : 'border-slate-200 text-slate-500 hover:border-slate-300'"
+                class="flex flex-col items-center p-3 rounded-xl border-2 transition-all">
+                <span class="font-bold">Match</span>
+              </button>
+              <button @click="pendingIsMatch = false" 
+                :class="!pendingIsMatch ? 'border-emerald-600 bg-emerald-50 text-emerald-700 ring-2 ring-emerald-600/20' : 'border-slate-200 text-slate-500 hover:border-slate-300'"
+                class="flex flex-col items-center p-3 rounded-xl border-2 transition-all">
+                <span class="font-bold">Game</span>
+              </button>
             </div>
 
             <!-- Warning Box -->
-            <div class="bg-amber-50 border border-amber-100 rounded-lg p-3 flex gap-3 items-start">
+            <div v-if="pendingIsRanked && !pendingIsMatch" class="bg-amber-50 border border-amber-100 rounded-lg p-3 flex gap-3 items-start">
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"
                 class="w-5 h-5 text-amber-600 shrink-0 mt-0.5">
                 <path fill-rule="evenodd"
@@ -76,34 +58,42 @@
                   clip-rule="evenodd" />
               </svg>
               <p class="text-xs text-amber-800 leading-relaxed">
-                Upon confirmation, <span class="font-bold">3 coins</span> will be immediately deducted from your account
+                Upon confirmation, <span class="font-bold">2 coins</span> will be immediately deducted from your account
                 balance.
               </p>
             </div>
 
-            <!-- Error Message -->
-            <div v-if="errorMessage" class="text-center p-2 bg-rose-50 rounded border border-rose-100">
-              <p class="text-xs text-rose-600 font-semibold">{{ errorMessage }}</p>
-            </div>
-
-            <!-- Actions -->
-            <div class="grid grid-cols-2 gap-3 pt-2">
-              <button @click="open = false"
-                class="px-4 py-2.5 rounded-lg font-medium text-slate-600 hover:bg-slate-100 hover:text-slate-800 transition-colors text-sm">
-                Cancel
+          <div>
+            <label class="text-sm font-bold text-slate-700 block mb-3">Cards in Hand</label>
+            <div class="grid grid-cols-2 gap-3">
+              <button @click="selectedType = 3" 
+                :class="selectedType === 3 ? 'border-slate-900 bg-slate-900 text-white' : 'border-slate-200 text-slate-500 hover:border-slate-300'"
+                class="p-3 rounded-xl border-2 font-bold transition-all">
+                Bisca do 3 
               </button>
-              <button @click="confirmPayment"
-                class="px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg font-bold shadow-lg shadow-emerald-200 transition-all transform active:scale-95 text-sm flex items-center justify-center gap-2">
-                <span>Confirm & Play</span>
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-4 h-4">
-                  <path fill-rule="evenodd"
-                    d="M4.5 5.653c0-1.426 1.529-2.33 2.779-1.643l11.54 6.348c1.295.712 1.295 2.573 0 3.285L7.28 19.991c-1.25.687-2.779-.217-2.779-1.643V5.653z"
-                    clip-rule="evenodd" />
-                </svg>
+              <button @click="selectedType = 9" 
+                :class="selectedType === 9 ? 'border-slate-900 bg-slate-900 text-white' : 'border-slate-200 text-slate-500 hover:border-slate-300'"
+                class="p-3 rounded-xl border-2 font-bold transition-all">
+                Bisca do 9
               </button>
             </div>
-
           </div>
+
+          <div v-if="pendingIsRanked && !pendingIsMatch" class="bg-amber-50 rounded-xl p-4 border border-amber-100">
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-2">
+                <Coins class="size-5 text-amber-600"/>
+                <span class="text-sm font-bold text-amber-900">Entry Fee</span>
+              </div>
+              <span class="text-lg font-black text-amber-900">{{ gameCost }} Coins</span>
+            </div>
+            <p v-if="errorMessage" class="text-xs text-rose-600 mt-2 font-semibold text-center">{{ errorMessage }}</p>
+          </div>
+
+          <button @click="confirmStart"
+            class="w-full py-4 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-black text-lg shadow-lg shadow-emerald-200 transition-all active:scale-[0.98]">
+            CONFIRM & START
+          </button>
         </div>
       </div>
     </div>
@@ -113,62 +103,78 @@
 import { ref } from "vue";
 import { useAuthStore } from "@/stores/auth";
 import { useRouter } from "vue-router";
-import axios from "axios";
 import { Coins } from "lucide-vue-next";
 import { useMatchStore } from "@/stores/match";
+import { useGameStore } from "@/stores/game.js";
 import { useAPIStore } from "@/stores/api.js";
 
 const authStore = useAuthStore();
 const router = useRouter();
-const matchStore = useMatchStore()
-const open = ref(false);
-const errorMessage = ref("");
-const gameCost = 3;
+const matchStore = useMatchStore();
+const gameStore = useGameStore();
 const apiStore = useAPIStore();
 
+// Modal States
+const showModal = ref(false);
+const errorMessage = ref("");
 
-async function confirmPayment() {
+// Selected Options
+const pendingIsRanked = ref(false);
+const pendingIsMatch = ref(true);
+const selectedType = ref(3);
+const gameCost = 2;
+
+const ID_GAME_FEE = 5
+const COINS_GAME_FEE = -2
+
+function openConfig(isRanked: boolean) {
+  pendingIsRanked.value = isRanked;
+  errorMessage.value = "";
+  showModal.value = true;
+}
+
+async function confirmStart() {
+  // Sync Stores
+  matchStore.isRanked = pendingIsRanked.value;
+  matchStore.type = selectedType.value;
+  gameStore.type = selectedType.value;
+
   try {
-
-    if (!authStore.currentUser || authStore.currentUser.coins_balance < gameCost) {
-      errorMessage.value = "Not enough coins to play.";
+    // 1. Ranked Validation
+    if (pendingIsRanked.value) {
+      if (!authStore.currentUser || authStore.currentUser.coins_balance < gameCost) {
+        errorMessage.value = "Insufficient coins balance.";
+        return;
+      }
+      
+      if (pendingIsMatch.value) {
+        gameStore.context = 'mp-match';
+        router.push("/games/multiplayer");
+        console.log("You choosed Multiplayer Match of", selectedType.value, "cards.");
+      } else {
+        gameStore.context = 'mp-game';
+        router.push("/games/multiplayer");
+        console.log("You choosed Multiplayer Game of", selectedType.value, "cards.");
+      }
       return;
     }
-
-
-    /* Comentar isto se tiver a dar erro a começar jogo */
-    const startGame = await apiStore.sendStartGame();
-    const user = startGame.data;
-    /* ate aqui */
-
-
-    // const { data: user } = await axios.post("https://redycore.dpdns.org/api/start-game"); // descomentar se tiver a dar erro a começar jogo
-
-    authStore.currentUser = user;
-
-    router.push("/games/singleplayer");
+    
+    // 2. Singleplayer Logic
+    if (pendingIsMatch.value) {
+      authStore.currentUser = await ((await apiStore.updateCoinsUser(COINS_GAME_FEE)).data)
+      gameStore.context = 'sp-match';
+      router.push("/games/singleplayer");
+      console.log("You choosed Singleplayer Match of", selectedType.value, "cards.");
+    } else {
+      gameStore.context = 'sp-game';
+      router.push("/games/singleplayer");
+      console.log("You choosed Singleplayer Game of", selectedType.value, "cards.");
+    }
+    
+    showModal.value = false;
 
   } catch (err: any) {
-
-    if (err.response?.data?.message) {
-      alert(err.response.data.message);
-    } else {
-      alert("Erro ao iniciar o jogo");
-    }
+    errorMessage.value = err.response?.data?.message || "Failed to start game";
   }
 }
-
-function startGame(isRanked) {
-  matchStore.isRanked = isRanked
-  if (isRanked && authStore.currentUser) {
-    router.push("/games/multiplayer");
-    return;
-  }
-  if (!authStore.isLoggedIn || !isRanked) {
-    router.push("/games/singleplayer");
-    return;
-  }
-  open.value = true;
-}
-
 </script>

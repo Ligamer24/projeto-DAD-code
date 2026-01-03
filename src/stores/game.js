@@ -1,5 +1,5 @@
 import {defineStore} from "pinia";
-import {computed, inject, ref} from "vue";
+import {computed, inject, ref, toRaw} from "vue";
 import {useAuthStore} from "./auth";
 import {useAPIStore} from "./api";
 import {useMatchStore} from "./match";
@@ -10,6 +10,13 @@ import { getCardStrength, setupNewGame } from "@/utils/gameLogic";
 const SKIP_SLEEPS = false
 
 const UNDO_ACTION_PRICE_BASE = 3
+
+const COIN_BASE_WIN = 3
+const COIN_CAPOTE_MULTIPIER = 4
+const COIN_BANDEIRA_MULTIPIER = 6
+
+const ID_COIN_GAME_PAYOUT = 5
+const ID_COIN_GAME_FEE = 3
 
 export const useGameStore = defineStore("game", () => {
             // 1. Dependências
@@ -35,10 +42,12 @@ export const useGameStore = defineStore("game", () => {
             const currentTurn = ref(0);
             let gameBeganAt;
             let gameEndedAt;
+            const type = ref(3);
 
             // Estado interno do jogo
             const scores = ref({player1: 0, player2: 0});
             const gameEnded = ref(false);
+            const gameMarks = ref({player1: 0, player2: 0})
 
             //Variáveis auxiliares para o undo action
             let increment
@@ -48,8 +57,16 @@ export const useGameStore = defineStore("game", () => {
             // 3. Estado Multiplayer
             const matches = ref([]); // Lista de jogos no lobby
             const multiplayerGame = ref({}); // Estado do jogo multiplayer atual
+            const processingRound = ref(false);
 
-            const isRanked = computed(() => matchStore.isRanked)
+            const isRanked = ref(false);
+
+            const chatMessages = ref([]);
+
+            // 4. Game vs Match
+
+            const context = ref(null); //<'sp-game' | 'sp-match' | 'mp-game' | 'mp-match'>
+
 
             // ------------------------------------------------------------------------
             // VARS PARA SOCKETS
@@ -69,21 +86,30 @@ export const useGameStore = defineStore("game", () => {
             // LÓGICA SINGLEPLAYER (LOCAL)
             // ------------------------------------------------------------------------
 
-            const startNewGame = () => {
+            const startNewGame = (selectedType) => {
+                isRanked.value = context.value.slice(0,2) === 'mp' ? true : false
                 if (isRanked.value) {
                     searching_player.value = true
                     searching_player.value = true
                     opponent.value = {}
                     opponent_found.value = false
                     game_began.value = false
-                    createMatch({
+                    if (context.value === 'mp-match'){
+                        createMatch({
                         ...authStore.currentUser
-                    });
+                        }, selectedType);
+                    }else{
+                        createGame({
+                        ...authStore.currentUser
+                        }, selectedType);
+                    }
+
                     return
                 }
 
 
                 gameEnded.value = false
+                type.value = selectedType
                 scores.value = {player1: 0, player2: 0}
                 moves.value = []
                 tableCards.value = []
@@ -91,7 +117,7 @@ export const useGameStore = defineStore("game", () => {
                 currentTurn.value = authStore.currentUser?.id ?? -1
                 gameBeganAt = new Date()
 
-                const gameData = setupNewGame()
+                const gameData = setupNewGame(selectedType)
                 trunfo.value = gameData.trunfo
                 trumpSuit.value = gameData.trumpSuit
                 player1Hand.value = gameData.player1Hand
@@ -441,7 +467,7 @@ export const useGameStore = defineStore("game", () => {
             // ------------------------------------------------------------------------
 
             // Criar Jogo (Lobby)
-            const createMatch = (data = {}) => {
+            const createMatch = (data = {}, selectedType) => {
                 if (!authStore.currentUser) {
                     toast.error('Tens de fazer login para criar um jogo')
                     return
@@ -450,8 +476,25 @@ export const useGameStore = defineStore("game", () => {
                     toast.error('Sem conexão ao servidor.')
                     return
                 }
+                data.type = selectedType
+                data.context = context.value
                 // Emite para o servidor criar a sala
-                socket.emit('create-match', data)
+                socket.emit('find', data)
+            }
+
+            const createGame = (data = {}, selectedType) => {
+                if (!authStore.currentUser) {
+                    toast.error('Tens de fazer login para criar um jogo')
+                    return
+                }
+                if (!socket || !socket.connected) {
+                    toast.error('Sem conexão ao servidor.')
+                    return
+                }
+                data.type = selectedType
+                data.context = context.value
+                // Emite para o servidor criar a sala
+                socket.emit('find', data)
             }
 
             // Receber lista de jogos (Lobby)
@@ -460,11 +503,32 @@ export const useGameStore = defineStore("game", () => {
                 console.log(`[Bisca] Matches list updated: ${matches.value.length} matches`)
             }
 
+            const resetState = () => {
+                console.log("Limpar game store!")
+
+                deck.value = [];
+                player1Hand.value = [];
+                player2Hand.value = [];
+                trunfo.value = null;
+                trumpSuit.value = "";
+                tableCards.value = [];
+                lastRoundCards.value = [];
+                moves.value = [];
+                currentTurn.value = 0
+
+                scores.value = {player1: 0, player2: 0};
+                gameMarks.value = {player1: 0, player2: 0};
+                gameEnded.value = false;
+                multiplayerGame.value = {}
+                chatMessages.value = [];
+                moves.value = [];
+            }
+
             const setMultiplayerGame = (gameState) => {
                 console.log('[GameStore] Recebi update do servidor:', gameState);
                 if (!gameState) return
                 multiplayerGame.value = gameState;
-
+                //matchId.value = gameState.matchID || null;
                 const amIPlayer1 = gameState.player1 === currentUserId;
 
                 if (amIPlayer1) {
@@ -485,11 +549,27 @@ export const useGameStore = defineStore("game", () => {
                 tableCards.value = gameState.tableCards || [];
                 lastRoundCards.value = gameState.lastRoundCards || [];
                 currentTurn.value = gameState.currentTurn;
-                
+                moves.value = gameState.custom;
+
                 gameEnded.value = gameState.gameEnded;
+                if (gameEnded.value) {
+                    if (myScore < 61) amIPlayer1 ? gameMarks.value.player1 += 0 : gameMarks.value.player2 += 1
+                    else if (myScore < 91) {
+                        amIPlayer1 ? gameMarks.value.player1 += 1 : gameMarks.value.player2 += 1
+                        saveCoinsUpdate(null, 3, ID_COIN_GAME_PAYOUT)
+                    }
+                    else if (myScore < 120 ){
+                        amIPlayer1 ? gameMarks.value.player1 += 2 : gameMarks.value.player2 += 2
+                        saveCoinsUpdate(null, 4, ID_COIN_GAME_PAYOUT)
+                    }
+                    else {
+                        amIPlayer1 ? gameMarks.value.player1 += 4 : gameMarks.value.player2 += 4
+                        saveCoinsUpdate(null, 6, ID_COIN_GAME_PAYOUT)
+                    }
+                }
             }
             
-            socket.on('game-created', (game) => {
+            socket.on('game-started', (game) => {
                 console.log('[Bisca] Game created:', game)
 
                 try {
@@ -510,18 +590,63 @@ export const useGameStore = defineStore("game", () => {
                 opponent.value = game.player1Data.id === currentUserId ? game.player2Data : game.player1Data
                 opponent_found.value = true
                 searching_player.value = false
-                console.log(opponent.value);
+                // console.log(opponent.value);
                 setMultiplayerGame(game);
+
+                saveCoinsUpdate(null, -2, ID_COIN_GAME_FEE)
+
                 setTimeout(() => {
                     game_began.value = true
                 }, SKIP_SLEEPS ? 0 : 5000);
             });
 
-            socket.on('game-change', (data) => {
+            socket.on('game-change', async (data) => {
                 console.log('[Socket] Game Change recebido', data);
                 setMultiplayerGame(data.game);
                 lastRoundCards.value = data.roundResult?.cards ?? []
+                if (data.roundResult?.cards)
+                {
+                    processingRound.value = true;
+                    tableCards.value = data.roundResult.cards;
+                    await new Promise(resolve => setTimeout(resolve, SKIP_SLEEPS ? 0 : 1500));
+
+                    if (toRaw(tableCards.value) === data.roundResult.cards) {
+                        tableCards.value = [];
+                    }
+                    processingRound.value = false;
+
+                    if (data.roundResult.winner === currentUserId) {
+                        toast.success(`You won the round! (+${data.roundResult.points} pts)`)
+                    } else {
+                        toast.info(`Opponent won the round. (+${data.roundResult.points} pts)`);
+                    }
+                }
             })
+
+            socket.on("new-game-started", (newGame) => {
+                console.log("[Game] A iniciar nova ronda:", newGame.id)
+
+                setMultiplayerGame(newGame)
+
+                toast.success("New Round")
+            })
+
+            const saveCoinsUpdate = async (gameId, coinsWonByPlayer, coinTransactionType) => {
+
+                // Atualizar as coins do jogador
+                const coinsObj = {
+                    transaction_datetime: new Date(),
+                    user_id: authStore.currentUser.id,
+                    game_id: gameId,
+                    coin_transaction_type_id: coinTransactionType,
+                    coins: coinsWonByPlayer,
+                }
+                authStore.currentUser.coins += coinsWonByPlayer
+                const user = await apiStore.updateCoinsUser(coinsWonByPlayer)
+                apiStore.postCoinsTransaction(coinsObj)
+
+                authStore.currentUser = user.data
+            }
 
 
             // ------------------------------------------------------------------------
@@ -540,13 +665,14 @@ export const useGameStore = defineStore("game", () => {
 
             // Exemplo: Saber se é a minha vez (assumindo que o servidor manda 'currentTurnPlayerId')
             const isMyTurn = computed(() => {
+                if (processingRound.value) return false;
                 if (!multiplayerGame.value || !authStore.currentUser) return false
                 return multiplayerGame.value.currentTurnPlayerId === currentUserId
             })
 
             const sendEmote = (emote) => {
                 if (!socket || !socket.connected) return
-                socket.emit('send-emote', {gameId: multiplayerGame.value.id, emote: emote, userId: currentUserId})
+                socket.emit('send-emote', {matchID: matchStore.multiplayerMatch.id, emote: emote, userId: currentUserId})
             }
 
             const showEmote = ref(null);
@@ -560,12 +686,33 @@ export const useGameStore = defineStore("game", () => {
                     showEmote.value = null
                 }, 1500);
             }
+
+            const sendChatMessage = (text) => {
+                if (!text || !text.trim()) return;
+                if (!socket || !socket.connected) return;
+                const payload = {
+                    matchID: matchStore.multiplayerMatch?.id ?? null,
+                    gameID: multiplayerGame.value?.id ?? null,
+                    text: text.trim(),
+                    userId: currentUserId,
+                    userName: authStore.currentUser?.nickname || authStore.currentUser?.name || 'Player',
+                    timestamp: new Date().toISOString()
+                };
+
+                socket.emit('send-chat-message', payload);
+            }
             socket.on('receive-emote', (data) => {
                 playEmote(data);
             });
 
+            socket.on('receive-chat-message', (message) => {
+                    chatMessages.value.push(message);
+            })
+
             return {
                 // State Local
+                context,
+                isRanked,
                 deck,
                 player1Hand,
                 player2Hand,
@@ -578,8 +725,10 @@ export const useGameStore = defineStore("game", () => {
                 moves,
                 undoPrice,
                 botStatus,
+                type,
 
                 // Actions Local
+                resetState,
                 startNewGame,
                 playCardLocal,
                 playBotTurn,
@@ -596,10 +745,12 @@ export const useGameStore = defineStore("game", () => {
                 // State Multiplayer
                 matches,
                 multiplayerGame,
+                processingRound,
                 myHand,
                 opponentHand,
                 myScore,
                 opponentScore,
+                gameMarks,
 
                 // Actions Multiplayer
                 createMatch,
@@ -617,6 +768,9 @@ export const useGameStore = defineStore("game", () => {
 
                 sendEmote,
                 showEmote,
+
+                chatMessages,
+                sendChatMessage,
             };
         }
     )

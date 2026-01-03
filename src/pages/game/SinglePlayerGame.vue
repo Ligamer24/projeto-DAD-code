@@ -98,7 +98,7 @@
     class="fixed inset-0 z-50 flex items-start md:items-center justify-center bg-black/70 backdrop-blur-sm p-4 sm:p-6 overflow-y-auto"
   >
   <div
-      v-if="(game.gameEnded || match.status === 'finished') && earnedAchievements.length > 0"
+      v-if="(game.context === 'sp-match' && match.status === 'finished') && match.winner === currentUserId"
       class="absolute inset-0 z-0 pointer-events-none opacity-50"
       :style="{ backgroundImage: `url(${fireworksGif})`, backgroundSize: 'contain' }"
     ></div>
@@ -118,7 +118,7 @@
                     <span class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-1">You</span>
                     <span class="text-5xl font-black transition-all" :class="match.marks.player1 > match.marks.player2 ? 'text-green-600 scale-110' : 'text-gray-700'">{{ match.marks.player1 }}</span>
                 </div>
-                <div class="flex flex-col items-center px-4">
+                <div v-if="game.context === 'sp-match'" class="flex flex-col items-center px-4">
                     <span class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-1">GOAL</span>
                     <span class="text-xl font-black text-gray-300">4</span>
                 </div>
@@ -142,7 +142,7 @@
           <span :class="game.scores.player2 > 60 ? 'text-red-600 font-bold' : ''">Bot {{ game.scores.player2 }}</span>
         </div>
 
-         <div v-if="!auth.anonymous" class="mt-6 px-6"> <h3 class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-3">Match History</h3>
+         <div v-if="!auth.anonymous && game.context.split('-')[1] === 'match'" class="mt-6 px-6"> <h3 class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-3">Match History</h3>
             <div class="space-y-3 max-h-48 overflow-y-auto pr-1 custom-scrollbar">
                 <div v-for="game in match.gamesHistory" :key="game.roundNumber" class="bg-gray-50 border border-gray-100 rounded-lg p-3 relative overflow-hidden shadow-sm">
                     <div class="absolute left-0 top-0 bottom-0 w-1.5" :class="game.winner ? (game.winner === currentUserId ? 'bg-green-500' : 'bg-red-500') : 'bg-gray-500'"></div>
@@ -166,7 +166,7 @@
          </div>
 
          <div class="p-6 space-y-3 bg-white">
-            <button v-if="match.status === 'ongoing' || !auth.currentUser" @click="game.startNewGame()" class="w-full py-4 rounded-xl font-black text-white shadow-lg transform transition-all hover:scale-[1.02] active:scale-95 flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 ring-4 ring-blue-100">
+            <button v-if="(match.status === 'ongoing' || !auth.currentUser) && game.context === 'sp-match'" @click="game.startNewGame(match.type)" class="w-full py-4 rounded-xl font-black text-white shadow-lg transform transition-all hover:scale-[1.02] active:scale-95 flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 ring-4 ring-blue-100">
               <Hand class="w-5 h-5" /> {{auth.currentUser ? 'Deal Next Hand' : 'Play again'}}
             </button>
             <button v-if="match.status === 'finished'" @click="restartFullMatch" class="w-full py-4 rounded-xl font-black text-white shadow-lg transform transition-all hover:scale-[1.02] active:scale-95 flex items-center justify-center gap-2" :class="match.marks.player1 >= 4 ? 'bg-green-600 hover:bg-green-700 ring-4 ring-green-100' : 'bg-gray-800 hover:bg-gray-900 ring-4 ring-gray-200'">
@@ -235,7 +235,10 @@
       <GameBoard :trunfo="game.trunfo" :deck-count="game.deck.length" :player-played-card="playedCardSelf"
         :opponent-played-card="playedCardOpponent" :opponent-score="opponentScore" :player-score="playerScore"
         :last-opponent-card="lastRoundOpponentCard" :last-player-card="lastRoundPlayerCard" :currentTurn="currentTurn"
-        :player="auth.currentUser" :opponent="opponent" @undo="handleUndo" :undo-price="undoPrice" :is-ranked="match.isRanked"
+        :player="auth.currentUser" :opponent="opponent" 
+        :player-marks="game.context === 'sp-match' ? match.marks.player1 : game.gameMarks.player1"
+        :opponent-marks="game.context === 'sp-match' ? match.marks.player2 : game.gameMarks.player2" 
+        @undo="handleUndo" :undo-price="undoPrice" :is-ranked="match.isRanked"
         :bot-status="game.botStatus" />
     </section>
 
@@ -289,20 +292,23 @@ function updatePagesHeight() {
     gameDiv.value.style.height = available + 'px'
   }
 }
-
+const game = useGameStore();
 onMounted(() => {
   updatePagesHeight()
+  const selectedType = game.type || 9;
+  game.startNewGame(selectedType);
 })
 
 window.addEventListener('resize', updatePagesHeight)
 
-const game = useGameStore();
+
 const router = useRouter();
 const match = useMatchStore();
 const auth = useAuthStore();
 
 const currentUserId = auth.currentUser?.id ?? -1
 const opponent = computed(() => (match.opponent))
+const isMatch = computed(() => (game.match_id !== null))
 
 const currentTurn = computed(() => (game.currentTurn))
 
@@ -337,7 +343,7 @@ onMounted(() => {
   // Inicia a Match
   if (!auth.anonymous) match.initMatch();
   // Inicialização do jogo
-  game.startNewGame();
+  game.startNewGame(game.type);
 });
 
 function handlePlayCard(card, index) {
@@ -348,7 +354,7 @@ function handlePlayCard(card, index) {
 // Após Match acabar
 const restartFullMatch = () => {
   match.initMatch();
-  game.startNewGame();
+  game.startNewGame(game.type);
 };
 
 // Lógica de Textos e Cores

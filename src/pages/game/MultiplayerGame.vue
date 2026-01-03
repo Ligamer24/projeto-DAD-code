@@ -12,7 +12,7 @@
       <polyline points="16 17 21 12 16 7"></polyline>
       <line x1="21" y1="12" x2="9" y2="12"></line>
     </svg>
-    <span>Quit Match</span>
+    <span>Quit</span>
   </button>
 
   <div v-if="auth.currentUser?.type === 'A'" class="absolute top-24 right-4">
@@ -70,13 +70,20 @@
         </svg>
       </div>
 
-      <h3 class="text-lg font-bold text-slate-900 mb-2" id="modal-title">
-        Forfeit the Match?
-      </h3>
-      <p class="text-sm text-slate-500 mb-6">
-        If you leave now, you will lose all the progress from this match and it will count as a <span
-          class="font-bold text-rose-600">defeat</span>.
-      </p>
+      <div v-if="match.multiplayerMatch.id || game.multiplayerGame.id">
+        <h3 class="text-lg font-bold text-slate-900 mb-2" id="modal-title">
+          Forfeit the Match?
+        </h3>
+        <p class="text-sm text-slate-500 mb-6">
+          If you leave now, you will lose all the progress from this match and it will count as a <span
+            class="font-bold text-rose-600">defeat</span>.
+        </p>
+      </div>
+      <div v-else>
+        <h3 class="text-lg font-bold text-slate-900 mb-2" id="modal-title">
+          Exit Queue?
+        </h3>
+      </div>
 
       <!-- Botões de Ação -->
       <div class="flex flex-col-reverse sm:flex-row gap-3 justify-center">
@@ -97,11 +104,11 @@
     </div>
   </div>
   <div
-      v-if="game.gameEnded || match.status === 'finished'"
+      v-if="game.multiplayerGame.gameEnded || match.status === 'finished'"
       class="fixed inset-0 z-50 flex items-start md:items-center justify-center bg-black/70 backdrop-blur-sm p-4 sm:p-6 overflow-y-auto"
   >
     <div
-        v-if="(game.gameEnded || match.status === 'finished') && earnedAchievements.length > 0"
+        v-if="(game.multiplayerGame.gameEnded || match.status === 'finished') && earnedAchievements.length > 0"
         class="absolute inset-0 z-0 pointer-events-none opacity-50"
         :style="{ backgroundImage: `url(${fireworksGif})`, backgroundSize: 'contain' }"
     ></div>
@@ -124,7 +131,7 @@
               <span class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-1">You</span>
               <span class="text-5xl font-black transition-all"
                     :class="match.marks.player1 > match.marks.player2 ? 'text-green-600 scale-110' : 'text-gray-700'">{{
-                  match.marks.player1
+                  game.context === "mp-match" ? match.marks.player1 : game.gameMarks.player1
                 }}</span>
             </div>
             <div class="flex flex-col items-center px-4">
@@ -132,10 +139,10 @@
               <span class="text-xl font-black text-gray-300">4</span>
             </div>
             <div class="flex flex-col items-center">
-              <span class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-1">Bot</span>
+              <span class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-1">Opponent</span>
               <span class="text-5xl font-black transition-all"
                     :class="match.marks.player2 > match.marks.player1 ? 'text-red-600 scale-110' : 'text-gray-700'">{{
-                  match.marks.player2
+                  game.context === "mp-match" ? match.marks.player2 : game.gameMarks.player2
                 }}</span>
             </div>
           </div>
@@ -151,66 +158,69 @@
         <div
             class="px-6 py-3 bg-white flex justify-center gap-4 text-sm text-gray-500 font-medium border-b border-gray-100">
           <span>Last Round:</span>
-          <span :class="game.scores.player1 > 60 ? 'text-green-600 font-bold' : ''">You {{ game.scores.player1 }}</span>
+          <span :class="game.myScore > 60 ? 'text-green-600 font-bold' : ''">You {{ game.myScore }}</span>
           <span>-</span>
-          <span :class="game.scores.player2 > 60 ? 'text-red-600 font-bold' : ''">Bot {{ game.scores.player2 }}</span>
+          <span :class="game.opponentScore > 60 ? 'text-red-600 font-bold' : ''">Opponent {{ game.opponentScore }}</span>
         </div>
 
-        <div v-if="!auth.anonymous" class="mt-6 px-6"><h3
-            class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-3">Match History</h3>
+        <div v-if="!auth.anonymous && historyWithDisplay.length > 0" class="mt-6 px-6">
+          
+          <h3 class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-3">
+              Match History
+          </h3>
+
           <div class="space-y-3 max-h-48 overflow-y-auto pr-1 custom-scrollbar">
-            <div v-for="game in match.gamesHistory" :key="game.roundNumber"
-                 class="bg-gray-50 border border-gray-100 rounded-lg p-3 relative overflow-hidden shadow-sm">
-              <div class="absolute left-0 top-0 bottom-0 w-1.5"
-                   :class="game.winner ? (game.winner === currentUserId ? 'bg-green-500' : 'bg-red-500') : 'bg-gray-500'"></div>
-              <div class="pl-3">
-                <div class="flex justify-between items-center mb-2 border-b border-gray-200 pb-2">
-                  <span class="font-bold text-gray-700 text-sm">Game {{ game.roundNumber }}</span>
-                  <div class="flex items-center gap-2">
-                    <span v-if="game.scoreDetail.player1 >= 61"
-                          class="text-[10px] font-bold px-1.5 py-0.5 rounded bg-gray-200 text-gray-600">{{
-                        game.scoreDetail.player1 < 61 ? '' : (game.scoreDetail.player1 < 91 ? 'Risca' : (game.scoreDetail.player1 < 120 ? 'Capote' : 'Bandeira'))
-                      }}</span>
-                    <span class="text-[10px] font-bold px-1.5 py-0.5 rounded bg-gray-200 text-gray-600">{{
-                        game.marksAwarded.player1
-                      }} pts</span>
-                    <span class="text-xs font-black uppercase"
-                          :class="game.winner ? (game.winner === currentUserId ? 'text-green-600' : 'text-red-600') : 'text-gray-600'">{{
-                        game.winner ? (game.winner === currentUserId ? "WIN" : "LOSE") : "DRAW"
-                      }}</span>
+              
+              <div v-for="game in historyWithDisplay" :key="game.id"
+                  class="bg-gray-50 border border-gray-100 rounded-lg p-3 relative overflow-hidden shadow-sm">
+                  
+                  <div class="absolute left-0 top-0 bottom-0 w-1.5" :class="game.display.colorClass"></div>
+
+                  <div class="pl-3">
+                      <div class="flex justify-between items-center mb-2 border-b border-gray-200 pb-2">
+                          <span class="font-bold text-gray-700 text-sm">Ronda {{ game.roundNumber }}</span>
+                          
+                          <div class="flex items-center gap-2">
+                              <span class="text-[10px] font-bold px-1.5 py-0.5 rounded" :class="game.display.badgeColor">
+                                  {{ game.winType }}
+                              </span>
+
+                              <span class="text-[10px] font-bold px-1.5 py-0.5 rounded bg-gray-200 text-gray-600">
+                                  {{ game.pointsAwarded }} pts
+                              </span>
+
+                              <span class="text-xs font-black uppercase" :class="game.display.textClass">
+                                  {{ game.display.resultLabel }}
+                              </span>
+                          </div>
+                      </div>
+
+                      <div class="grid grid-cols-3 items-center text-center">
+                          <div class="flex flex-col">
+                              <span class="text-[10px] uppercase font-bold text-gray-400">You</span>
+                              <span class="text-xl font-black leading-none" 
+                                    :class="game.display.myScore > game.display.oppScore ? 'text-gray-800' : 'text-gray-400'">
+                                  {{ game.display.myScore }}
+                              </span>
+                          </div>
+
+                          <div class="text-gray-300 font-bold text-xs italic">vs</div>
+
+                          <div class="flex flex-col">
+                              <span class="text-[10px] uppercase font-bold text-gray-400">Opponent</span>
+                              <span class="text-xl font-black leading-none"
+                                    :class="game.display.oppScore > game.display.myScore ? 'text-gray-800' : 'text-gray-400'">
+                                  {{ game.display.oppScore }}
+                              </span>
+                          </div>
+                      </div>
                   </div>
-                </div>
-                <div class="grid grid-cols-3 items-center text-center">
-                  <div class="flex flex-col"><span class="text-[10px] uppercase font-bold text-gray-400">Me</span><span
-                      class="text-xl font-black leading-none"
-                      :class="game.scoreDetail.player1 > game.scoreDetail.player2 ? 'text-gray-800' : 'text-gray-400'">{{
-                      game.scoreDetail.player1
-                    }}</span></div>
-                  <div class="text-gray-300 font-bold text-xs italic">vs</div>
-                  <div class="flex flex-col"><span class="text-[10px] uppercase font-bold text-gray-400">Bot</span><span
-                      class="text-xl font-black leading-none"
-                      :class="game.scoreDetail.player2 > game.scoreDetail.player1 ? 'text-gray-800' : 'text-gray-400'">{{
-                      game.scoreDetail.player2
-                    }}</span></div>
-                </div>
               </div>
-            </div>
           </div>
-        </div>
+      </div>
 
         <div class="p-6 space-y-3 bg-white">
-          <button v-if="match.status === 'ongoing' || !auth.currentUser" @click="game.startNewGame()"
-                  class="w-full py-4 rounded-xl font-black text-white shadow-lg transform transition-all hover:scale-[1.02] active:scale-95 flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 ring-4 ring-blue-100">
-            <Hand class="w-5 h-5"/>
-            {{ auth.currentUser ? 'Deal Next Hand' : 'Play again' }}
-          </button>
-          <button v-if="match.status === 'finished'" @click="restartFullMatch"
-                  class="w-full py-4 rounded-xl font-black text-white shadow-lg transform transition-all hover:scale-[1.02] active:scale-95 flex items-center justify-center gap-2"
-                  :class="match.marks.player1 >= 4 ? 'bg-green-600 hover:bg-green-700 ring-4 ring-green-100' : 'bg-gray-800 hover:bg-gray-900 ring-4 ring-gray-200'">
-            <RotateCcw class="w-5 h-5"/>
-            Play Again
-          </button>
-          <button @click="exitGame"
+          <button v-if="match.status === 'finished' || (!match.player1_id && game.gameEnded)" @click="exitMatch"
                   class="w-full py-3 rounded-xl font-bold text-gray-500 bg-white hover:bg-gray-50 border-2 border-transparent hover:border-gray-200 transition-all flex items-center justify-center gap-2">
             <DoorOpen class="w-5 h-5"/>
             Exit to Lobby
@@ -222,7 +232,7 @@
            class="flex flex-col w-full md:w-72 bg-amber-50 rounded-b-2xl md:rounded-r-2xl md:rounded-l-none md:mt-0 border
         border-t md:border-t-0 md:border-l border-amber-100 p-6 transform transition-all duration-500 delay-100 origin-top
          md:origin-left"
-           :class="(match.status === 'finished' || game.gameEnded) ? 'scale-100 opacity-100' : 'scale-95 opacity-0'">
+           :class="(match.status === 'finished' || game.multiplayerGame.gameEnded) ? 'scale-100 opacity-100' : 'scale-95 opacity-0'">
         <h3
             class="text-sm font-black text-amber-800 uppercase tracking-wider mb-6 flex items-center justify-center md:justify-start gap-2">
           <Gift class="w-5 h-5"/>
@@ -257,7 +267,7 @@
                 <p class="font-bold text-amber-900 text-sm leading-tight truncate">{{ ach.title }}</p>
                 <p class="text-[10px] text-amber-600 font-medium truncate">{{ ach.desc }}</p>
               </div>
-              <div class="ml-auto flex-shrink-0">
+              <div v-if="game.context === 'mp-game'" class="ml-auto flex-shrink-0">
                 <span
                     class="text-xs font-bold text-amber-500 bg-amber-50 px-2 py-1 rounded-md border border-amber-100">+{{
                     ach.bonus
@@ -270,7 +280,7 @@
     </div>
   </div>
 
-  <div v-else-if="game.searching_player">
+  <div v-else-if="game.searching_player || match.searching_player">
     <div class="flex flex-col items-center justify-center h-dvh w-full p-4 box-border">
       <div class="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-blue-500 mb-6"></div>
       <h2 class="text-2xl font-bold text-gray-700 mb-2">Searching for an opponent...</h2>
@@ -278,7 +288,9 @@
         against.</p>
     </div>
   </div>
-  <div v-else-if="game.opponent_found && !game.game_began">
+  <div v-else-if="(game.context === 'mp-game' && game.opponent_found && !game.game_began)
+    ||
+    (game.context === 'mp-match' && match.opponent_found && !match.match_began)">
     <div class="flex flex-col items-center justify-center h-dvh w-full p-4 box-border ">
       <div
           class="bg-white p-8 rounded-2xl shadow-xl border border-slate-100 flex flex-col items-center max-w-sm w-full animate-in fade-in zoom-in duration-500">
@@ -292,29 +304,30 @@
           <div
               class="absolute inset-0 bg-blue-500 rounded-full blur opacity-20 group-hover:opacity-30 transition-opacity"></div>
           <Avatar class="size-24 lg:size-32 border-4 border-white shadow-lg relative">
-            <AvatarImage v-if="game.opponent.photo_avatar_filename"
-                         :src="`${serverBaseURL}/storage/photos_avatars/${game.opponent.photo_avatar_filename}`"
-                         :alt="game.opponent.name"/>
+            <AvatarImage v-if="game.context === 'mp-match' ? match.opponent.photo_avatar_filename : game.opponent.photo_avatar_filename"
+                         :src="`${serverBaseURL}/storage/photos_avatars/${game.context === 'mp-match' ? match.opponent.photo_avatar_filename : game.opponent.photo_avatar_filename}`"
+                         :alt="game.context === 'mp-match' ? match.opponent.name : game.opponent.name"/>
             <AvatarFallback class="text-4xl">
-              {{ game.opponent.name?.charAt(0).toUpperCase() }}
+              {{ game.context === 'mp-match' ? match.opponent.name?.charAt(0).toUpperCase() : match.opponent.name?.charAt(0).toUpperCase() }}
             </AvatarFallback>
           </Avatar>
           <div
               class="absolute -bottom-3 left-1/2 -translate-x-1/2 bg-amber-400 text-white text-xs font-bold px-3 py-1 rounded-full border-2 border-white shadow-sm flex items-center gap-1 min-w-max">
             <Trophy class="w-3 h-3"/>
-            <span>{{ game.opponent.rating ?? '---' }}</span>
+            <span>{{ (game.context === 'mp-match' ? match.opponent.rating : game.opponent.rating) ?? '---'}}</span>
           </div>
         </div>
 
         <div class="text-center space-y-1 mb-8">
-          <h3 class="text-xl font-bold text-slate-900">{{ game.opponent.nickname }}</h3>
-          <p class="text-sm text-slate-500 font-medium">{{ game.opponent.name }}</p>
+          <h3 class="text-xl font-bold text-slate-900">{{ match.opponent.nickname }}</h3>
+          <p class="text-sm text-slate-500 font-medium">{{ match.opponent.name }}</p>
         </div>
 
         <div class="w-full space-y-2">
           <div class="flex justify-between text-xs font-bold text-slate-400 uppercase tracking-wider">
-            <span>Starting Match</span>
+            <span>Starting {{ game.context === 'mp-match' ? 'Match' : 'Game' }}</span>
             <span class="animate-pulse">...</span>
+            
           </div>
           <div class="h-2 w-full bg-slate-100 rounded-full overflow-hidden">
             <div class="h-full bg-blue-500 animate-pulse w-full origin-left"></div>
@@ -322,15 +335,152 @@
         </div>
       </div>
     </div>
-
+    
   </div>
+  <div v-else-if="game.context === 'mp-match' && match.showStakeNegotiation" class="mt-6 flex justify-center p-4">
+      <StakeNegotiation
+        :matchInfo="match.multiplayerMatch"
+        :currentUser="auth.currentUser"
+        @propose-stake="onUpdateStake"
+        @accept-stake="onConfirmStake"
+      />
+    </div>
   <div v-else class="flex flex-col justify-between p-3 box-border h-dvh w-full" ref="gameDiv">
     <section class="flex flex-row items-center relative z-30">
-      <div class="relative">
-        <MessagesSquare class="inline-block w-5 h-5 text-white mr-2 cursor-pointer" @click="openEmotes"/>
+      
+      <div class="relative flex flex-col gap-2 mr-4">
+        <button
+            @click="shareLink"
+            class="group flex items-center justify-center w-10 h-10 bg-black/20 backdrop-blur-sm border border-white/10 rounded-xl
+                   hover:bg-blue-500 hover:border-blue-400 text-white shadow-lg transition-all duration-200 cursor-pointer"
+            title="Share Match Link"
+        >
+          <Share2 class="w-5 h-5 group-hover:scale-110 transition-transform" />
+        </button>
 
-        <div v-if="emotesOpen" class="absolute top-full left-0 mt-3 bg-white p-3 rounded-2xl rounded-tl-none shadow-2xl border border-slate-100 w-max z-50 animate-in fade-in zoom-in-95 duration-200 origin-top-left">
-          <div class="absolute -top-2 left-0.5 w-4 h-4 bg-white border-t border-l border-slate-100 transform rotate-45"></div>
+        <button
+            @click="openEmotes"
+            class="group flex items-center justify-center w-10 h-10 bg-black/20 backdrop-blur-sm border border-white/10 rounded-xl
+                   hover:bg-amber-500 hover:border-amber-400 text-white shadow-lg transition-all duration-200 cursor-pointer"
+            :class="{ 'bg-amber-500 border-amber-400': emotesOpen }"
+            title="Emotes"
+        >
+          <MessagesSquare class="w-5 h-5 group-hover:scale-110 transition-transform" />
+        </button>
+
+        <div class="relative">
+          <button
+              @click="openChat"
+              class="group flex items-center justify-center w-10 h-10 bg-black/20 backdrop-blur-sm border border-white/10 rounded-xl
+                     hover:bg-amber-500 hover:border-amber-400 text-white shadow-lg transition-all duration-200 cursor-pointer"
+              :class="{ 'bg-amber-500 border-amber-400': isChatOpen }"
+              title="Chat"
+          >
+            <MessageCircle class="w-5 h-5 group-hover:scale-110 transition-transform" />
+            <span
+              v-if="unreadCount"
+              class="absolute -top-1 -right-1 w-3 h-3
+                    bg-red-500 rounded-full
+                    ring-2 ring-white dark:ring-slate-900
+                    animate-pulse">
+            </span>
+          </button>
+
+          <!-- Chat -->
+          <div v-if="isChatOpen" class="absolute top-2 left-14 z-50 w-72 animate-fade-in">
+            <div
+                class="relative backdrop-blur-xl bg-white/90 dark:bg-slate-800/90
+           rounded-2xl shadow-2xl border border-slate-200/60 dark:border-slate-700/60
+           overflow-hidden">
+
+              <!-- pointer -->
+              <div
+                  class="absolute top-4 -left-2 w-4 h-4
+             bg-white/90 dark:bg-slate-800/90
+             border-b border-l border-slate-200/60 dark:border-slate-700/60
+             rotate-45">
+              </div>
+
+              <!-- Header -->
+              <div
+                  class="px-4 py-2.5
+             bg-gradient-to-r from-blue-500 to-indigo-500
+             text-white flex justify-between items-center">
+                <span class="font-semibold text-sm tracking-wide">Game Chat</span>
+
+                <button
+                    @click="isChatOpen = false"
+                    class="opacity-80 hover:opacity-100 transition cursor-pointer">
+                  <X :size="16" />
+                </button>
+              </div>
+
+              <!-- Messages -->
+              <div
+                  ref="messagesContainer"
+                  class="max-h-72 overflow-y-auto px-3 py-2 space-y-2 text-sm
+             scrollbar-thin scrollbar-thumb-slate-300 dark:scrollbar-thumb-slate-600">
+
+                <div v-if="game.chatMessages.length === 0"
+                     class="text-center text-slate-400 text-xs py-6">
+                  No messages yet — break the ice ❄️
+                </div>
+
+                <div
+                    v-for="(msg, index) in game.chatMessages"
+                    :key="index"
+                    class="flex flex-col gap-0.5"
+                    :class="msg.userId === currentUserId ? 'items-end' : 'items-start'">
+
+        <span class="text-[10px] text-slate-400 px-1">
+          {{ msg.userId === currentUserId ? 'You' : msg.userName }}
+        </span>
+
+                  <div
+                      class="px-3 py-2 rounded-2xl max-w-[85%] break-words
+                 shadow-sm leading-snug"
+                      :class="msg.userId === currentUserId
+            ? 'bg-blue-600 text-white rounded-br-md'
+            : 'bg-slate-100 text-slate-800 dark:bg-slate-700 dark:text-gray-200 rounded-bl-md'">
+
+                    {{ msg.text }}
+                  </div>
+                </div>
+              </div>
+
+              <!-- Input -->
+              <div
+                  class="p-2.5 bg-white/70 dark:bg-slate-900/70
+             border-t border-slate-200/60 dark:border-slate-700/60
+             flex gap-2 items-center">
+
+                <input
+                    v-model="chatInput"
+                    @keyup.enter="sendMessage"
+                    type="text"
+                    placeholder="Type a message…"
+                    class="flex-1 text-sm bg-white dark:bg-slate-800
+         border border-slate-300 dark:border-slate-600
+         rounded-full px-4 py-2 text-white
+         focus:outline-none focus:ring-2 focus:ring-blue-500
+         placeholder:text-slate-400" />
+
+                <button
+                    @click="sendMessage"
+                    class="h-9 w-9 flex items-center justify-center
+               rounded-full bg-blue-600 text-white cursor-pointer
+               hover:bg-blue-700 active:scale-95 transition">
+                  <Send :size="16" />
+                </button>
+              </div>
+
+            </div>
+          </div>
+
+        </div>
+
+        <div v-if="emotesOpen" class="absolute top-12 left-14 bg-white p-3 rounded-2xl rounded-tl-none shadow-2xl border border-slate-100 w-max z-50 animate-in fade-in zoom-in-95 duration-200 origin-top-left">
+          <div class="absolute top-3 -left-2 w-4 h-4 bg-white border-b border-l border-slate-100 transform rotate-45"></div>
           <div class="grid grid-cols-4 gap-3">
             <div v-for="emote in emotes" :key="emote.id" class="flex justify-center">
               <img
@@ -342,6 +492,10 @@
             </div>
           </div>
         </div>
+
+        <div v-if="shared" class="absolute top-0 left-14 bg-slate-900 text-white text-xs font-bold rounded-lg px-3 py-2 shadow-xl animate-in fade-in slide-in-from-left-2 whitespace-nowrap z-50">
+          Link copied!
+        </div>
       </div>
 
       <div class="w-full flex flex-wrap md:gap-2 justify-center p-2 -space-x-6 md:space-x-2 overflow-visible">
@@ -349,7 +503,20 @@
       </div>
     </section>
 
-    <section class="flex-grow flex items-center justify-center">
+    <section class="flex-grow flex items-center justify-center relative">
+
+      <div 
+        v-if="isMyTurn" 
+        class="absolute z-50 right-4 md:right-10 top-1/2 -translate-y-1/2 pointer-events-none"
+      >
+        <div class="pointer-events-auto">
+          <GameTimer 
+            :key="`${game.currentTurn}-${playerScore}-${opponentScore}`"
+            :duration="20" 
+            @timeout="handleTimeout" 
+          />
+        </div>
+      </div>
       <GameBoard 
       :trunfo="game.trunfo" 
       :deck-count="game.deck.length"
@@ -365,7 +532,10 @@
       :last-opponent-card="lastRoundOpponentCard"
       
       :player="auth.currentUser"
-      :opponent="game.opponent"
+      :opponent="match.player1_id ? match.opponent : game.opponent"
+
+      :player-marks="game.context === 'mp-match' ? match.marks.player1 : game.gameMarks.player1"
+      :opponent-marks="game.context === 'mp-match' ? match.marks.player2 : game.gameMarks.player2"
 
       :is-ranked="match.isRanked"
       :showEmote="game.showEmote"
@@ -389,13 +559,14 @@
 </template>
 
 <script setup>
-import {computed, inject, onMounted, ref} from "vue";
+import {computed, inject, onMounted, onUnmounted, ref, watch, nextTick} from "vue";
 import {useGameStore} from "@/stores/game.js";
 import {useMatchStore} from "@/stores/match";
 import {useAuthStore} from "@/stores/auth";
 import {useRouter} from "vue-router";
 import GameCard from "@/components/game/GameCard.vue";
 import GameBoard from "@/components/game/GameBoard.vue";
+import GameTimer from "@/components/game/GameTimer.vue";
 import {
   Badge,
   Coins,
@@ -405,17 +576,21 @@ import {
   Hand,
   Handshake,
   MessagesSquare,
+  MessageCircle,
   RotateCcw,
   Sparkles,
   ThumbsDown,
   ThumbsUp,
   Trophy,
-  X
+  X,
+  Share2,
+  Send
 } from 'lucide-vue-next'
 import fireworksGif from '@/assets/fireworks.gif'
 import {Avatar, AvatarFallback, AvatarImage} from "@/components/ui/avatar";
 import {useEmotesStore} from "@/stores/emotes.js";
 import { useSocketStore } from "@/stores/socket";
+import StakeNegotiation from "@/components/game/StakeNegotiation.vue";
 
 const gameDiv = ref(null);
 const serverBaseURL = inject("baseURL")
@@ -436,6 +611,8 @@ onMounted(() => {
 
 window.addEventListener('resize', updatePagesHeight)
 
+//OBS: A match store equipara o player1 como o authUser(não necessário implementar amIPlayer1)
+
 const game = useGameStore();
 const router = useRouter();
 const match = useMatchStore();
@@ -446,9 +623,67 @@ const currentUserId = auth.currentUser?.id
 
 const isOpen = ref('')
 
+const isChatOpen = ref(false);
+const chatInput = ref("")
+const messagesContainer = ref(null)
+
 const isMyTurn = computed(() => game.currentTurn === currentUserId)
 
 const iWon = computed(() => game.winner === currentUserId)
+
+const scrollChatToBottom = () => {
+  nextTick(() => {
+    if (messagesContainer.value) {
+      messagesContainer.value.scrollTop = messagesContainer.value.scrollHeight;
+    }
+  });
+};
+
+const unreadCount = ref(true);
+
+const openChat = () => {
+  isChatOpen.value = !isChatOpen.value;
+  if (isChatOpen.value) {
+    unreadCount.value = false;
+    scrollChatToBottom();
+  }
+};
+
+watch(() => game.chatMessages.length, (len, oldLen) => {
+  const last = game.chatMessages[game.chatMessages.length - 1];
+  if (isChatOpen.value) {
+    scrollChatToBottom();
+  } else if (last && last.userId !== currentUserId && len > (oldLen ?? 0)) {
+    unreadCount.value = true;
+  }
+});
+
+const onUpdateStake = (amount) => {
+  console.log("MultiplayerGame.vue - onUpdateStake:", amount);
+  socketStore.emitProposeStake(match.multiplayerMatch.id, amount, currentUserId);
+};
+
+const onConfirmStake = () => {
+  console.log("MultiplayerGame.vue - onConfirmStake");
+  
+  socketStore.emitAcceptStake(match.multiplayerMatch.id, currentUserId);
+};
+
+const startingMatchDelayMs = ref(3000); // altere aqui o tempo em ms
+let startingMatchTimer = null;
+watch(
+  () => match.opponent_found,
+  (found) => {
+    if (found && !match.match_began) {
+      clearTimeout(startingMatchTimer);
+      startingMatchTimer = setTimeout(() => {
+        match.showStakeNegotiation = true; // sai da tela de "Starting Match"
+      }, startingMatchDelayMs.value);
+    } else {
+      clearTimeout(startingMatchTimer);
+    }
+  }
+);
 
 const playedCardSelf = computed(() => 
     game.tableCards.find((c) => c.playedBy === currentUserId)
@@ -470,30 +705,42 @@ const playerScore = computed(() => game.myScore)
 
 onMounted(() => {
   if (!auth.anonymous) match.initMatch();
-  game.startNewGame();
+  game.startNewGame(game.type);
 });
+
+onUnmounted(() => clearTimeout(startingMatchTimer));
 
 function playCard(card) {
   if (!isMyTurn.value) return;
-  socketStore.emitPlayCard(game.multiplayerGame.id, card, currentUserId)
+  socketStore.emitPlayCard(match.multiplayerMatch.id, game.multiplayerGame.id, card, currentUserId)
 }
 
-// Após Match acabar
-const restartFullMatch = () => {
-  match.initMatch();
-  game.startNewGame();
+// Lógica de Timeout do Timer
+const handleTimeout = () => {
+  if (!isMyTurn.value) return;
+  
+    const matchId = match.multiplayerMatch?.id ?? null
+    const gameId = game.multiplayerGame.id
+    const userId = currentUserId
+  
+  
+  console.log("Timeout emitted:", matchId, gameId, userId);
+  socketStore.emitPlayerTimeout(matchId, gameId, userId);
 };
 
 // Lógica de Textos e Cores
 const headerTitle = computed(() => {
-  // 1. Se a PARTIDA acabou
+
   if (match.status === "finished") {
     return match.marks.player1 >= 4 ? "VICTORY!" : "DEFEAT!";
   }
-  // 2. Se for apenas a RONDA
-  if (game.scores.player1 > 60) return "Round Won!";
-  if (game.scores.player1 < 60) return "Round Lost!";
-  return "Round Draw!";
+  if (game.gameEnded) {
+    if (game.myScore > 60) return "Round Won!";
+    if (game.myScore < 60) return "Round Lost!";
+    return "Round Draw!";
+  }
+
+  return "Match in Progress";
 });
 
 const headerSubtitle = computed(() => {
@@ -504,9 +751,9 @@ const headerSubtitle = computed(() => {
   }
   // Subtítulo da ronda
   let msg = "";
-  if (game.scores.player1 < 61) msg = "";
-  else if (game.scores.player1 < 91) msg = "You did a simple!";
-  else if (game.scores.player1 < 120) msg = "You achieved a capote!";
+  if (game.myScore < 61) msg = "";
+  else if (game.myScore < 91) msg = "You did a simple!";
+  else if (game.myScore < 120) msg = "You achieved a capote!";
   else msg = "You achieved a bandeira!";
   return msg;
 });
@@ -515,9 +762,9 @@ const headerIcon = computed(() => {
   if (match.status === "finished") {
     return match.marks.player1 >= 4 ? Trophy : X
   }
-  return game.scores.player1 > 60
+  return game.myScore > 60
       ? ThumbsUp
-      : game.scores.player1 === 60
+      : game.myScore === 60
           ? Handshake
           : ThumbsDown
 });
@@ -527,43 +774,123 @@ const headerBgClass = computed(() => {
   if (match.status === "finished") {
     return match.marks.player1 >= 4 ? "bg-green-600" : "bg-red-700";
   }
-  // Cores da Ronda (mais suaves)
-  if (game.scores.player1 > 60) return "bg-blue-500"; // Azul para vitória parcial
-  if (game.scores.player1 < 60) return "bg-orange-500"; // Laranja para derrota parcial
-  return "bg-gray-500";
+  
+  if (game.gameEnded) {
+    // Lógica da Ronda (120 pontos)
+    if (game.myScore > 60) return "bg-blue-500";
+    if (game.myScore < 60) return "bg-orange-500";
+    return "bg-gray-500";
+  }
+
+  return "bg-slate-800"; // Cor neutra enquanto jogam
 });
 
-const exitGame = () => {
-  router.push("/dashboard");
+const exitMatch = () => {
+  match.resetState()
+  game.resetState()
+  router.push("/home");
 };
 
 // Lógica de Achievements e Moedas
 const earnedAchievements = computed(() => {
-  const list = []
-  match.gamesHistory.forEach(game => {
-    if (game.winner == auth.currentUser.id) {
-      if (game.scoreDetail.player1 >= 120) {
-        list.push({icon: Flag, title: 'Bandeira', desc: 'Won all tricks', bonus: 6})
-      } else if (game.scoreDetail.player1 >= 91) {
-        list.push({icon: Badge, title: 'Capote', desc: 'Opponent scored 0', bonus: 4})
-        console.log("Capote achieved")
-      } else if (game.scoreDetail.player1 > 60) {
-        list.push({icon: Sparkles, title: 'Victory', desc: 'Simple win', bonus: 3})
-        console.log("Victory achieved")
-      }
 
+  if (!match || !match.gamesHistory || !auth.currentUser) return []
+
+  const list = []
+
+  const myId = auth.currentUser.id
+  const p1Id = match.player1_id
+
+  const amIPlayer1 = myId === p1Id
+  const context = game.context
+
+  const ctx = context.split("-")[1]
+
+  if (ctx === 'match')
+  {
+    match.gamesHistory.forEach(game => {
+      if (game.winner == myId) {
+
+        const myScore = amIPlayer1 ? game.scores.player1 : game.scores.player2
+
+        if (myScore >= 120) {
+          list.push({icon: Flag, title: 'Bandeira', desc: '120 Points!', bonus: 6})
+        } else if (myScore >= 91) {
+          list.push({icon: Badge, title: 'Capote', desc: '>= 91 Points!', bonus: 4})
+        } else if (myScore > 60) {
+          list.push({icon: Sparkles, title: 'Victory', desc: 'Simple win', bonus: 3})
+        }
+
+      }
+    })
+
+    if (match.status === 'finished' && match.marks.player1 >= 4) {
+      list.unshift({icon: Trophy, title: 'Match Winner', desc: 'Defeated the Opponent', bonus: 0})
     }
-  })
-  if (match.status === 'finished' && match.marks.player1 >= 4) {
-    list.unshift({icon: Trophy, title: 'Match Winner', desc: 'Defeated the Opponent', bonus: 0})
   }
+  else if (ctx === 'game')
+  {
+
+      const myScore = game.myScore
+      if (myScore >= 120) {
+        list.push({icon: Flag, title: 'Bandeira', desc: '120 Points!', bonus: 6})
+      } else if (myScore >= 91) {
+        list.push({icon: Badge, title: 'Capote', desc: '>= 91 Points!', bonus: 4})
+      } else if (myScore > 60) {
+        list.push({icon: Sparkles, title: 'Victory', desc: 'Simple win', bonus: 3})
+      }
+   
+  }
+
   return list
 })
 
 const calculateTotalCoins = computed(() => {
-  console.log("Somand")
-  return earnedAchievements.value.reduce((total, item) => total + item.bonus, 0)
+  return ( 
+   //Se for match
+   game.context.split("-")[1] === 'match' ? (match.marks.player1 >= 4 ? match.stake * 2 - 1 : 0)
+   :
+   //Se for game
+   earnedAchievements.value.reduce((total, item) => total + item.bonus, 0)
+  )
+
 })
+
+/////////// Função auxiliar para o gamesHistory //////////
+const historyWithDisplay = computed(() => {
+    if (!match.gamesHistory) return [];
+
+    const myId = auth.currentUser.id
+
+    const strMyId = String(myId);
+    
+    return match.gamesHistory.map(game => {
+        const p1Id = String(match.player1_id); 
+        
+        const amIPlayer1 = p1Id === strMyId;
+
+        // Definir pontos
+        const myScore = amIPlayer1 ? game.scores.player1 : game.scores.player2;
+        const oppScore = amIPlayer1 ? game.scores.player2 : game.scores.player1;
+
+        // Verificar vencedor
+        const iWon = String(game.winner) === strMyId;
+
+        // Retorna o objeto original do jogo + as propriedades visuais
+        return {
+            ...game, 
+            display: {
+                myScore,
+                oppScore,
+                iWon,
+                colorClass: iWon ? 'bg-green-500' : 'bg-red-500',
+                textClass: iWon ? 'text-green-600' : 'text-red-600',
+                resultLabel: iWon ? 'Victory' : 'Defeat',
+                badgeColor: iWon ? 'bg-green-100 text-green-700' : 'bg-gray-200 text-gray-600'
+            }
+        };
+    })
+});
 
 /////////// Sistema de Quit da partida //////////////
 const openModal = () => {
@@ -574,12 +901,43 @@ const closeModal = () => {
   isOpen.value = false
 }
 
+const sendMessage = () => {
+  if ( !chatInput.value.trim()) return;
+  game.sendChatMessage(chatInput.value)
+  chatInput.value = ''
+}
 const confirmLeave = () => {
-  // Eventualmente adicionar lógica extra...
-  // matchStore.forfeitMatch()... por exemplo
+
+  const matchId = match.multiplayerMatch.id
+  const gameId = game.multiplayerGame.id
+  
+  if (!matchId && !gameId)
+  {
+    socketStore.emitRemoveUserSearchingGame()
+    isOpen.value = false
+    if (game.context.split('-')[1] === 'match') {
+      console.log("Resetting match state on forfeit...");
+      match.resetState()
+    }
+    console.log("Resetting game state on forfeit...");
+    game.resetState()
+    router.push("/home");
+    return
+  }
+
+  console.log("Match IDddddddddddddddddddddddddddd:", matchId);
+  const userId = currentUserId
+  console.log("Forfeit emitted:", matchId, userId);
+  socketStore.emitForfeitMatch(matchId, gameId, userId)
 
   isOpen.value = false
-  router.push({name: 'dashboard'})
+  if (game.context.split('-')[1] === 'match') {
+    console.log("Resetting match state on forfeit...");
+    setTimeout(() => {match.resetState()}, 5000) 
+  }
+  console.log("Resetting game state on forfeit...");
+  setTimeout(() => {game.resetState()}, 5000) 
+  router.push("/home");
 }
 
 
@@ -591,6 +949,18 @@ const emotesOpen = ref(false)
 
 const openEmotes = () => {
   emotesOpen.value = !emotesOpen.value
+}
+/////////// Share things //////////////
+
+const shared = ref(false)
+const shareLink = () => {
+  const m_id = match.multiplayerMatch.id
+  const shareURL = `${window.location.origin}/watch/${m_id}`
+  navigator.clipboard.writeText(shareURL)
+  shared.value = true
+  setTimeout(() => {
+    shared.value = false
+  }, 2000);
 }
 
 /////////// Admin Force Result Buttons //////////////
